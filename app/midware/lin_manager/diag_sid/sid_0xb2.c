@@ -36,12 +36,16 @@
 static const char *TAG = "B2";
 extern l_u8 ld_read_by_id_callout(l_u8 id, l_u8 *data);
 
-/********************************************************
-** \brief   lin_diagservice_read_by_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B2 通过标识符读取数据（ReadByID）处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   LIN协议读取操作，支持：
+ *         - LIN_PRODUCT_IDENT：读取产品ID（Supplier ID + Function ID + Variant）
+ *         - SERIAL_NUMBER：暂不支持，返回SUBFUNCTION_NOT_SUPPORTED
+ *         - 用户自定义ID范围（LIN_READ_USR_DEF_MIN~MAX）：通过ld_read_by_id_callout()回调处理
+ *         执行前先校验Supplier ID和Function ID匹配性。
+ * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)
+ */
 /* PRQA S 2071 2 #3269 - Language extension used for compiler and hardware optimization */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 __WEAK void lin_diagservice_read_by_identifier(uint8_t *ptr, uint16_t length)

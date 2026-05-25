@@ -30,12 +30,15 @@
 
 #if ((LIN_PROTOCOL == PROTOCOL_20) || (LIN_PROTOCOL == PROTOCOL_J2602) || (LIN_PROTOCOL == PROTOCOL_21))
 
-/********************************************************
-** \brief   lin_diag_assign_frame_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B1 分配帧标识符（AssignFrameIdentifier）处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   LIN 2.0/J2602协议帧ID分配/删除操作。
+ *         - PID=0x40时删除帧：在配置ROM中查找匹配的messageid，将RAM中对应项置0xFF。
+ *         - 否则分配帧：校验PID奇偶位，检查帧ID是否已被其他消息占用。
+ *         执行Supplier ID和Function ID匹配校验，匹配成功后将帧ID写入lin_configuration_RAM。
+ * @retval None (通过 lin_diag_positive_notify 返回)
+ */
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 void lin_diag_assign_frame_identifier(uint8_t *ptr, uint16_t length)

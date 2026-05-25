@@ -31,12 +31,13 @@
 #include "store_manager.h"
 #endif
 
-/********************************************************
-** \brief   lin_diag_get_traceability_msg
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $32 获取可追溯性消息处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   当前为空实现，仅抑制了未使用参数的编译警告。
+ *         未执行任何实际的可追溯性消息读取或返回操作。
+ * @retval None
+ */
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_get_traceability_msg(uint8_t *ptr, uint16_t length)

@@ -22,12 +22,14 @@
 #include "diagnosticIII.h"
 #include "utilities.h"
 
-/********************************************************
-** \brief   lin_diag_tester_present
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $3E TesterPresent处理(Boot版本)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   子功能0x00: 带正响应指示，回复正响应(保持会话激活)
+ *         子功能0x80: 无响应指示，静默处理(不发送任何响应)
+ *         其他子功能: 返回SFNS(子功能不支持)
+ * @retval None
+ */
 void lin_diag_tester_present(uint8_t *ptr, uint16_t length)
 {
     switch (ptr[1])

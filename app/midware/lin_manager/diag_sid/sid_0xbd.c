@@ -31,12 +31,15 @@
 #include "pal_store.h"
 #endif
 
-/********************************************************
-** \brief   soc_reg_write
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  0xBD SID - 写入SoC寄存器值
+ *         从请求报文中提取寄存器地址和待写入值，通过pal_store_reg_rw()写入寄存器
+ * @param  ptr - UDS请求报文指针（ptr[2..5]为大端序地址, ptr[6..9]为大端序值）
+ * @param  length - 报文长度（本函数未使用）
+ * @note   地址和值均需经endian_swap_func()转换为小端序后传入pal_store_reg_rw()
+ *         写操作完成后将地址和值原样返回
+ * @retval None
+ */
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void soc_reg_write(uint8_t *ptr, uint16_t length)

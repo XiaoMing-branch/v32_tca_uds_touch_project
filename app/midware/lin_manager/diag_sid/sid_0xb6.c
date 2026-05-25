@@ -30,12 +30,15 @@
 #include "store_manager.h"
 #endif
 
-/********************************************************
-** \brief   lin_diag_save_configuration
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B6 保存配置（SaveConfiguration）处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   将当前运行时配置持久化存储到Flash中：
+ *         - 保存lin_configured_NAD到系统配置参数区（SYSTEM_CFG_PARAM）
+ *         - 保存lin_configuration_RAM（帧ID配置表）到系统ID配置参数区（SYSTEM_ID_CFG_PARAM）
+ *         保存完成后发送正响应。
+ * @retval None (通过 lin_diag_positive_notify 返回)
+ */
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_save_configuration(uint8_t *ptr, uint16_t length)
 {

@@ -22,12 +22,15 @@
 #include "diagnosticIII.h"
 
 #if LIN_PROTOCOL != PROTOCOL_J2602
-/********************************************************
-** \brief   lin_diag_service_lin_conditional_change_nad
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B3 ConditionalChangeNAD条件NAD变更(LIN 2.0非J2602)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   请求格式: ptr[1]=ID, ptr[2]=Byte, ptr[3]=Mask, ptr[4]=Invert, ptr[5]=新NAD
+ *         ID必须为0, Byte指定产品标识字节(1~5):
+ *         1-2: SupplierID LSB/MSB, 3-4: FunctionID LSB/MSB, 5: Variant
+ *         条件判断: (ProductByte ^ Invert) & Mask == 0 成立时分配新NAD
+ * @retval None
+ */
 void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
 {
     uint8_t id, byte, mask, invert;

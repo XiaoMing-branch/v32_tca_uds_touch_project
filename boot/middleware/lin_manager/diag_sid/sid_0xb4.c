@@ -32,11 +32,14 @@
 #include "colormixing.h"
 #endif
 
-/********************************************************
-** \brief   GetDataById
-** \param   uint8_t                    id
-** \retval  uint16_t
-*********************************************************/
+/**
+ * @brief  根据数据ID获取内部测量数据值
+ * @param  id - 数据ID(DATA_DUMP_TEMP/VBAT/B_PN/R_PN/G_PN/V_VBAT等)
+ * @note   从g_analog_signal全局结构中读取指定ADC原始数据或计算值
+ *         支持温度、电池电压、RGB PN结电压等多种测量数据
+ *         返回16位无符号数据(大小端由调用方处理)
+ * @retval 对应ID的测量数据值; 无效ID返回0xFFFF
+ */
 static uint16_t GetDataById(uint8_t id)
 {
     uint16_t data = 0xffff;
@@ -75,12 +78,15 @@ static uint16_t GetDataById(uint8_t id)
     return data;
 }
 
-/********************************************************
-** \brief   lin_diag_data_dump_control
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B4 DataDump数据转储控制
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   子功能0x10(Slave->Master): 读取ptr[2]和ptr[3]指定的两个数据ID值
+ *         进行大小端转换后填入响应报文, 返回5字节数据
+ *         子功能0x20(Master->Slave): 仅返回正响应(用户自定义扩展)
+ *         其他子功能返回CNC(条件不满足)
+ * @retval None
+ */
 void lin_diag_data_dump_control(uint8_t *ptr, uint16_t length)
 {
     uint16_t data1, data2;

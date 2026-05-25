@@ -23,16 +23,14 @@
 #include "utilities.h"
 #include "pal_store.h"
 
-/********************************************************
-** \brief   diag_0xad_command
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-** \note    MasterReq 01 10 0B AD 21 22 23 24 (standard check AB)
-**          MasterReq 01 21 25 26 27 28 29 2A (standard check EF)
-**          SlaveResp 01 10 08 ED 0B 32 33 34 (standard check 54)
-**          SlaveResp 01 21 35 36 37 FF FF FF (standard check 3B)
-*********************************************************/
+/**
+ * @brief  LIN一致性测试服务 $AD命令
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   LIN一致性测试用 - 返回固定数据模式
+ *         MasterReq: 01 10 0B AD 21 22 23 24 / 01 21 25 26 27 28 29 2A
+ *         SlaveResp: 01 10 08 ED 0B 32 33 34 / 01 21 35 36 37 FF FF FF
+ * @retval None
+ */
 #ifdef CFG_LIN_CONFORM_TEST
 void diag_0xad_command(uint8_t *ptr, uint16_t length)
 {
@@ -48,15 +46,14 @@ void diag_0xad_command(uint8_t *ptr, uint16_t length)
 }
 #endif
 
-/********************************************************
-** \brief   diag_0xae_command
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-** \note    MasterReq 01 10 0B AE 11 12 13 14 (standard check EA)
-**          MasterReq 01 21 15 16 17 18 19 1A (standard check 50)
-**          SlaveResp 01 02 EE 0B FF FF FF FF (standard check 03)
-*********************************************************/
+/**
+ * @brief  LIN一致性测试服务 $AE命令
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   LIN一致性测试用 - 返回固定数据模式
+ *         MasterReq: 01 10 0B AE 11 12 13 14 / 01 21 15 16 17 18 19 1A
+ *         SlaveResp: 01 02 EE 0B FF FF FF FF
+ * @retval None
+ */
 #ifdef CFG_LIN_CONFORM_TEST
 void diag_0xae_command(uint8_t *ptr, uint16_t length)
 {
@@ -66,14 +63,14 @@ void diag_0xae_command(uint8_t *ptr, uint16_t length)
 }
 #endif
 
-/********************************************************
-** \brief   diag_0xaf_command
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-** \note    MasterReq 01 06 AF 01 02 03 04 05 (standard check 3A)
-**          SlaveResp 01 02 EF 06 FF FF FF FF (standard check 07)
-*********************************************************/
+/**
+ * @brief  LIN一致性测试服务 $AF命令
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   LIN一致性测试用 - 返回固定数据模式
+ *         MasterReq: 01 06 AF 01 02 03 04 05
+ *         SlaveResp: 01 02 EF 06 FF FF FF FF
+ * @retval None
+ */
 #ifdef CFG_LIN_CONFORM_TEST
 void diag_0xaf_command(uint8_t *ptr, uint16_t length)
 {

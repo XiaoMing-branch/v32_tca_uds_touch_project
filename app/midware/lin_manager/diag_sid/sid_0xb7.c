@@ -31,12 +31,16 @@
 #endif
 
 #if LIN_PROTOCOL == PROTOCOL_21
-/********************************************************
-** \brief   lin_diag_assign_frame_id_range
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B7 分配帧ID范围（AssignFrameIDRange）处理函数（LIN 2.1）
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   报文长度须为6字节。从start_index开始分配4个连续帧ID：
+ *         - 0x00：取消分配该帧（设为0xFF）
+ *         - 0xFF：保持该帧之前分配的值不变
+ *         - 其他值：通过lin_process_parity()计算奇偶校验后的帧ID并分配
+ *         若PID奇偶校验失败则返回GENERAL_REJECT负响应。
+ * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)
+ */
 /* PRQA S 2889 2 #3257 - Multiple return statements for logical clarity and efficiency */
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_assign_frame_id_range(uint8_t *ptr, uint16_t length)

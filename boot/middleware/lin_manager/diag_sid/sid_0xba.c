@@ -31,12 +31,17 @@
 extern cm_led_param_t g_led_param[LED_CHANNEL_MAX];
 extern const uint8_t led_type[20];
 
-/********************************************************
-** \brief   lin_diag_led_config_get
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $BA LED配置读取(Boot版本GET)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   支持多种LED相关参数读取:
+ *         - PN结电压/温度数据
+ *         - RGB LED参数(色温/色坐标/亮度)
+ *         - 白点配置/电流值/PWM参数/RGBL值
+ *         - 相对因子/版本信息/UUID/静态PN采样
+ *         - LED型号/故障状态/寄存器配置/测试原始数据
+ * @retval None
+ */
 void lin_diag_led_config_get(uint8_t *ptr, uint16_t length)
 {
     int16_t typical_temp __attribute__((unused));

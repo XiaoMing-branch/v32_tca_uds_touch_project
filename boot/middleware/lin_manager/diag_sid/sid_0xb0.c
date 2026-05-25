@@ -24,12 +24,14 @@
 #include "lin_precfg.h"
 
 #if LIN_PROTOCOL == PROTOCOL_J2602
-/********************************************************
-** \brief   ld_change_msg_id
-** \param   uint8_t                     dnn
-** \param   uint8_t                     frame_id_change
-** \retval  None
-*********************************************************/
+/**
+ * @brief  J2602协议下根据DNN重新计算报文ID
+ * @param  dnn - 新的节点NAD值(DNN)
+ * @param  frame_id_change - 帧ID变化步长(4/8/16取决于可配置帧数量)
+ * @note   遍历所有帧配置，对非广播帧(<=0x37)重新计算PID = id_origin + dnn<<2
+ *         对广播帧(0x38~0x3B)根据DNN值调整偏移
+ * @retval 0 - 成功; 1 - 失败
+ */
 static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
 {
     uint8_t i;
@@ -64,11 +66,17 @@ static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
     return (l_bool)0U;
 }
 
-/********************************************************
-** \brief   ld_reconfig_msg_ID
-** \param   uint8_t                     dnn
-** \retval  None
-*********************************************************/
+/**
+ * @brief  J2602协议下根据DNN重新配置报文ID(含边界检查)
+ * @param  dnn - 新的节点NAD值(DNN = ptr[5] - 0x60)
+ * @note   根据可配置帧数量分档处理:
+ *         >16帧: 仅支持NAD=0x60(不做任何变更)
+ *         9~16帧: 仅支持DNN=0/4/8, 步长16
+ *         5~8帧: 仅支持DNN为偶数, 步长8
+ *         1~4帧: 步长4, 支持0~13
+ *         先计算非广播帧数量，排除LIN_FRM_UNCD类型帧
+ * @retval 0 - 成功; 1 - 失败
+ */
 static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 {
     l_bool ret_val = 1U;
@@ -125,12 +133,16 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 }
 #endif
 
-/********************************************************
-** \brief   lin_diag_assign_nad
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B0 AssignNAD分配节点地址
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   请求格式: ptr[1-2]=SupplierID, ptr[3-4]=FunctionID, ptr[5]=新NAD
+ *         验证SupplierID和FunctionID与本机匹配(或通配符ANY)
+ *         J2602模式下: 新NAD必须在0x60~0x6D范围, 并调用ld_reconfig_msg_ID重算帧ID
+ *         非J2602模式: 直接回复正响应
+ *         NAD实际在验证通过后更新: lin_configured_NAD = ptr[5]
+ * @retval None
+ */
 void lin_diag_assign_nad(uint8_t *ptr, uint16_t length)
 {
     uint16_t supplierIdLsb;

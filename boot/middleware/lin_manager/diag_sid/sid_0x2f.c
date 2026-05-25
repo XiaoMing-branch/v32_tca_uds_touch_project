@@ -22,12 +22,13 @@
 #include "diagnosticIII.h"
 #include "utilities.h"
 
-/********************************************************
-** \brief   lin_diag_io_control_by_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $2F IOControlByIdentifier处理(Boot版本)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   Bootloader侧仅返回正响应，不执行实际IO控制
+ *         APP侧实现具体的IO控制逻辑(如LED点亮/熄灭)
+ * @retval None
+ */
 void lin_diag_io_control_by_identifier(uint8_t *ptr, uint16_t length)
 {
     lin_diag_positive_notify(ptr[0], NULL, 0);

@@ -41,14 +41,14 @@
     #define LOG_LIN(format, args ...)
 #endif
 
-#define LIN_STA_SUCC_TRANSFER           1         /**< LIN status bit mask: success transfer */
-#define LIN_STA_ERROR_RESP              2         /**< LIN status bit mask: error in response */
-#define LIN_STA_BUS_ACTIVITY            4         /**< LIN status bit mask: bus activity */
-#define LIN_STA_FRAME_ERR               8         /**< LIN status bit mask: frame error */
-#define LIN_STA_CHECKSUM_ERR            16        /**< LIN status bit mask: checksum error */
-#define LIN_STA_READBACK_ERR            32        /**< LIN status bit mask: readback error */
-#define LIN_STA_PARITY_ERR              64        /**< LIN status bit mask: parity error */
-#define LIN_STA_RESET                   128       /**< LIN status bit mask: reset */
+#define LIN_STA_SUCC_TRANSFER           1         /**< LIN状态位掩码: 成功传输, 响应接收/发送完成后置位 */
+#define LIN_STA_ERROR_RESP              2         /**< LIN状态位掩码: 响应错误, 接收超时或校验错误时置位 */
+#define LIN_STA_BUS_ACTIVITY            4         /**< LIN状态位掩码: 总线活动, 检测到BREAK信号时置位, 进入IDLE时清除 */
+#define LIN_STA_FRAME_ERR               8         /**< LIN状态位掩码: 帧错误, STOP位错误时置位 */
+#define LIN_STA_CHECKSUM_ERR            16        /**< LIN状态位掩码: 校验和错误, 接收响应数据校验失败时置位 */
+#define LIN_STA_READBACK_ERR            32        /**< LIN状态位掩码: 回读错误, TX/RX数据冲突(位错误)时置位 */
+#define LIN_STA_PARITY_ERR              64        /**< LIN状态位掩码: 奇偶校验错误, PID奇偶校验失败时置位 */
+#define LIN_STA_RESET                   128       /**< LIN状态位掩码: 复位状态 */
 
 #define  SLEEP_AFTER_INIT 0
 
@@ -102,13 +102,16 @@ __attribute__((weak)) void lin_process_break_handle(void)
     //do noting
 }
 
-/********************************************************
-** \brief   lin_param_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN协议栈参数初始化
+ *        将配置宏定义的参数填充至lin_cfg全局结构体
+ * @param  无
+ * @note   初始化内容包括: 波特率、定时基准周期、空闲超时阈值、
+ *        帧数量、诊断服务数量、队列深度和N_As/N_Cr超时计数值;
+ *        max_idle_timeout根据SLEEP_AFTER_INIT宏决定是否缩放;
+ *        n_max_timeout_cnt = 1000 * (1000 / TIME_BASE_PERIOD)
+ * @retval 无
+ */
 void lin_param_init(void)
 {
     lin_cfg.lin_baud_rate = LIN_BAUD_RATE;
@@ -125,50 +128,55 @@ void lin_param_init(void)
     lin_cfg.n_max_timeout_cnt = ((unsigned short)(1000 * (1000 / TIME_BASE_PERIOD)));
 }
 
-/********************************************************
-** \brief   lin_init_sci
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  初始化LIN硬件SCI接口
+ *        调用pal_lin_init()配置LIN总线为从机模式并注册中断回调
+ * @param  无
+ * @note   使用配置的波特率(LIN_BAUD_RATE)和LIN_BUS_0总线;
+ *        中断回调函数为lin_lld_isr_callback(), 处理所有LIN硬件事件;
+ *        LIN_MODE_SLV表示从机模式
+ * @retval 无
+ */
 void lin_init_sci(void)
 {
     pal_lin_init(LIN_BUS_0, LIN_MODE_SLV, LIN_BAUD_RATE, lin_lld_isr_callback);
 }
 
-/********************************************************
-** \brief   lin_lld_sci_int_disable
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  禁用LIN SCI中断(硬件反初始化)
+ *        调用pal_lin_deinit()关闭LIN外设并停止所有中断
+ * @param  无
+ * @note   实际调用pal_lin_deinit(LIN_BUS_0)完成硬件反初始化,
+ *        LIN外设时钟关闭、中断禁用、引脚释放
+ * @retval 无
+ */
 void lin_lld_sci_int_disable(void)
 {
     pal_lin_deinit(LIN_BUS_0);
 }
 
-/********************************************************
-** \brief   lin_lld_sci_deinit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN SCI完全反初始化
+ *        将状态机置为UNINIT并调用pal_lin_deinit()关闭硬件
+ * @param  无
+ * @note   先重置state = UNINIT, 再调用lin_lld_sci_int_disable()
+ *        关闭外设; 反初始化后LIN总线不再响应任何通信
+ * @retval 无
+ */
 void lin_lld_sci_deinit(void)
 {
     state = UNINIT;
     lin_lld_sci_int_disable();
 }
 
-/********************************************************
-** \brief   lin_lld_sci_tx_wake_up
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN发送唤醒请求处理
+ *        当LIN状态为IDLE或SLEEP时, 调用lin_goto_idle_state()准备唤醒
+ * @param  无
+ * @note   唤醒操作仅将状态切回IDLE并重置空闲超时计数器;
+ *        实际唤醒信号(强制总线空闲>250us)由上层lin_wakeup模块发送
+ * @retval 无
+ */
 void lin_lld_sci_tx_wake_up(void)
 {
     if ((state == IDLE) || (state == LIN_SLEEP_MODE))
@@ -178,36 +186,41 @@ void lin_lld_sci_tx_wake_up(void)
     }
 }
 
-/********************************************************
-** \brief   lin_lld_sci_int_enable
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  启用LIN SCI中断(占位函数)
+ *        当前实现为空操作, 中断在lin_init_sci()中通过pal_lin_init()一并使能
+ * @param  无
+ * @note   保留此函数接口以供需要时单独控制中断使能;
+ *        当前中断使能与硬件初始化绑定, 无需单独调用
+ * @retval 无
+ */
 void lin_lld_sci_int_enable(void)
 {
 }
 
-/********************************************************
-** \brief   lin_lld_sci_ignore_response
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  忽略当前LIN响应帧
+ *        直接调用lin_goto_idle_state()将状态机切回IDLE,
+ *        放弃当前正在接收或发送的响应帧
+ * @param  无
+ * @note   用于协议层在特定条件下需跳过当前响应帧的场景,
+ *        如PID不匹配、从机无需应答等情况
+ * @retval 无
+ */
 void lin_lld_sci_ignore_response(void)
 {
     lin_goto_idle_state();
 }
 
-/********************************************************
-** \brief   lin_lld_sci_set_low_power_mode
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LIN进入低功耗休眠模式
+ *        将状态机切换到LIN_SLEEP_MODE并置位睡眠标志
+ * @param  无
+ * @note   低功耗模式下LIN接收器保持活动, 可检测唤醒信号(BREAK/WAKEUP);
+ *        实际硬件休眠配置(如ECU/AFE深度睡眠)需在HW层实现,
+ *        当前仅设置软件状态标志; 检测到BREAK后自动退出休眠
+ * @retval 无
+ */
 void lin_lld_sci_set_low_power_mode(void)
 {
     /* Configure Hw code */
@@ -217,13 +230,15 @@ void lin_lld_sci_set_low_power_mode(void)
     lin_goto_sleep_flg = 1;
 }
 
-/********************************************************
-** \brief   pal_lin_init
-**
-** \param   l_u8        msg_length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  配置LIN响应接收缓冲区并启动硬件接收
+ *        设置期望接收长度和缓冲区指针, 调用pal_lin_rx_response()启动接收
+ * @param  msg_length: 期望接收的响应数据字节数
+ * @note   response_buffer[0]存放长度, cnt_byte清零,
+ *        ptr指向缓冲区起始; 硬件接收完成后逐字节触发RX中断;
+ *        状态切换至RECV_DATA等待数据到达
+ * @retval 无
+ */
 void lin_lld_sci_rx_response(l_u8 msg_length)
 {
     /* Put response length and pointer of response buffer into descriptor */
@@ -234,13 +249,15 @@ void lin_lld_sci_rx_response(l_u8 msg_length)
     state = RECV_DATA;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_tx_response
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  发送LIN响应数据到总线
+ *        调用pal_lin_tx_response()将PID和响应缓冲区数据发送至LIN总线
+ * @param  无
+ * @note   response_buffer[0]存放长度, [1..n]存放实际数据;
+ *        cnt_byte初始化为实际发送字节数(不超过4字节);
+ *        发送成功则状态切换到SEND_DATA, 失败则回到IDLE
+ * @retval 无
+ */
 void lin_lld_sci_tx_response(void)
 {
     if (pal_lin_tx_response(LIN_BUS_0, pid,  &response_buffer[1], response_buffer[0]))
@@ -334,37 +351,45 @@ void lin_sci_master_init(void)
 #endif
 #endif
 
-/********************************************************
-** \brief   lin_lld_sci_get_status
-**
-** \param   None
-**
-** \retval  l_u8
-*********************************************************/
+/**
+ * @brief  获取LIN当前状态字节
+ * @param  无
+ * @note   返回l_status.byte, 包含LIN_STA_xxx位掩码的组合,
+ *        上层通过判断各标志位获取传输结果
+ * @retval LIN状态字节: LIN_STA_SUCC_TRANSFER等标志的位组合
+ */
 l_u8 lin_lld_sci_get_status(void)
 {
     return l_status.byte;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_get_state
-**
-** \param   None
-**
-** \retval  l_u8
-*********************************************************/
+/**
+ * @brief  获取LIN状态机当前状态
+ * @param  无
+ * @note   返回state变量, 可能值包括:
+ *        UNINIT / IDLE / RECV_SYN / RECV_PID / RECV_DATA /
+ *        SEND_DATA / SEND_DATA_COMPLETED / PROC_CALLBACK / LIN_SLEEP_MODE
+ * @retval 当前LIN状态机状态枚举值
+ */
 l_u8 lin_lld_sci_get_state(void)
 {
     return state;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_timeout
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN协议超时处理
+ *        处理传输层N_CR/N_AS超时以及状态机帧超时/响应超时/空闲超时
+ * @param  cnt_tick: 本次滴答计数值(通常为1, 表示逝去的时间基准周期数)
+ * @note   多帧模式(_TL_MULTI_FRAME_)下处理:
+ *        - N_CR超时: 从机响应超时, 置状态为LD_N_CR_TIMEOUT
+ *        - N_AS超时: 主机请求超时, 置状态为LD_N_AS_TIMEOUT
+ *        单帧模式仅处理N_AS超时;
+ *        状态机超时:
+ *        - IDLE: 空闲超时, 进入LIN_SLEEP_MODE
+ *        - SEND_PID/SEND_DATA等: 帧超时, 回到IDLE
+ *        - RECV_DATA: 响应超时, 置位错误标志并回调通知上层
+ * @retval 无
+ */
 void lin_lld_sci_timeout(l_u16 cnt_tick)
 {
     /* Multi frame support */
@@ -494,13 +519,15 @@ void lin_lld_sci_timeout(l_u16 cnt_tick)
     }
 }
 
-/********************************************************
-** \brief   lin_goto_idle_state
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  切换LIN状态机到IDLE空闲状态
+ *        清除总线活动标志, 重置空闲超时计数器, 设置state = IDLE
+ * @param  无
+ * @note   所有状态在完成/错误/超时后均回到此状态, 是状态机的统一出口;
+ *        清除LIN_STA_BUS_ACTIVITY标志, 设置最大空闲超时;
+ *        IDLE状态下持续检测BREAK/WAKEUP信号以启动新帧
+ * @retval 无
+ */
 void lin_goto_idle_state(void)
 {
     /* set lin status: ~bus_activity */
@@ -532,13 +559,18 @@ void lin_lld_sci_rx_isr(void)
 {
 }
 
-/********************************************************
-** \brief   lin_lld_isr_callback
-**
-** \param   uint32_t               isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主中断回调函数
+ *        处理LIN硬件触发的所有中断事件, 推进LIN状态机运行
+ * @param  isr: 中断状态标志位掩码, 由硬件中断寄存器直接映射
+ * @note   按固定优先级依次判断各中断位; 核心状态机流转:
+ *        BREAK→RECV_SYN→SYNC→RECV_PID→PID_OK→RECV_DATA/SEND_DATA→PROC_CALLBACK→IDLE;
+ *        错误/超时路径: 任意状态→(错误处理)→IDLE;
+ *        处理的中断类型: WAKEUP / BREAK / STOP位错误 / SYNC /
+ *        PID完成 / RX字节 / TX完成 / TX-RX冲突 / FIFO空 /
+ *        SYNC值错误 / PID奇偶校验错 / FIFO溢出 / 接收超时
+ * @retval 无
+ */
 
 void lin_lld_isr_callback(uint32_t isr)
 {
@@ -550,9 +582,11 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #if defined (__TCPL01X__)
 
-    /******************************
-    *** 0. WAKEUP  DETECTED
-    *******************************/
+    /****************************************************************************
+    *** 0. WAKEUP 检测 — 总线唤醒事件
+    *** 当LIN总线从休眠状态检测到唤醒信号时触发,
+    *** 将状态机从LIN_SLEEP_MODE切换至IDLE以准备接收下一帧
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_WAKEUP_DET_FLAG))
     {
 #if SLEEP_AFTER_INIT
@@ -567,9 +601,12 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
-    /******************************
-    *** 1. BREAK DETECTED
-    *******************************/
+    /****************************************************************************
+    *** 1. BREAK 检测 — LIN帧起始同步信号
+    *** BREAK是LIN帧的起始标志(至少13位显性电平);
+    *** 触发后复位帧超时计数器, 激活总线活动标志, 状态推进至RECV_SYN;
+    *** 若当前处于休眠模式则先唤醒回到IDLE再重新等待下一帧
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_BREAK_DET_FLAG))
     {
         ++lin_rcvbreak_cnt;
@@ -590,7 +627,12 @@ void lin_lld_isr_callback(uint32_t isr)
         state = RECV_SYN;
     }
 
-    /* stop err */
+    /****************************************************************************
+    *** 2. STOP位错误检测
+    *** 当LIN总线上检测到STOP位错误(应为隐性电平但读到显性)时触发;
+    *** 仅在RECV_DATA/SEND_DATA/SEND_DATA_COMPLETED状态下处理,
+    *** 中止当前收发操作, 通知上层帧错误, 回到IDLE
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_STOP_BIT_ERROR_FLAG))
     {
         LOG_LIN("LIN_INT_STOP_BIT_ERROR_FLAG\r\n"); 
@@ -614,14 +656,23 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* sync detected */
+    /****************************************************************************
+    *** 3. SYNC域检测 — 自动波特率校准
+    *** SYNC字段为0x55(交替的0和1), 用于从机同步波特率;
+    *** 调用pal_lin_autobaudrate_check()校准, 状态推进至RECV_PID
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_SYNC_DET_FLAG))
     {
         pal_lin_autobaudrate_check(LIN_BUS_0);
         state = RECV_PID;
     }
 
-    /* PID done */
+    /****************************************************************************
+    *** 4. PID接收完成 — 地址识别与过滤
+    *** 读取接收到的PID(受保护标识符), 校验奇偶位并提取真实帧ID;
+    *** 校验通过则通过回调通知上层PID匹配结果, 设置响应超时;
+    *** 校验失败则置位奇偶错误标志, 回调通知上层, 回IDLE
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_PID_DONE_FLAG))
     {
 
@@ -656,7 +707,14 @@ void lin_lld_isr_callback(uint32_t isr)
 #endif
     }
 
-    /* rx one-byte done */
+    /****************************************************************************
+    *** 5. RX单字节接收完成 — 数据接收与校验和验证
+    *** 每接收一个字节触发一次; RECV_DATA状态下逐字节存入缓冲区;
+    *** 接收完全部字节后进行校验和(checksum)验证:
+    ***   - 成功: 置位SUCC_TRANSFER标志, 回调LIN_LLD_RX_COMPLETED
+    ***   - 失败: 置位CHECKSUM_ERR标志, 回调LIN_LLD_CHECKSUM_ERR
+    *** 休眠模式下检测到特定字节(0xF0/0xE0/0xC0/0x80/0x00)时唤醒总线
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_1BYTE_FLAG))
     {
         pal_lin_read_byte(LIN_BUS_0, LIN_READ_TYPE_FIFO, &tmp_byte);
@@ -729,7 +787,12 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* tx done */
+    /****************************************************************************
+    *** 6. TX发送完成 — 响应数据发送结束
+    *** 从机响应数据已全部发送至总线;
+    *** 置位SUCC_TRANSFER标志, 通过回调通知上层LIN_LLD_TX_COMPLETED,
+    *** 更新波特率(若需要), 回到IDLE
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_TX_DONE_FLAG))
     {
         if (state == SEND_DATA)
@@ -742,7 +805,11 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* bit err */
+    /****************************************************************************
+    *** 7. TX/RX冲突(位错误) — 总线竞争检测
+    *** 发送时读取到的总线电平与发送值不一致, 表明存在总线冲突;
+    *** 中止当前发送操作, 回调通知上层LIN_LLD_READBACK_ERR, 回到IDLE
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_TX_RX_CONFLICT_FLAG))
     {
         if (state == SEND_DATA)
@@ -759,7 +826,12 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #if defined (__TCPL03X__) || defined(__TCAE10__)
 
-    /* 4ytes tx */
+    /****************************************************************************
+    *** 8. TX FIFO空中断 — 批量发送(支持4字节模式)
+    *** 当发送FIFO为空时触发, 用于连续发送剩余数据;
+    *** 每次最多发送4字节, cnt_byte累计已发字节数;
+    *** 仅TCPL03X/TCAE10平台支持
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_TX_FIFO_EMPTY_FLAG))
     {
         if (state == SEND_DATA)
@@ -778,7 +850,11 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
-    /* sync value err */
+    /****************************************************************************
+    *** 9. SYNC值错误 — 波特率偏差超出容限
+    *** 检测到的SYNC字段(0x55)实际脉冲宽度超出允许误差范围,
+    *** 置位错误标志并回到IDLE
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_SYNC_VALUE_ERROR_FLAG))
     {
         lin_error = errSYNC;
@@ -786,7 +862,11 @@ void lin_lld_isr_callback(uint32_t isr)
         lin_goto_idle_state();
     }
 
-    /* AFE_INT_RX_PTY_CHK_ERR */
+    /****************************************************************************
+    *** 10. PID奇偶校验错误 — 地址传输错误
+    *** 硬件检测到PID的奇偶校验位与计算值不符,
+    *** 置位PID错误标志供上层查询
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_CHKPTY_ERROR_FLAG))
     {
         lin_error = errPID;
@@ -795,6 +875,11 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #ifndef MULTI_BYTES_MODE
 
+    /****************************************************************************
+    *** 11. RX FIFO满 — 接收缓冲区溢出警告
+    *** 仅单字节模式(非MULTI_BYTES_MODE)下使能此中断;
+    *** 指示接收FIFO已满, 可能丢失数据
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_FIFO_FULL_FLAG))
     {
         lin_error = errRXFULL;
@@ -803,6 +888,11 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
+    /****************************************************************************
+    *** 12. RX FIFO溢出 — 硬件接收FIFO数据丢失
+    *** FIFO已满且新数据到达, 旧数据被覆盖;
+    *** 置位溢出错误标志
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_FIFO_OVF_FLAG))
     {
         lin_error = errRXOVF;
@@ -811,6 +901,11 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #if defined (__TCPL01X__)
 
+    /****************************************************************************
+    *** 13. RX接收超时 — 字节间隙超时
+    *** 接收过程中相邻字节间隔超过LIN规范允许时间;
+    *** 仅TCPL01X平台支持此中断
+    ****************************************************************************/
     if (0 != (isr & LIN_INT_RX_TIMEOUT_FLAG))
     {
         lin_error = errRXTIMEOUT;
@@ -834,13 +929,19 @@ void lin_lld_isr_callback(uint32_t isr)
 #endif
 }
 
-/********************************************************
-** \brief   lin_lld_sci_init
-**
-** \param   l_ifc_handle    iii
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN硬件初始化入口
+ *        保存接口句柄、初始化响应缓冲区、调用参数初始化和SCI初始化,
+ *        最后进入IDLE状态
+ * @param  iii: LIN接口句柄, 标识当前LIN硬件接口
+ * @note   初始化顺序:
+ *        1. 保存接口句柄(ifc)
+ *        2. 关联响应缓冲区(response_buffer)
+ *        3. lin_param_init() — 加载配置参数
+ *        4. lin_init_sci() — 初始化硬件SCI
+ *        5. lin_goto_idle_state() — 进入空闲状态
+ * @retval 无
+ */
 void lin_lld_sci_init(l_ifc_handle iii)
 {
     (void)ifc;
@@ -878,13 +979,16 @@ void lin_lld_slave_wakeup(void)
     ll_lin_ctrl_brk_tx(LL_SCI_BUS_1, 8);
 }
 #endif
-/********************************************************
-** \brief   lin_process_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN协议栈整体初始化
+ *        依次调用系统层、接口层和传输层初始化函数完成协议栈启动
+ * @param  无
+ * @note   初始化链: l_sys_init() → l_ifc_init() → ld_init();
+ *        l_sys_init(): 系统定时器和资源初始化;
+ *        l_ifc_init(): LIN接口层初始化, 会调用lin_lld_sci_init();
+ *        ld_init(): 诊断传输层初始化
+ * @retval 无
+ */
 void lin_process_init(void)
 {
     l_sys_init();

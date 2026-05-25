@@ -79,37 +79,38 @@ extern void lin_process_break_handle(void);
 
 void lin_lld_isr_callback(uint32_t isr);
 
-/********************************************************
-** \brief   lin_sci_baudrate_update
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  更新SCI波特率（弱函数，可被覆盖）
+ * @param  None
+ * @note   Boot版本默认空实现，App可根据需要覆盖。
+ *         在每次发送完成后调用以动态调整波特率。
+ * @retval None
+ */
 __attribute__((weak)) void lin_sci_baudrate_update(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   lin_process_break_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN BREAK中断处理钩子（弱函数，可被覆盖）
+ * @param  None
+ * @note   Boot版本默认空实现，检测到BREAK场时调用。
+ *         App可覆盖此函数实现自定义BREAK处理逻辑。
+ * @retval None
+ */
 __attribute__((weak)) void lin_process_break_handle(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   lin_param_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN参数初始化（Boot版本）
+ * @param  None
+ * @note   从编译时宏配置填充lin_cfg结构体，包括波特率、
+ *         时间基数周期、最大空闲超时、帧数量、诊断服务数量、
+ *         队列大小和N_CR/N_AS超时计数值。
+ * @retval None
+ */
 void lin_param_init(void)
 {
     lin_cfg.lin_baud_rate = LIN_BAUD_RATE;
@@ -126,50 +127,50 @@ void lin_param_init(void)
     lin_cfg.n_max_timeout_cnt = ((unsigned short)(1000 * (1000 / TIME_BASE_PERIOD)));
 }
 
-/********************************************************
-** \brief   lin_init_sci
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN硬件SCI初始化
+ * @param  None
+ * @note   通过PAL层调用pal_lin_init初始化LIN总线0，
+ *         配置为从机模式(LIN_MODE_SLV)并注册中断回调函数。
+ * @retval None
+ */
 void lin_init_sci(void)
 {
     pal_lin_init(LIN_BUS_0, LIN_MODE_SLV, LIN_BAUD_RATE, lin_lld_isr_callback);
 }
 
-/********************************************************
-** \brief   lin_lld_sci_int_disable
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  禁用LIN中断（反初始化SCI）
+ * @param  None
+ * @note   调用pal_lin_deinit关闭LIN总线0的硬件和中断。
+ *         用于JumpToApp前的硬件清理。
+ * @retval None
+ */
 void lin_lld_sci_int_disable(void)
 {
     pal_lin_deinit(LIN_BUS_0);
 }
 
-/********************************************************
-** \brief   lin_lld_sci_deinit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN去初始化（JumpToApp前调用）
+ * @param  None
+ * @note   将状态机设为UNINIT并禁用LIN中断，
+ *         用于Boot跳转App前的硬件清理。
+ * @retval None
+ */
 void lin_lld_sci_deinit(void)
 {
     state = UNINIT;
     lin_lld_sci_int_disable();
 }
 
-/********************************************************
-** \brief   lin_lld_sci_tx_wake_up
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN唤醒处理（从IDLE/Sleep模式唤醒）
+ * @param  None
+ * @note   当状态为IDLE或LIN_SLEEP_MODE时，
+ *         调用lin_goto_idle_state回到空闲态。
+ * @retval None
+ */
 void lin_lld_sci_tx_wake_up(void)
 {
     if ((state == IDLE) || (state == LIN_SLEEP_MODE))
@@ -179,36 +180,35 @@ void lin_lld_sci_tx_wake_up(void)
     }
 }
 
-/********************************************************
-** \brief   lin_lld_sci_int_enable
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  启用LIN中断（空函数，Boot版本未使用）
+ * @param  None
+ * @note   Boot版本中中断已由pal_lin_init自动使能，
+ *         此处留空作为占位。
+ * @retval None
+ */
 void lin_lld_sci_int_enable(void)
 {
 }
 
-/********************************************************
-** \brief   lin_lld_sci_ignore_response
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  忽略/中止当前LIN响应
+ * @param  None
+ * @note   直接切换到IDLE状态以终止正在进行的响应处理。
+ * @retval None
+ */
 void lin_lld_sci_ignore_response(void)
 {
     lin_goto_idle_state();
 }
 
-/********************************************************
-** \brief   lin_lld_sci_set_low_power_mode
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LIN进入低功耗（睡眠模式）
+ * @param  None
+ * @note   将状态设为LIN_SLEEP_MODE并置位休眠标志。
+ *         MCU和AFE进入深度睡眠以降低功耗。
+ * @retval None
+ */
 void lin_lld_sci_set_low_power_mode(void)
 {
     /* Configure Hw code */
@@ -218,13 +218,13 @@ void lin_lld_sci_set_low_power_mode(void)
     lin_goto_sleep_flg = 1;
 }
 
-/********************************************************
-** \brief   pal_lin_init
-**
-** \param   l_u8        msg_length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  配置LIN接收响应数据
+ * @param  msg_length 期望接收的响应字节数
+ * @note   设置响应缓冲区长度指针，重置字节计数，
+ *         通过PAL层配置接收描述符，状态切到RECV_DATA。
+ * @retval None
+ */
 void lin_lld_sci_rx_response(l_u8 msg_length)
 {
     /* Put response length and pointer of response buffer into descriptor */
@@ -235,13 +235,13 @@ void lin_lld_sci_rx_response(l_u8 msg_length)
     state = RECV_DATA;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_tx_response
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  发送LIN响应数据
+ * @param  None
+ * @note   通过PAL层发送响应缓冲区中的数据，
+ *         成功则状态切到SEND_DATA，失败则回到IDLE。
+ * @retval None
+ */
 void lin_lld_sci_tx_response(void)
 {
     if (pal_lin_tx_response(LIN_BUS_0, pid,  &response_buffer[1], response_buffer[0]))
@@ -259,59 +259,56 @@ void lin_lld_sci_tx_response(void)
 extern void lin_tl_uncd_master_send(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t length);
 extern void lin_tl_uncd_master_receive(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t length);
 extern void lin1_lld_isr_callback(uint32_t isr);
-/********************************************************
-** \brief   lin_lld_sci_tx_master
-**
-** \param   lin_bus_e           bus
-** \param   uint8_t             pid
-** \param   uint8_t*            buffer
-** \param   uint8_t             length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  主节点发送LIN帧（TCPL03X双LIN模式）
+ * @param  frame_id LIN帧ID
+ * @param  buffer   发送数据缓冲区
+ * @param  length   数据长度
+ * @note   计算PID奇偶位后通过LIN总线1以主模式发送。
+ *         仅TCPL03X芯片支持独立LIN1主节点功能。
+ * @retval None
+ */
 void lin_lld_sci_tx_master(uint8_t frame_id, uint8_t *buffer, uint8_t length)
 {
     uint8_t pid = lin_process_parity(frame_id, MAKE_PARITY);
     lin_tl_uncd_master_send(LIN_BUS_1, pid, buffer, length);
 }
 
-/********************************************************
-** \brief   lin_lld_sci_rx_master
-**
-** \param   lin_bus_e           bus
-** \param   uint8_t             pid
-** \param   uint8_t*            buffer
-** \param   uint8_t             length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  主节点接收LIN帧（TCPL03X双LIN模式）
+ * @param  frame_id LIN帧ID
+ * @param  buffer   接收数据缓冲区
+ * @param  length   期望接收长度
+ * @note   计算PID奇偶位后通过LIN总线1以主模式接收。
+ *         仅TCPL03X芯片支持独立LIN1主节点功能。
+ * @retval None
+ */
 void lin_lld_sci_rx_master(uint8_t frame_id, uint8_t *buffer, uint8_t length)
 {
     uint8_t pid = lin_process_parity(frame_id, MAKE_PARITY);
     lin_tl_uncd_master_receive(LIN_BUS_1, pid, buffer, length);
 }
 
-/********************************************************
-** \brief   lin_lld_receive_date_get()
-**
-** \param   uint8_t*                pid
-** \param   uint8_t*                buffer
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取主节点接收到的LIN帧数据（TCPL03X）
+ * @param  pid    返回接收帧的PID
+ * @param  buffer 返回接收帧的数据
+ * @note   从传输层非确认数据队列中获取一帧数据。
+ * @retval bool true=获取成功, false=队列为空
+ */
 bool lin_lld_sci_rx_data(uint8_t* pid, uint8_t *buffer)
 {
     return (lin_tl_uncd_frame_get(LIN_BUS_1, pid, buffer));
 }
 
 
-/********************************************************
-** \brief   lin_sci_master_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  初始化LIN主节点（TCPL03X双LIN模式）
+ * @param  None
+ * @note   配置GPIO引脚，初始化LIN总线1为主模式，
+ *         注册主节点中断回调。仅TCPL03X芯片支持。
+ * @retval None
+ */
 void lin_sci_master_init(void)
 {
     gpio_config_t gpio_cfg =
@@ -335,40 +332,43 @@ void lin_sci_master_init(void)
 #endif
 #endif
 
-/********************************************************
-** \brief   lin_lld_sci_get_status
-**
-** \param   None
-**
-** \retval  l_u8
-*********************************************************/
+/**
+ * @brief  获取LIN状态字节
+ * @param  None
+ * @note   返回当前LIN状态寄存器的字节值，
+ *         包含传输成功、错误响应、总线活动等标志位。
+ * @retval l_u8 LIN状态字节
+ */
 l_u8 lin_lld_sci_get_status(void)
 {
     return l_status.byte;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_get_state
-**
-** \param   None
-**
-** \retval  l_u8
-*********************************************************/
+/**
+ * @brief  获取LIN状态机当前状态
+ * @param  None
+ * @note   返回LIN协议状态机的当前状态值
+ *         （UNINIT/IDLE/RECV_SYN/RECV_PID/RECV_DATA/SEND_DATA等）。
+ * @retval l_u8 状态机枚举值
+ */
 l_u8 lin_lld_sci_get_state(void)
 {
     return state;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_timeout
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN协议超时管理
+ * @param  None
+ * @note   管理三类超时：
+ *         1) N_CR超时（多帧传输-连续帧接收超时）
+ *         2) N_AS超时（从机响应/服务超时）
+ *         3) 帧超时（frame_timeout_cnt/res_frame_timeout_cnt）
+ *         IDLE状态下超时进入SLEEP模式，其他状态下回到IDLE。
+ * @retval None
+ */
 void lin_lld_sci_timeout(void)
 {
-    /* Multi frame support */
+    /* 多帧模式超时检查：N_CR（连续帧接收超时）和N_AS（从机响应超时） */
 #if (_TL_FRAME_SUPPORT_ == _TL_MULTI_FRAME_)
     if (LD_CHECK_N_CR_TIMEOUT == tl_check_timeout_type)
     {
@@ -397,7 +397,7 @@ void lin_lld_sci_timeout(void)
 
 #else
 
-    /* Single Frame */
+    /* 单帧模式超时检查：N_AS（从机响应超时） */
     if (LD_CHECK_N_AS_TIMEOUT == tl_check_timeout_type)
     {
         if (0 == --tl_check_timeout)
@@ -483,13 +483,13 @@ void lin_lld_sci_timeout(void)
     }
 }
 
-/********************************************************
-** \brief   lin_goto_idle_state
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  切换到IDLE空闲状态
+ * @param  None
+ * @note   清除总线活动标志，重置空闲超时计数器，
+ *         将状态机设为IDLE。超时或错误恢复时调用。
+ * @retval None
+ */
 void lin_goto_idle_state(void)
 {
     /* set lin status: ~bus_activity */
@@ -499,35 +499,36 @@ void lin_goto_idle_state(void)
     state = IDLE;
 }
 
-/********************************************************
-** \brief   lin_lld_sci_err_isr
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN错误中断处理（Boot版本空函数）
+ * @param  None
+ * @note   Boot版本中错误由主中断回调统一处理。
+ * @retval None
+ */
 void lin_lld_sci_err_isr(void)
 {
 }
 
-/********************************************************
-** \brief   lin_lld_sci_rx_isr
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN接收中断处理（Boot版本空函数）
+ * @param  None
+ * @note   Boot版本中接收由主中断回调统一处理。
+ * @retval None
+ */
 void lin_lld_sci_rx_isr(void)
 {
 }
 
-/********************************************************
-** \brief   lin_lld_isr_callback
-**
-** \param   uint32_t               isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主中断回调处理函数
+ * @param  isr 中断标志位掩码
+ * @note   处理所有LIN相关硬件中断事件，包括：唤醒检测、
+ *         BREAK场检测、STOP位错误、SYNC场同步、PID接收、
+ *         单字节接收（含校验和验证）、发送完成、TX/RX冲突、
+ *         多字节发送、SYNC值错误、PID奇偶校验错误、
+ *         FIFO溢出等。根据当前状态机状态进行相应处理。
+ * @retval None
+ */
 void lin_lld_isr_callback(uint32_t isr)
 {
     uint8_t tmp_byte;
@@ -576,7 +577,7 @@ void lin_lld_isr_callback(uint32_t isr)
         state = RECV_SYN;
     }
 
-    /* stop err */
+    /* 3. STOP位错误检测：帧结构错误，中止当前收发 */
     if (0 != (isr & LIN_INT_STOP_BIT_ERROR_FLAG))
     {
         LOG_LIN("LIN_INT_STOP_BIT_ERROR_FLAG\r\n");
@@ -601,14 +602,14 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* sync detected */
+    /* 4. SYNC场检测完成：执行自动波特率检查，等待PID */
     if (0 != (isr & LIN_INT_SYNC_DET_FLAG))
     {
         pal_lin_autobaudrate_check(LIN_BUS_0);
         state = RECV_PID;
     }
 
-    /* PID done */
+    /* 5. PID接收完成：校验奇偶位，提取帧ID，触发回调 */
     if (0 != (isr & LIN_INT_RX_PID_DONE_FLAG))
     {
 
@@ -637,13 +638,14 @@ void lin_lld_isr_callback(uint32_t isr)
             }
         }
 
+    /* 一致性测试：收到PID后清除唤醒标志 */
 #ifdef CFG_LIN_CONFORM_TEST
         extern uint8_t lin_slave_wakeup_flag;
         lin_slave_wakeup_flag = 0;
 #endif
     }
 
-    /* rx one-byte done */
+    /* 6. 单字节接收完成：存储数据，接收完成时校验和验证 */
     if (0 != (isr & LIN_INT_RX_1BYTE_FLAG))
     {
         pal_lin_read_byte(LIN_BUS_0, LIN_READ_TYPE_FIFO, &tmp_byte);
@@ -716,7 +718,7 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* tx done */
+    /* 7. 发送完成：置位成功标志，触发TX完成回调 */
     if (0 != (isr & LIN_INT_TX_DONE_FLAG))
     {
         if (state == SEND_DATA)
@@ -729,7 +731,7 @@ void lin_lld_isr_callback(uint32_t isr)
         }
     }
 
-    /* bit err */
+    /* 8. TX/RX冲突（位错误）：回读校验失败，中止发送 */
     if (0 != (isr & LIN_INT_TX_RX_CONFLICT_FLAG))
     {
         if (state == SEND_DATA)
@@ -746,7 +748,7 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #if defined (__TCPL03X__)
 
-    /* 4ytes tx */
+    /* 9. 多字节发送（TCPL03X）：FIFO空时连续写入4字节 */
     if (0 != (isr & LIN_INT_TX_FIFO_EMPTY_FLAG))
     {
         if (state == SEND_DATA)
@@ -765,7 +767,7 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
-    /* sync value err */
+    /* 10. SYNC字节值错误：同步场值不匹配0x55 */
     if (0 != (isr & LIN_INT_SYNC_VALUE_ERROR_FLAG))
     {
         lin_error = errSYNC;
@@ -773,13 +775,14 @@ void lin_lld_isr_callback(uint32_t isr)
         lin_goto_idle_state();
     }
 
-    /* AFE_INT_RX_PTY_CHK_ERR */
+    /* 11. PID奇偶校验错误：PID奇偶位不匹配 */
     if (0 != (isr & LIN_INT_RX_CHKPTY_ERROR_FLAG))
     {
         lin_error = errPID;
         LOG_LIN("pid check err\r\n");
     }
 
+    /* 12. RX FIFO满标志（非多字节模式） */
 #ifndef MULTI_BYTES_MODE
 
     if (0 != (isr & LIN_INT_RX_FIFO_FULL_FLAG))
@@ -790,6 +793,7 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
+    /* 13. RX FIFO溢出错误 */
     if (0 != (isr & LIN_INT_RX_FIFO_OVF_FLAG))
     {
         lin_error = errRXOVF;
@@ -798,6 +802,7 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #if defined (__TCPL01X__)
 
+    /* 14. RX接收超时（TCPL01X） */
     if (0 != (isr & LIN_INT_RX_TIMEOUT_FLAG))
     {
         lin_error = errRXTIMEOUT;
@@ -806,6 +811,7 @@ void lin_lld_isr_callback(uint32_t isr)
 
 #endif
 
+    /* 15. SNPD自动寻址完成（CFG_SUPPORT_LIN_SNPD） */
 #if CFG_SUPPORT_LIN_SNPD
 
     if (0 != (isr & LIN_INT_AUTOADDR_DONE_FLAG))
@@ -813,6 +819,7 @@ void lin_lld_isr_callback(uint32_t isr)
         //LOG_LIN("AFE_INT_AUTO_ADDR_DONE\r\n");
     }
 
+    /* 16. SNPD从节点选中 */
     if (0 != (isr & LIN_INT_SLV_SELECT_FLAG))
     {
         lin_snpd_status_set(LIN_AA_STATUS_SELECT, 1);
@@ -821,13 +828,13 @@ void lin_lld_isr_callback(uint32_t isr)
 #endif
 }
 
-/********************************************************
-** \brief   lin_lld_sci_init
-**
-** \param   l_ifc_handle    iii
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN SCI初始化（Boot版本）
+ * @param  iii LIN接口句柄
+ * @note   保存接口句柄，设置响应缓冲区指针，
+ *         依次调用参数初始化和SCI硬件初始化，最终进入IDLE态。
+ * @retval None
+ */
 void lin_lld_sci_init(l_ifc_handle iii)
 {
     (void)ifc;
@@ -841,38 +848,37 @@ void lin_lld_sci_init(l_ifc_handle iii)
     lin_goto_idle_state();
 }
 
-/********************************************************
-** \brief   lin_lld_timer_TCPL_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  定时器初始化（Boot版本空函数）
+ * @param  None
+ * @note   Boot版本定时器由PAL层管理，此处留空。
+ * @retval None
+ */
 void lin_lld_timer_TCPL_init(void)
 {
 }
 
 #ifdef  __TCPL03X__
-/********************************************************
-** \brief   lin_lld_slave_wakeup
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从节点发送唤醒脉冲
+ * @param  None
+ * @note   通过LIN总线1发送8位宽度的BREAK信号唤醒主节点。
+ *         仅TCPL03X芯片支持独立LIN1总线唤醒。
+ * @retval None
+ */
 void lin_lld_slave_wakeup(void)
 {
     ll_lin_ctrl_brk_tx(LL_SCI_BUS_1, 8);
 }
 #endif
 
-/********************************************************
-** \brief   lin_process_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN处理模块初始化链
+ * @param  None
+ * @note   依次初始化：系统层(l_sys_init)、接口层(l_ifc_init)、
+ *         传输层(ld_init)。完成整个LIN协议栈的启动。
+ * @retval None
+ */
 void lin_process_init(void)
 {
     l_sys_init();

@@ -23,12 +23,13 @@
 #include "utilities.h"
 #include "store_manager.h"
 
-/********************************************************
-** \brief   lin_diag_get_traceability_msg
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $32 GetTraceabilityMsg可追溯性信息获取
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   功能保留，当前为待实现状态(空函数体)
+ *         用于获取ECU的可追溯性信息(生产批次、序列号等)
+ * @retval None
+ */
 void lin_diag_get_traceability_msg(uint8_t *ptr, uint16_t length)
 {
 

@@ -32,11 +32,17 @@
 #include "colormixing.h"
 #endif
 
-/********************************************************
-** \brief   GetDataById
-** \param   uint8_t                    id
-** \retval  uint16_t
-*********************************************************/
+/**
+ * @brief  根据数据转储ID获取模拟信号数据
+ * @param  id - 数据转储ID
+ * @note   支持的ID映射：
+ *         - DATA_DUMP_TEMP/VBAT/B_PN/R_PN/G_PN：从g_analog_signal.adc_raw_data[]读取ADC原始值
+ *         - DATA_DUMP_V_VBAT：读取VBAT电压值
+ *         - DATA_DUMP_V_TEMP：读取温度电压值
+ *         - DATA_DUMP_V_B_PN/V_R_PN/V_G_PN：读取RGB各通道PN结电压
+ *         默认返回0xFFFF。
+ * @retval 读取到的16位数据
+ */
 static uint16_t GetDataById(uint8_t id)
 {
     uint16_t data = 0xffff;
@@ -75,12 +81,15 @@ static uint16_t GetDataById(uint8_t id)
     return data;
 }
 
-/********************************************************
-** \brief   lin_diag_data_dump_control
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B4 数据转储控制（DataDump）处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   方向控制：
+ *         - 0x10 = 从机→主机（Slave to Master）：返回指定ID的ADC原始数据（温度、VBAT、PN电压）
+ *         - 0x20 = 主机→从机（Master to Slave）：存根，仅返回正响应（留用户扩展）
+ *         数据通过endian_swap_func()进行大小端转换后填入响应报文。
+ * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)
+ */
 void lin_diag_data_dump_control(uint8_t *ptr, uint16_t length)
 {
     uint16_t data1, data2;

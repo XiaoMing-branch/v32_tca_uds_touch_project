@@ -28,12 +28,17 @@
 
 bool lin_receive_msg_timeout = true;
 
-/********************************************************
-** \brief   lin_diag_led_config_get
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $BB LED配置写入(Boot版本SET)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   支持多种LED参数写入/控制:
+ *         - RGB参数/典型PN电压/白点配置/电流设置
+ *         - PWM/Luv/RGBL/Cxy多种调光模式控制
+ *         - PN触发/相对因子/静态PN采样设置
+ *         - 寄存器配置/参数恢复出厂(清空存储+复位)
+ *         成功回复正响应, 未知命令回复SUBFUNCTION_NOT_SUPPORTED
+ * @retval None
+ */
 void lin_diag_led_config_set(uint8_t *ptr, uint16_t length)
 {
     cm_led_param_t *ptr_led_param __attribute__((unused));

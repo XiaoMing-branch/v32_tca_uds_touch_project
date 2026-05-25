@@ -23,12 +23,14 @@
 
 #if ((LIN_PROTOCOL == PROTOCOL_20) || (LIN_PROTOCOL == PROTOCOL_J2602))
 
-/********************************************************
-** \brief   lin_diag_assign_frame_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B1 AssignFrameIdentifier分配帧标识符(LIN 2.0/J2602)
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   请求格式: ptr[1-2]=SupplierID, ptr[3-4]=MessageID, ptr[5]=新PID
+ *         验证SupplierID后，检查新ID是否已被其他帧占用(冲突检测)
+ *         在lin_configuration_ROM中查找匹配的MessageID，更新对应lin_configuration_RAM
+ * @retval None
+ */
 void lin_diag_assign_frame_identifier(uint8_t *ptr, uint16_t length)
 {
     uint8_t id, pid, i;

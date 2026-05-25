@@ -23,12 +23,13 @@
 
 extern void wdg_enable(bool enable);
 
-/********************************************************
-** \brief   lin_diag_ecu_reset
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $11 ECU复位处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   支持硬件复位(子功能0x01): 先发送正响应，关闭看门狗，再执行NVIC系统复位
+ *         其他子功能返回SFNS(子功能不支持)
+ * @retval None
+ */
 void lin_diag_ecu_reset(uint8_t *ptr, uint16_t length)
 {
     switch (ptr[1])

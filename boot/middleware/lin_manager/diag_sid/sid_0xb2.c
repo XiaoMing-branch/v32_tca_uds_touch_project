@@ -25,12 +25,16 @@
 #define LOG_DIAG(...)  //do{log_debug("[DIAG_0xB2] " __VA_ARGS__);}while(0)
 extern l_u8 ld_read_by_id_callout(l_u8 id, l_u8 *data);
 
-/********************************************************
-** \brief   lin_diag_read_by_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B2 ReadByIdentifier读取LIN从节点标识符
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   请求格式: ptr[2-5]=SupplierID+FunctionID验证; ptr[1]=读取ID
+ *         LIN_PRODUCT_IDENT(0): 返回SupplierID+FunctionID+Variant
+ *         SERIAL_NUMBER(1): 返回SUBFUNCTION_NOT_SUPPORTED(当前不支持)
+ *         LIN_READ_USR_DEF_MIN~MAX: 通过ld_read_by_id_callout回调读取用户自定义数据
+ *         先验证SupplierID/FunctionID匹配，不匹配则静默终止
+ * @retval None
+ */
 void lin_diag_read_by_identifier(uint8_t *ptr, uint16_t length)
 {
     uint8_t id;

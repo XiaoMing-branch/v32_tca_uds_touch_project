@@ -30,12 +30,13 @@
 #include "utilities.h"
 #endif
 
-/********************************************************
-** \brief   lin_diag_io_control_by_identifier
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $2F IO控制通过标识符处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   存根实现，直接返回正响应。未执行实际的IO控制操作。
+ *         后续可根据DID实现对应的输入输出控制逻辑。
+ * @retval None (通过 lin_diag_positive_notify 返回)
+ */
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_io_control_by_identifier(uint8_t *ptr, uint16_t length)

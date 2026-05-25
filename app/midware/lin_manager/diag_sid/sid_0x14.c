@@ -27,6 +27,12 @@
 #endif
 
 
+/**
+ * @brief  SID $14 清除诊断信息处理函数（存根实现）
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   当前为存根实现，直接返回正响应，未执行实际的DTC清除操作。
+ * @retval None (通过 lin_diag_positive_notify 返回)
+ */
 void clear_dtc_info_handle(uint8_t *ptr, uint16_t length)
 {
     lin_diag_positive_notify(ptr[0], NULL, 0);

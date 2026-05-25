@@ -29,12 +29,17 @@
 #endif
 
 #if LIN_PROTOCOL != PROTOCOL_J2602
-/********************************************************
-** \brief   lin_diag_conditional_change_nad
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B3 条件改变节点地址（ConditionalChangeNAD）处理函数
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   仅当product_id的指定字节经过（XOR Invert & AND Mask）运算结果为0时，
+ *         才将NAD改为新值。匹配条件支持：
+ *         - Byte 1~2：Supplier ID
+ *         - Byte 3~4：Function ID
+ *         - Byte 5：Variant
+ *         ID=0表示执行条件匹配（LIN规范定义）。
+ * @retval None (通过 lin_diag_positive_notify 返回)
+ */
 /* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
 {

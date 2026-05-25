@@ -30,12 +30,14 @@
 #include "utilities.h"
 #endif
 
-/********************************************************
-** \brief   lin_diag_tester_present
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $3E 诊断仪在线处理函数（TesterPresent）
+ * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @note   子功能0x00 = 需要响应，返回正响应。
+ *         子功能0x80 = 抑制正响应（suppressPosRspMsgIndicationBit=1），仅刷新会话定时器。
+ *         其他子功能返回SFNS负响应。用于保持诊断会话激活状态。
+ * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)
+ */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_tester_present(uint8_t *ptr, uint16_t length)
 {

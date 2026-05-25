@@ -36,12 +36,14 @@
 static uint8_t fast_nad_write(uint8_t nad);
 
 #if LIN_PROTOCOL == PROTOCOL_J2602
-/********************************************************
-** \brief   ld_change_msg_id
-** \param   uint8_t                     dnn
-** \param   uint8_t                     frame_id_change
-** \retval  None
-*********************************************************/
+/**
+ * @brief  J2602消息ID重新计算函数（根据新的DNN调整帧ID）
+ * @param  dnn - 新的设备节点号（Device Node Number）
+ * @param  frame_id_change - 帧ID变化步长（4/8/16取决于可配置帧数量）
+ * @note   遍历所有LIN帧配置，将非广播帧ID重算：(原始ID % frame_id_change) + (dnn << 2)。
+ *         广播帧（0x38~0x3B）根据DNN是否>=8进行±1调整。
+ * @retval 0 - 成功
+ */
 static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
 {
     uint8_t i;
@@ -76,11 +78,17 @@ static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
     return (l_bool)0U;
 }
 
-/********************************************************
-** \brief   ld_reconfig_msg_ID
-** \param   uint8_t                     dnn
-** \retval  None
-*********************************************************/
+/**
+ * @brief  J2602 NAD重配置时重新计算所有消息ID
+ * @param  dnn - 设备节点号（NAD & 0x0F，范围0~13）
+ * @note   根据可配置帧数量选择不同的步长：
+ *         - >16帧：仅0x60 NAD有效，不做任何操作
+ *         - 9~16帧：步长16（仅DNN=0/4/8有效）
+ *         - 5~8帧：步长8（DNN必须为偶数）
+ *         - 1~4帧：步长4（所有DNN有效）
+ *         调用ld_change_msg_id()进行实际ID重算。
+ * @retval 0 - 成功; 1 - 失败/DNN无效
+ */
 static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 {
     l_bool ret_val = 1U;
@@ -137,13 +145,15 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 }
 #endif
 
-/********************************************************
-** \brief   lin_diagservice_assign_nad
-** \param   uint8_t                     NAD
-** \param   uint8_t*                    ptr
-** \param   uint16_t                    length
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SID $B0 分配节点地址（AssignNAD）处理函数
+ * @param  NAD - 当前节点地址; ptr - UDS请求报文指针; length - 报文长度
+ * @note   仅当NAD匹配（初始NAD/广播/已配置NAD）且报文长度为6时执行。
+ *         验证Supplier ID和Function ID是否匹配后，设置新的lin_configured_NAD。
+ *         J2602协议下还需调用ld_reconfig_msg_ID()重新分配消息ID。
+ *         新NAD通过fast_nad_write()写入Flash持久化存储。
+ * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)
+ */
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
 {
@@ -194,6 +204,15 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
     }
 }
 
+/**
+ * @brief  快速将NAD写入Flash存储（空扇区扫描方式）
+ * @param  nad - 要写入的节点地址值
+ * @note   以FLASH_SECTOR_SIZE为范围扫描每个对齐字，查找值为0xFF的空闲字节。
+ *         若找到的空闲位置的前一个字节已经是相同NAD值，则跳过写入（去重）。
+ *         否则将NAD写入该空闲位置。
+ *         若整个扇区已满，返回0表示写入失败。
+ * @retval 1 - 写入/跳过成功; 0 - 写入失败（扇区已满）
+ */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 static uint8_t fast_nad_write(uint8_t nad)
 {
