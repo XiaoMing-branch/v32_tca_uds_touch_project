@@ -1677,7 +1677,6 @@ void LinDiagnosticSessionCheck(void)
 {
     if (session_mode > (uint8_t)SESSION_MODE_DEFAULT)
     {
-        diagnostic_session_cnt++;
         if ((TcTimeGet() - diagnostic_session_cnt) >= 5000) /* 5s*/
         {
             diagnostic_session_cnt = TcTimeGet();
