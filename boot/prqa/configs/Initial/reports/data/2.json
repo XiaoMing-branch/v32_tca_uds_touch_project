@@ -1,0 +1,6 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/examples/tcpl03x/demo_apps/bootloader_seres/include/dfu_uds_manager.h",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/examples/tcpl03x/demo_apps/bootloader_seres/include/test_config.h", "line": 28, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/prqa/configs/Initial/config/DATA/Helix_Generic_C/Stub/include/iso_c/stdint.h", "line": 27, "is_system": false}]
+}

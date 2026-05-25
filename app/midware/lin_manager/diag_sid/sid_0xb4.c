@@ -19,10 +19,18 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_utilities.h"
+#include "fff_measure.h"
+#include "fff_colormixing.h"h"
+#else
 #include "diagnosticIII.h"
 #include "utilities.h"
 #include "measure.h"
 #include "colormixing.h"
+#endif
 
 /********************************************************
 ** \brief   GetDataById

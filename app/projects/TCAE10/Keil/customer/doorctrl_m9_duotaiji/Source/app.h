@@ -1,25 +1,26 @@
-#ifndef __APP_H__
-#define __APP_H__
+#ifndef APP_H__
+#define APP_H__
 
+#include "test_config.h"
 /**************************************************************/
-/*支持电容触摸功能*/
+/*Supports capacitive touch functionality*/
 #define TOUCH_FUNC_EN           1
 
-/*支持LIN功能*/
+/*Supports LIN functionality*/
 #define LIN_FUNC_EN             1
 
-/*支持低功耗功能*/
+/*Supports low power functionality*/
 #define LOW_POWER_EN            1
 
-/*打印开关*/
+/*Print switch*/
 #define DEBUG_PRINT_EN          0
 
-/*看门狗开关*/
-#define WATCH_DOG_EN            1           //用lin boot功能时，需要将看门狗打开
+/*Watchdog switch*/
+#define WATCH_DOG_EN            1           //When using the LIN boot function, the watchdog needs to be enabled.
 
-/*配置字开关*/
+/*Configure character switch*/
 #define CONFIG_BYTE_WRITE_EN    1
-
+/* PRQA S 1534 4 #3261 - Unused macro defined for future extension and configuration compatibility */
 #define LIN_CUSTOM_MASTER_WKUP  1
 
 #define CFG_SUPPORT_LIN_SNPD    0

@@ -1,0 +1,71 @@
+// paulfitz Thu Jun  3 09:39:19 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_typeinfo__
+#define __QAC_INCLUDE_typeinfo__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <exception>
+
+__QAC_BEGIN_NAMESPACE
+
+
+
+  class type_info;
+  class bad_cast;
+  class bad_typeid;
+
+
+  class type_info {
+  public:
+    virtual ~type_info();
+    bool operator==(const type_info&  rhs ) const;
+    bool operator!=(const type_info&  rhs ) const;
+    bool before(const type_info&  rhs ) const;
+    const char* name() const;
+  private:
+    type_info(const type_info&  rhs );
+    type_info& operator=(const type_info&  rhs );
+  };
+
+
+  class bad_cast : public exception {
+  public:
+    bad_cast() noexcept;
+    bad_cast(const bad_cast&) noexcept;
+    bad_cast& operator=(const bad_cast&) noexcept;
+    virtual ~bad_cast() noexcept;
+    virtual const char* what() const noexcept;
+  };
+
+
+
+
+  class bad_typeid : public exception {
+  public:
+    bad_typeid() noexcept;
+    bad_typeid(const bad_typeid&) noexcept;
+    bad_typeid& operator=(const bad_typeid&) noexcept;
+    virtual ~bad_typeid() noexcept;
+    virtual const char* what() const noexcept;
+  };
+
+
+
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+#endif // ends __QAC_INCLUDE_typeinfo__
+// END BLOCK postfix
+

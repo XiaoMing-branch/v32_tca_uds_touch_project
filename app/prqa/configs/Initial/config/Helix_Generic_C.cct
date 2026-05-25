@@ -1,0 +1,44 @@
+*{
+* "PLATFORM" : "ALL",
+* "COMPILER_HIERARCHY" : "Helix-QAC",
+* "COMPILER_NAME": "Generic CCT",
+* "COMPILER_VERSION": "1.1",
+* "HOST": "Generic",
+* "TARGET": "Generic",
+* "SOURCE_LANGUAGE": "C",
+* "COMPILER_CMD": "generic",
+* "ADDITIONAL_INCLUDES":"DATA/Helix_Generic_C/Stub",
+* "INCLUDE_LIST": [
+*   {"INCLUDE_STRUCTURE": {
+*       "INCLUDE_TYPE": "MasterScript",
+*       "INCLUDE_VALUE": "DATA/Helix_Generic_C/Script/Helix_Generic_C.py"
+*       }
+*   },
+*   {"INCLUDE_STRUCTURE": {
+*       "INCLUDE_TYPE": "HelperScript",
+*       "INCLUDE_VALUE": "DATA/core_qaf/qaf.py"
+*       }
+*   }
+* ],
+* "SYNCHRONISATION" : {
+*   "INCLUDE_FLAGS":"",
+*   "DEFINE_FLAGS":"",
+*   "SETTINGS_FILE_OPTIONS":{
+*       "FLAG":"",
+*       "EXTENSION":"",
+*       "LITERAL_QUOTES":""
+*       }
+*   }
+*}
+
+-ar+
+-bits+
+-u-
+-sl+
+-na 31
+-xn 31
+-xc-
+-fpc+
+-ex asm
+-ex dollar
+-d "_PRL_STRINGIFY(x)=#x"

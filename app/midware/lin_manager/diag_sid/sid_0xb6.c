@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,8 +20,15 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_store_manager.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
 #include "store_manager.h"
+#endif
 
 /********************************************************
 ** \brief   lin_diag_save_configuration
@@ -28,8 +36,10 @@
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_save_configuration(uint8_t *ptr, uint16_t length)
 {
+    (void)length;
     /* save nad */
     g_sys_cfgs.nad = lin_configured_NAD;
     store_system_data_set(SYSTEM_CFG_PARAM, (uint8_t *)&g_sys_cfgs, SYSTEM_CFG_SIZE);

@@ -1,0 +1,572 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_memory__
+#define __QAC_INCLUDE_memory__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+
+#include <cstddef>
+#include <utility>
+#include <iterator>
+#include <new>
+#include <type_traits>
+
+__QAC_BEGIN_NAMESPACE
+
+  struct allocator_arg_t { };
+  static allocator_arg_t allocator_arg = allocator_arg_t();
+
+  template <class T, class Alloc> struct uses_allocator;
+
+  //  lib.temporary.buffer, temporary buffers:
+  template <class T>
+    pair<T*,ptrdiff_t> get_temporary_buffer(ptrdiff_t n);
+  template <class T>
+    void return_temporary_buffer(T* p);
+
+
+#if defined (__cplusplus) && (__cplusplus >= 201703)
+
+  // 23.10.10, specialized algorithms
+  template <class T> constexpr T * addressof ( T & r ) noexcept;
+  template <class T> const T * addressof ( const T && ) = delete;
+  template <class ForwardIterator>
+  void uninitialized_default_construct ( ForwardIterator first, ForwardIterator last );
+  template <class ExecutionPolicy, class ForwardIterator>
+  void uninitialized_default_construct ( ExecutionPolicy && exec,
+                                         ForwardIterator first,
+                                         ForwardIterator last );
+  template <class ForwardIterator, class Size>
+  ForwardIterator uninitialized_default_construct_n ( ForwardIterator first, Size n );
+  template <class ExecutionPolicy, class ForwardIterator, class Size>
+  ForwardIterator uninitialized_default_construct_n ( ExecutionPolicy && exec,
+                                                      ForwardIterator first,
+                                                      Size n );
+  template <class ForwardIterator>
+  void uninitialized_value_construct ( ForwardIterator first, ForwardIterator last );
+  template <class ExecutionPolicy, class ForwardIterator>
+  void uninitialized_value_construct ( ExecutionPolicy && exec,
+                                       ForwardIterator first,
+                                       ForwardIterator last );
+  template <class ForwardIterator, class Size>
+  ForwardIterator uninitialized_value_construct_n ( ForwardIterator first, Size n );
+  template <class ExecutionPolicy, class ForwardIterator, class Size>
+  ForwardIterator uninitialized_value_construct_n ( ExecutionPolicy && exec,
+                                                    ForwardIterator first,
+                                                    Size n );
+  template <class InputIterator, class ForwardIterator>
+  ForwardIterator uninitialized_copy ( InputIterator first, InputIterator last, ForwardIterator result );
+  template <class ExecutionPolicy, class InputIterator, class ForwardIterator>
+  ForwardIterator uninitialized_copy ( ExecutionPolicy && exec,
+                                       InputIterator first,
+                                       InputIterator last,
+                                       ForwardIterator result );
+  template <class InputIterator, class Size, class ForwardIterator>
+  ForwardIterator uninitialized_copy_n ( InputIterator first, Size n, ForwardIterator result );
+  template <class ExecutionPolicy, class InputIterator, class Size, class ForwardIterator>
+  ForwardIterator uninitialized_copy_n ( ExecutionPolicy && exec,
+                                         InputIterator first,
+                                         Size n,
+                                         ForwardIterator result );
+  template <class InputIterator, class ForwardIterator>
+  ForwardIterator uninitialized_move ( InputIterator first, InputIterator last, ForwardIterator result );
+  template <class ExecutionPolicy, class InputIterator, class ForwardIterator>
+  ForwardIterator uninitialized_move ( ExecutionPolicy && exec,
+                                       InputIterator first,
+                                       InputIterator last,
+                                       ForwardIterator result );
+
+  template <class InputIterator, class Size, class ForwardIterator>
+  pair<InputIterator, ForwardIterator>
+  uninitialized_move_n ( InputIterator first, Size n, ForwardIterator result );
+  template <class ExecutionPolicy, class InputIterator, class Size, class ForwardIterator>
+  pair<InputIterator, ForwardIterator> uninitialized_move_n ( ExecutionPolicy && exec,
+                                                              InputIterator first,
+                                                              Size n,
+                                                              ForwardIterator result );
+  template <class ForwardIterator, class T>
+  void uninitialized_fill ( ForwardIterator first, ForwardIterator last, const T & x );
+  template <class ExecutionPolicy, class ForwardIterator, class T>
+  void uninitialized_fill ( ExecutionPolicy && exec,
+                            ForwardIterator first,
+                            ForwardIterator last,
+                            const T & x );
+  template <class ForwardIterator, class Size, class T>
+  ForwardIterator uninitialized_fill_n ( ForwardIterator first, Size n, const T & x );
+  template <class ExecutionPolicy, class ForwardIterator, class Size, class T>
+  ForwardIterator uninitialized_fill_n ( ExecutionPolicy && exec,
+                                         ForwardIterator first,
+                                         Size n,
+                                         const T & x );
+  template <class T> void destroy_at ( T * location );
+  template <class ForwardIterator> void destroy ( ForwardIterator first, ForwardIterator last );
+  template <class ExecutionPolicy, class ForwardIterator>
+  void destroy ( ExecutionPolicy && exec,
+                 ForwardIterator first,
+                 ForwardIterator last );
+  template <class ForwardIterator, class Size> ForwardIterator destroy_n ( ForwardIterator first, Size n );
+  template <class ExecutionPolicy, class ForwardIterator, class Size>
+  ForwardIterator destroy_n ( ExecutionPolicy && exec,
+                              ForwardIterator first,
+                              Size n );
+
+// defined (__cplusplus) && (__cplusplus >= 201703)
+#else
+
+  template <class InputIterator, class ForwardIterator>
+  ForwardIterator
+    uninitialized_copy ( InputIterator first, InputIterator last,
+                         ForwardIterator result );
+  template <class ForwardIterator, class T>
+  void uninitialized_fill ( ForwardIterator first, ForwardIterator last,
+                            const T & x );
+  template <class ForwardIterator, class Size, class T>
+  void uninitialized_fill_n ( ForwardIterator first, Size n, const T & x );
+
+//  defined (__cplusplus) && (__cplusplus >= 201703)
+#endif
+
+  //  lib.auto.ptr, pointers:
+  template<class X> class auto_ptr;
+
+
+#if defined (__cplusplus) && (__cplusplus >= 201103)
+
+  // 23.10.8, allocator traits
+  template <class Alloc> struct allocator_traits;
+
+// defined (__cplusplus) && (__cplusplus >= 201103)
+#endif
+
+  template <class T> class allocator;
+
+  //  specialize for  void:
+  template <> class allocator<void> {
+  public:
+    typedef void* 	pointer;
+    typedef const void*	const_pointer;
+    // reference-to-void  members are impossible.
+    typedef void  value_type;
+    template <class U> struct rebind { typedef allocator<U> other; };
+  };
+
+  template <class T> class allocator {
+   public:
+    typedef size_t    size_type;
+    typedef ptrdiff_t difference_type;
+    typedef T*        pointer;
+    typedef const T*  const_pointer;
+    typedef T&        reference;
+    typedef const T&  const_reference;
+    typedef T         value_type;
+    template <class U> struct rebind { typedef allocator<U> other; };
+
+    allocator() noexcept;
+    allocator(const allocator&) noexcept;
+    template <class U> allocator(const allocator<U>&) noexcept;
+   ~allocator() noexcept;
+
+    pointer address(reference x) const { return &x; }
+    const_pointer address(const_reference x) const { return &x; }
+
+    pointer allocate(size_type size, allocator<void>::const_pointer hint = 0) { return reinterpret_cast<pointer> (::operator new (size)); }
+    void deallocate(pointer p, size_type n) { ::operator delete (p); } 
+    size_type max_size() const noexcept;
+
+    void construct(pointer p, const T& val) { new ( (void*)(p) ) T(val); }
+    void destroy(pointer p) { ((T*)p)->~T(); } 
+  };
+
+
+  template <class T, class U>
+    bool operator==(const allocator<T>&, const allocator<U>&) noexcept;
+  template <class T, class U>
+    bool operator!=(const allocator<T>&, const allocator<U>&) noexcept;
+
+
+
+  template <class OutputIterator, class T>
+  class raw_storage_iterator
+    : public iterator<output_iterator_tag,void,void,void,void> {
+  public:
+    explicit raw_storage_iterator(OutputIterator x);
+
+    raw_storage_iterator<OutputIterator,T>& operator*();
+    raw_storage_iterator<OutputIterator,T>& operator=(const T& element);
+    raw_storage_iterator<OutputIterator,T>& operator++();
+    raw_storage_iterator<OutputIterator,T>  operator++(int);
+  };
+
+
+
+  template<class X> class auto_ptr {
+    template <class Y> struct auto_ptr_ref {};
+  public:
+    typedef X element_type;
+
+    //  lib.auto.ptr.cons construct/copy/destroy:
+    explicit auto_ptr(X* p =0) noexcept;
+    auto_ptr(auto_ptr&) noexcept;
+    template<class Y> auto_ptr(auto_ptr<Y>&) noexcept;
+    auto_ptr& operator=(auto_ptr&) noexcept;
+    template<class Y> auto_ptr& operator=(auto_ptr<Y>&) noexcept;
+    auto_ptr& operator=(auto_ptr_ref<X>) noexcept;
+   ~auto_ptr() noexcept;
+
+    //  lib.auto.ptr.members members:
+    X& operator*() const noexcept;
+    X* operator->() const noexcept;
+    X* get() const noexcept;
+    X* release() noexcept;
+    void reset(X* p =0) noexcept;
+
+    //  lib.auto.ptr.conv conversions:
+    auto_ptr(auto_ptr_ref<X>) noexcept;
+    template<class Y> operator auto_ptr_ref<Y>() noexcept;
+    template<class Y> operator auto_ptr<Y>() noexcept;
+  };
+
+  template <class T> struct default_delete {
+    default_delete() noexcept = default;
+    template <class U> default_delete(const default_delete<U>&) noexcept;
+    void operator()(T*) const;
+  };
+
+  template <class T> struct default_delete<T[]> {
+    default_delete() noexcept = default;
+    void operator()(T*) const;
+    template <class U> void operator()(U*) const = delete;
+  };
+
+  template <class T, class D = default_delete<T> > class unique_ptr {
+  public:
+    typedef T *pointer;
+    typedef T element_type;
+    typedef D deleter_type;
+
+    // constructors
+    unique_ptr() noexcept;
+    explicit unique_ptr(pointer p) noexcept;
+    unique_ptr(pointer p, const D & d1) noexcept;
+    unique_ptr(pointer p, D && d2) noexcept;
+    unique_ptr(unique_ptr&& u) noexcept;
+    template <class U, class E>
+    unique_ptr(unique_ptr<U, E>&& u) noexcept;
+    template <class U>
+    unique_ptr(auto_ptr<U>&& u) noexcept;
+
+    // destructor
+    ~unique_ptr();
+
+    // assignment
+    unique_ptr& operator=(unique_ptr&& u) noexcept;
+    template <class U, class E> unique_ptr& operator=(unique_ptr<U, E>&& u) noexcept;
+
+    // observers
+    typename add_lvalue_reference<T>::type operator*() const;
+    pointer operator->() const noexcept;
+    pointer get() const noexcept;
+    deleter_type& get_deleter() noexcept;
+    const deleter_type& get_deleter() const noexcept;
+    explicit operator bool() const noexcept;
+
+    // modifiers
+    pointer release() noexcept;
+    void reset(pointer p = pointer()) noexcept;
+    void swap(unique_ptr& u) noexcept;
+
+    // disable copy from lvalue
+    unique_ptr(const unique_ptr&) = delete;
+    unique_ptr& operator=(const unique_ptr&) = delete;
+  };
+
+  template <class T, class D> class unique_ptr<T[], D> {
+  public:
+    typedef T *pointer;
+    typedef T element_type;
+    typedef D deleter_type;
+
+    // constructors
+    unique_ptr() noexcept;
+    explicit unique_ptr(pointer p) noexcept;
+    unique_ptr(pointer p, const D & d) noexcept;
+    unique_ptr(pointer p, D && d) noexcept;
+    unique_ptr(unique_ptr&& u) noexcept;
+    constexpr unique_ptr(nullptr_t) noexcept : unique_ptr() { }
+
+    // destructor
+    ~unique_ptr();
+
+    // assignment
+    unique_ptr& operator=(unique_ptr&& u) noexcept;
+
+    // \ref{unique.ptr.runtime.observers}, observers
+    T& operator[](size_t i) const;
+    pointer get() const noexcept;
+    deleter_type& get_deleter() noexcept;
+    const deleter_type& get_deleter() const noexcept;
+    explicit operator bool() const noexcept;
+
+    // \ref{unique.ptr.runtime.modifiers} modifiers
+    pointer release() noexcept;
+    void reset(pointer p = pointer()) noexcept;
+    template <class U> void reset(U) = delete;
+    void swap(unique_ptr& u) noexcept;
+
+    // disable copy from lvalue
+    unique_ptr(const unique_ptr&) = delete;
+    unique_ptr& operator=(const unique_ptr&) = delete;
+  };
+
+  template <class T, class... Args>
+  typename std::enable_if<! std::is_array<T>::value, unique_ptr<T> >::type
+  make_unique(Args&&... args);
+
+  template <class T>
+  typename std::enable_if<std::is_array<T>::value, unique_ptr<T> >::type
+  make_unique(size_t n);
+
+  template <class T1, class D1, class T2, class D2>
+  bool operator==(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+  template <class T1, class D1, class T2, class D2>
+  bool operator!=(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+  template <class T1, class D1, class T2, class D2>
+  bool operator<(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+  template <class T1, class D1, class T2, class D2>
+  bool operator<=(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+  template <class T1, class D1, class T2, class D2>
+  bool operator>(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+  template <class T1, class D1, class T2, class D2>
+  bool operator>=(const unique_ptr<T1, D1>& x, const unique_ptr<T2, D2>& y);
+
+  template <class T, class D>
+  bool operator==(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator==(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+  template <class T, class D>
+  bool operator!=(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator!=(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+  template <class T, class D>
+  bool operator<(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator<(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+  template <class T, class D>
+  bool operator<=(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator<=(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+  template <class T, class D>
+  bool operator>=(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator>=(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+  template <class T, class D>
+  bool operator>(const unique_ptr<T, D>& x, nullptr_t) noexcept;
+  template <class T, class D>
+  bool operator>(nullptr_t, const unique_ptr<T, D>& x) noexcept;
+
+  template<class T> class weak_ptr;
+
+  template<class T> class shared_ptr {
+  public:
+    typedef T element_type;
+
+    shared_ptr() noexcept;
+    template<class Y> explicit shared_ptr(Y* p);
+    template<class Y, class D> shared_ptr(Y* p, D d);
+    template<class Y, class D, class A> shared_ptr(Y* p, D d, A a);
+    template<class Y> shared_ptr(const shared_ptr<Y>& r, T *p) noexcept;
+    shared_ptr(const shared_ptr& r) noexcept;
+    template<class Y> shared_ptr(const shared_ptr<Y>& r) noexcept;
+    shared_ptr(shared_ptr&& r) noexcept;
+    template<class Y> shared_ptr(shared_ptr<Y>&& r) noexcept;
+    template<class Y> explicit shared_ptr(const weak_ptr<Y>& r);
+    template<class Y> shared_ptr(auto_ptr<Y>&& r);
+    template <class Y, class D> shared_ptr(unique_ptr<Y, D>&& r);
+    constexpr shared_ptr(nullptr_t) noexcept : shared_ptr() { }
+
+    // destructor:
+    ~shared_ptr();
+
+    // assignment:
+    shared_ptr& operator=(const shared_ptr& r) noexcept;
+    template<class Y> shared_ptr& operator=(const shared_ptr<Y>& r) noexcept;
+    shared_ptr& operator=(shared_ptr&& r) noexcept;
+    template<class Y> shared_ptr& operator=(shared_ptr<Y>&& r) noexcept;
+    template<class Y> shared_ptr& operator=(auto_ptr<Y>&& r);
+    template <class Y, class D> shared_ptr& operator=(unique_ptr<Y, D>&& r);
+
+    // modifiers:
+    void swap(shared_ptr& r) noexcept;
+    void reset() noexcept;
+    template<class Y> void reset(Y* p);
+    template<class Y, class D> void reset(Y* p, D d);
+    template<class Y, class D, class A> void reset(Y* p, D d, A a);
+
+    // observers:
+    T* get() const noexcept;
+    T& operator*() const noexcept;
+    T* operator->() const noexcept;
+    long use_count() const noexcept;
+    bool unique() const noexcept;
+    explicit operator bool() const noexcept;
+    template<class U> bool owner_before(shared_ptr<U> const& b) const;
+    template<class U> bool owner_before(weak_ptr<U> const& b) const;
+  };
+
+  // shared_ptr creation
+  template<class T, class... Args> shared_ptr<T> make_shared(Args&&... args);
+  template<class T, class A, class... Args>
+  shared_ptr<T> allocate_shared(const A& a, Args&&... args);
+
+  // shared_ptr comparisons:
+  template<class T, class U>
+  bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+  template<class T, class U>
+  bool operator!=(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+  template<class T, class U>
+  bool operator<(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+  template<class T, class U>
+  bool operator>(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+  template<class T, class U>
+  bool operator<=(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+  template<class T, class U>
+  bool operator>=(const shared_ptr<T>& a, const shared_ptr<U>& b) noexcept;
+
+  template <class T>
+  bool operator==(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator==(nullptr_t, const shared_ptr<T>& x) noexcept;
+  template <class T>
+  bool operator!=(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator!=(nullptr_t, const shared_ptr<T>& x) noexcept;
+  template <class T>
+  bool operator<(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator<(nullptr_t, const shared_ptr<T>& x) noexcept;
+  template <class T>
+  bool operator<=(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator<=(nullptr_t, const shared_ptr<T>& x) noexcept;
+  template <class T>
+  bool operator>=(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator>=(nullptr_t, const shared_ptr<T>& x) noexcept;
+  template <class T>
+  bool operator>(const shared_ptr<T>& x, nullptr_t) noexcept;
+  template <class T>
+  bool operator>(nullptr_t, const shared_ptr<T>& x) noexcept;
+
+  // shared_ptr specialized algorithms:
+  template<class T> void swap(shared_ptr<T>& a, shared_ptr<T>& b) noexcept;
+
+  // shared_ptr casts:
+  template<class T, class U>
+  shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
+  template<class T, class U>
+  shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& r) noexcept;
+  template<class T, class U>
+  shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
+
+  // shared_ptr get_deleter:
+  template<class D, class T> D* get_deleter(const shared_ptr<T>& p) noexcept;
+
+  template<class T> class weak_ptr {
+  public:
+    typedef T element_type;
+
+    // constructors
+    weak_ptr() noexcept;
+    template<class Y> weak_ptr(shared_ptr<Y> const& r) noexcept;
+    weak_ptr(weak_ptr const& r) noexcept;
+    template<class Y> weak_ptr(weak_ptr<Y> const& r) noexcept;
+#if __cplusplus >= 201402
+    weak_ptr (weak_ptr&& r) noexcept;
+    template< class Y>
+    weak_ptr (weak_ptr<Y>&& r) noexcept;
+#endif
+
+    // destructor
+    ~weak_ptr();
+
+    // assignment
+    weak_ptr& operator=(weak_ptr const& r) noexcept;
+    template<class Y> weak_ptr& operator=(weak_ptr<Y> const& r) noexcept;
+    template<class Y> weak_ptr& operator=(shared_ptr<Y> const& r) noexcept;
+#if __cplusplus >= 201402
+    weak_ptr& operator=(weak_ptr&& r) noexcept;
+    template< class Y>
+    weak_ptr& operator=(weak_ptr<Y>&& r) noexcept;
+#endif
+
+    // modifiers
+    void swap(weak_ptr& r) noexcept;
+    void reset() noexcept;
+
+    // observers
+    long use_count() const noexcept;
+    bool expired() const noexcept;
+    shared_ptr<T> lock() const noexcept;
+    template<class U> bool owner_before(shared_ptr<U> const& b);
+    template<class U> bool owner_before(weak_ptr<U> const& b);
+  };
+
+  // specialized algorithms
+  template<class T> void swap(weak_ptr<T>& a, weak_ptr<T>& b) noexcept;
+
+  template<class T> class enable_shared_from_this {
+  protected:
+    enable_shared_from_this() noexcept;
+    enable_shared_from_this(enable_shared_from_this const&) noexcept;
+    enable_shared_from_this& operator=(enable_shared_from_this const&) noexcept;
+    ~enable_shared_from_this();
+  public:
+    shared_ptr<T> shared_from_this();
+    shared_ptr<T const> shared_from_this() const;
+  };
+
+#if defined (__cplusplus) && (__cplusplus >= 201103)
+
+  template <class Alloc> struct allocator_traits
+  {
+    using allocator_type = Alloc;
+    using value_type = typename Alloc::value_type;
+    using pointer = typename Alloc::pointer;
+    using const_pointer = typename Alloc::const_pointer;
+    using void_pointer = void *;
+    using const_void_pointer = void const *;
+    using difference_type = typename Alloc::difference_type;
+    using size_type = typename Alloc::size_type;
+    using propagate_on_container_copy_assignment = false_type;
+    using propagate_on_container_move_assignment = false_type;
+    using propagate_on_container_swap = false_type;
+    using is_always_equal = false_type;
+    template <class T> using rebind_alloc = typename Alloc::rebind_alloc;
+    template <class T> using rebind_traits = allocator_traits<rebind_alloc<T> >;
+    static pointer allocate ( Alloc & a, size_type n );
+    static pointer allocate ( Alloc & a, size_type n, const_void_pointer hint );
+    static void deallocate ( Alloc & a, pointer p, size_type n );
+    template <class T, class... Args> static void construct ( Alloc & a, T * p, Args &&... args );
+    template <class T> static void destroy ( Alloc & a, T * p );
+    static size_type max_size ( const Alloc & a ) noexcept;
+    static Alloc select_on_container_copy_construction ( const Alloc & rhs );
+  };
+
+// defined (__cplusplus) && (__cplusplus >= 201103)
+#endif
+
+__QAC_END_NAMESPACE
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+#endif // ends __QAC_INCLUDE_memory__
+// END BLOCK postfix

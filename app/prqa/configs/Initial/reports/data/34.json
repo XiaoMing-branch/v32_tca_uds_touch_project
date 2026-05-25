@@ -1,0 +1,6 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/lin_frame.h",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/device/common/inc/base_types.h", "line": 29, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/test_config.h", "line": 24, "is_system": false}]
+}

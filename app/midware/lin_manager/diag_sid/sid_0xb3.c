@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,7 +20,13 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
+#endif
 
 #if LIN_PROTOCOL != PROTOCOL_J2602
 /********************************************************
@@ -28,8 +35,10 @@
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
 {
+    (void)length;
     uint8_t id, byte, mask, invert;
 
     id      = ptr[1];
@@ -38,19 +47,19 @@ void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
     invert  = ptr[4];
 
     /* Possible positive ID */
-    if (id == 0)
+    if (id == 0u)
     {
-        if (byte > 0 && byte < 6)
+        if ((byte > 0u) && (byte < 6u))
         {
             /*Byte 1: Supplier ID LSB; Byte 2: Supplier ID MSB*/
-            if (byte > 0 && byte < 3)
+            if (byte < 3u)
             {
-                byte = product_id.supplier_id >> ((byte - 1) * 8);
+                byte = (uint8_t)(product_id.supplier_id >> ((byte - 1u) * 8u));
             }
             /*Byte 3: Function ID LSB; Byte 4: Function ID MSB*/
-            else if (byte > 2 && byte < 5)
+            else if (byte < 5u)
             {
-                byte = product_id.function_id >> ((byte - 3) * 8);
+                byte = (uint8_t)product_id.function_id >> ((byte - 3u) * 8u);
             }
             /* Byte 5: Variant */
             else
@@ -62,7 +71,7 @@ void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
             byte = (byte ^ invert)&mask;
 
             /* If the final result is zero, then give positive response*/
-            if (byte == 0)
+            if (byte == 0u)
             {
                 lin_diag_positive_notify(ptr[0], NULL, 0);
                 /* If the final result is zero then change the NAD to New NAD */

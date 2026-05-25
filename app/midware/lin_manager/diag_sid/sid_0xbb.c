@@ -19,11 +19,20 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_utilities.h"
+#include "fff_store_manager.h"
+#include "fff_measure.h"
+#include "fff_colormixing.h"
+#else
 #include "diagnosticIII.h"
 #include "utilities.h"
 #include "store_manager.h"
 #include "measure.h"
 #include "colormixing.h"
+#endif
 
 bool lin_receive_msg_timeout = true;
 

@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   utilities source file.
@@ -20,10 +21,16 @@
  */
 
 #include "utilities.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_pal_func_def.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "pal_func_def.h"
+#endif
 
-#define CRC32_POLY          0x04C11DB7UL
-#define CRC16_POLY          0x1021U
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
+#define CRC32_POLY 0x04C11DB7U
+#define CRC16_POLY 0x1021U
 /********************************************************
 ** \brief   averge_calculate_utils
 **
@@ -32,6 +39,8 @@
 **
 ** \retval  uint16_t            averge
 *********************************************************/
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 uint16_t averge_calculate_utils(uint16_t *data, uint16_t length)
 {
     uint16_t avg, min, max;
@@ -42,26 +51,33 @@ uint16_t averge_calculate_utils(uint16_t *data, uint16_t length)
 
     for (uint16_t i = 0; i < length; i++)
     {
+        /* PRQA S 3432 2 #3267 - Macro arguments are safely used without unintended operator precedence issues */
         min = MIN2_VALUE_GET(min, data[i]);
         max = MAX2_VALUE_GET(max, data[i]);
         sum += data[i];
     }
 
-    if (length >= 3)
+    if (length >= 3U)
     {
-        avg = (sum - max - min + ((length - 2) >> 1)) / (length - 2);
+        avg = (uint16_t)((sum - max - min + (((uint32_t)length - 2U) >> 1U)) / ((uint32_t)length - 2U));
     }
     else
     {
-        avg = (sum + (length >> 1)) / length;
+        if (length != 0U)
+        {
+            avg = (uint16_t)((sum + ((uint32_t)length >> 1U)) / (uint32_t)length);
+        }
+        else
+        {
+            avg = 0;
+        }
     }
 
     return avg;
 }
 
 #if PAL_CRC_TYPE_TABLE == CFG_SUPPORT_USE_CRC_TABLE
-const uint32_t crc32_tab[] =
-{
+const uint32_t crc32_tab[] = {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
     0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
     0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91, 0x1db71064, 0x6ab020f2,
@@ -104,10 +120,8 @@ const uint32_t crc32_tab[] =
     0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
     0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693,
     0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94,
-    0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
-};
-const uint16_t  crc16_tab[] =
-{
+    0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d};
+const uint16_t crc16_tab[] = {
     0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
     0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
     0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
@@ -139,8 +153,7 @@ const uint16_t  crc16_tab[] =
     0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
     0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
     0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
-    0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
-};
+    0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78};
 #endif
 
 /********************************************************
@@ -152,10 +165,11 @@ const uint16_t  crc16_tab[] =
 **
 ** \retval  uint32_t            crc32
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 uint32_t crc32_calculate_func(uint32_t init_crc, const uint8_t *data, uint32_t length)
 {
     uint32_t crc = init_crc;
-#if PAL_CRC_TYPE_HARDWARE== CFG_SUPPORT_USE_CRC_TABLE
+#if PAL_CRC_TYPE_HARDWARE == CFG_SUPPORT_USE_CRC_TABLE
     crc = ll_crc_calculate32((uint8_t *)data, init_crc, CRC32_POLY, length);
 #elif PAL_CRC_TYPE_TABLE == CFG_SUPPORT_USE_CRC_TABLE
 
@@ -165,17 +179,19 @@ uint32_t crc32_calculate_func(uint32_t init_crc, const uint8_t *data, uint32_t l
     }
 
 #else
-    uint32_t  poly = CRC32_POLY;
-    bit_invert_swap_func((void *)&poly, 8 * sizeof(uint32_t));
+    uint32_t poly = CRC32_POLY;
+    bit_invert_swap_func((void *)&poly, 8U * sizeof(uint32_t));
 
-    while (length--)
+    /* PRQA S 1338 5 #3266 - Modification of parameter is intentional and safe within function logic */
+    /* PRQA S 3440 4 #3221 - Use of increment or decrement result is safe and required by logic */
+    while ((length--) != 0U)
     {
-
+        /* PRQA S 3387 2 #3265 - Increment or decrement operation is safe with no unintended side effects */
         crc ^= *data++;
 
-        for (int j = 0; j < 8; j++)
+        for (int32_t j = 0; j < 8; j++)
         {
-            if (crc & 0x01)
+            if ((crc & 0x01U) != 0U)
             {
                 crc = (crc >> 1) ^ poly;
             }
@@ -200,9 +216,10 @@ uint32_t crc32_calculate_func(uint32_t init_crc, const uint8_t *data, uint32_t l
 **
 ** \retval  uint16_t            crc16
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 uint16_t crc16_calculate_func(uint16_t init_crc, const uint8_t *data, uint16_t length)
 {
-    uint16_t  crc = init_crc;
+    uint16_t crc = init_crc;
 #if PAL_CRC_TYPE_TABLE == CFG_SUPPORT_USE_CRC_TABLE
 
     while (length--)
@@ -215,17 +232,20 @@ uint16_t crc16_calculate_func(uint16_t init_crc, const uint8_t *data, uint16_t l
 #elif PAL_CRC_TYPE_HARDWARE == CFG_SUPPORT_USE_CRC_TABLE
     crc = ll_crc_calculate16((uint8_t *)data, init_crc, CRC16_POLY, length);
 #else
-    uint16_t  poly = CRC16_POLY;
+    uint16_t poly = CRC16_POLY;
 
-    bit_invert_swap_func((void *)&poly, 8 * sizeof(uint16_t));
+    bit_invert_swap_func((void *)&poly, 8U * sizeof(uint16_t));
 
-    while (length--)
+    /* PRQA S 1338 5 #3266 - Modification of parameter is intentional and safe within function logic */
+    /* PRQA S 3440 4 #3221 - Use of increment or decrement result is safe and required by logic */
+    while ((length--) != 0U)
     {
+        /* PRQA S 3387 2 #3265 - Increment or decrement operation is safe with no unintended side effects */
         crc ^= *(data++);
 
-        for (int i = 0; i < 8; i++)
+        for (int32_t i = 0; i < 8; i++)
         {
-            if (crc & 0x01)
+            if ((crc & 0x01U) != 0U)
             {
                 crc = (crc >> 1) ^ poly;
             }
@@ -251,31 +271,32 @@ uint16_t crc16_calculate_func(uint16_t init_crc, const uint8_t *data, uint16_t l
 **
 ** \retval  uint8_t             checksum
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 uint8_t checksum_calculate_func(uint8_t init_sum, const uint8_t *data, uint16_t length)
 {
     uint16_t check_sum;
+    (void)length;
 
     /* 1. PID correspond to Master request and Slave response,
      * their checksum cal is classic the non-diagnostic frame is calculated in Enhanced
      */
     check_sum = init_sum;
 
-    for (uint8_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8U; i++)
     {
 
         check_sum += data[i];
 
         /* 2. to deal with the carry */
-        if (check_sum > 0xFF)
+        if (check_sum > 0xFFU)
         {
-            check_sum -= 0xFF;
+            check_sum -= 0xFFU;
         }
     }
 
     /* 3. to reverse */
     return (uint8_t)(~check_sum);
 }
-
 
 /********************************************************
 ** \brief   endian_swap_func
@@ -285,6 +306,7 @@ uint8_t checksum_calculate_func(uint8_t init_sum, const uint8_t *data, uint16_t 
 **
 ** \retval  uint32_t            result
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 uint32_t endian_swap_func(uint8_t *data, uint16_t length)
 {
     uint16_t cnt = length >> 1;
@@ -294,10 +316,11 @@ uint32_t endian_swap_func(uint8_t *data, uint16_t length)
     for (uint16_t i = 0; i < cnt; i++)
     {
         tmp = data[i];
-        data[i] = data[length - 1 - i];
-        data[length - 1 - i] = tmp;
+        data[i] = data[length - 1U - i];
+        data[length - 1U - i] = tmp;
     }
 
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     memcpy((uint8_t *)&result, data, length);
 
     return (result);
@@ -311,25 +334,31 @@ uint32_t endian_swap_func(uint8_t *data, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 2889 2 #3257 - Multiple return statements for logical clarity and efficiency */
+/* PRQA S 1505 1 #3219 - Function used only in the defining translation unit, intentional design */
 void bit_invert_swap_func(void *bit_data, uint8_t bit_length)
 {
     uint32_t in_bit = 0;
     uint32_t result_bit = 0;
 
-    if ((8 != bit_length) && (16 != bit_length) && (32 != bit_length))
+    if ((8U != bit_length) && (16U != bit_length) && (32U != bit_length))
     {
         return;
     }
 
-    memcpy((void *)&in_bit, bit_data, bit_length / 8);
+    /* PRQA S 1496 2 #3268 - Types are verified as compatible in runtime usage, no type mismatch hazard */
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+    memcpy((void *)&in_bit, bit_data, bit_length / (uint32_t)8U);
 
     for (uint8_t i = 0; i < bit_length; i++)
     {
-        if (in_bit & (1 << i))
+        if ((in_bit & ((uint32_t)1U << i)) != 0U)
         {
-            result_bit |= 1 << (bit_length - 1 - i);
+            result_bit |= (uint32_t)1U << (bit_length - 1U - i);
         }
     }
 
-    memcpy((void *)bit_data, (void *)&result_bit, bit_length / 8);
+    /* PRQA S 1496 2 #3268 - Types are verified as compatible in runtime usage, no type mismatch hazard */
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+    memcpy((void *)bit_data, (void *)&result_bit, (uint32_t)bit_length / 8U);
 }

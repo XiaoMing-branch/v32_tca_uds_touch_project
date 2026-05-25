@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   diagnosticIII header file.
@@ -19,12 +20,19 @@
  *****************************************************************************
  */
 
-#ifndef __DIAGNOSTICIII_H__
-#define __DIAGNOSTICIII_H__
+#ifndef DIAGNOSTICIII_H__
+#define DIAGNOSTICIII_H__
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include <stdint.h>
+#include "fff_lin.h"
+#include "fff_linlib.h"
+#else
 #include <stdint.h>
 #include "lin.h"
 #include "linlib.h"
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -36,6 +44,7 @@ extern "C"
 #define NULL                                    0
 #endif
 
+/* PRQA S 1534 ++ #3261 - Unused macro defined for future extension and configuration compatibility */
 #define NEGATIVE                                0
 #define POSITIVE                                1
 #define MaxNumberOfBlockLength                  0x50
@@ -107,7 +116,7 @@ extern "C"
 #define CUSTOMER_NAD_RECOVERY_ORIGIN            0x03
 #define CUSTOMER_NAD_SET_FOR_DFU                0x04
 #define CUSTOMER_NAD_GET_FOR_DFU                0x05
-
+/* PRQA S 1534 -- */
 
 
 void lin_diagservice_read_by_identifier(uint8_t *ptr, uint16_t length);

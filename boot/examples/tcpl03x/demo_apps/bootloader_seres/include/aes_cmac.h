@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   aes cmac header file.
@@ -19,12 +20,17 @@
  *****************************************************************************
  */
 
-
-#ifndef _AES_CMAC_H
-#define _AES_CMAC_H
+/* PRQA S 1534 ++ #3261 - Unused macro defined for future extension and configuration compatibility */
+#ifndef AES_CMAC_H
+#define AES_CMAC_H
 /*****************************************************************************/
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_system_tcpl03x.h"
+#else
 #include "system_tcpl03x.h"
-
+#endif
+/* PRQA S 1535 13 #3262 - Unused typedef defined for future extension and type consistency */
 typedef unsigned long int s32;
 typedef signed short int s16;
 typedef unsigned char s8;
@@ -40,13 +46,9 @@ typedef signed short int AS_S16;
 typedef signed char AS_S08;
 typedef unsigned char AS_BOOL;
 
-
-
 #define AS_NULL ((AS_BOOL)0)
 #define AS_TRUE ((AS_BOOL)1)
 #define AS_FALSE ((AS_BOOL)0)
-
-
 
 #define AS_ENABLE ((AS_BOOL)1)
 #define AS_DISABLE ((AS_BOOL)0)
@@ -72,8 +74,9 @@ typedef unsigned char AS_BOOL;
 #define AS_MAKEDWORDLOBYTE(x) ((u8)(x & 0x000000ff))
 
 /*****************************************************************************/
-extern unsigned char gs_aKey[16]; 
-extern void aes_cmac ( unsigned char *key, unsigned char *input, s32 length, unsigned char *mac );
-extern void Gen_CMACkey( unsigned char *key );   
+extern s8 gs_aKey[16];
+extern void aes_cmac(s8 *key, s8 *input, s32 length, s8 *mac);
+extern void Gen_CMACkey(s8 *key);
 extern void sha256(const uint8_t *data, uint32_t len, uint8_t digest[32]);
 #endif /*_AES-CMAC_H */
+/* PRQA S 1534 -- */

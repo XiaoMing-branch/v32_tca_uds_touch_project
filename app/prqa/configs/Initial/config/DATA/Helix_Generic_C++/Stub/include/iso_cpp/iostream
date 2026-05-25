@@ -1,0 +1,40 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_iostream__
+#define __QAC_INCLUDE_iostream__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+
+#include <istream>
+#include <ostream>
+
+__QAC_BEGIN_NAMESPACE
+
+
+  extern istream cin;
+  extern ostream cout;
+  extern ostream cerr;
+  extern ostream clog;
+
+  extern wistream wcin;
+  extern wostream wcout;
+  extern wostream wcerr;
+  extern wostream wclog;
+
+
+__QAC_END_NAMESPACE
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+#endif // ends __QAC_INCLUDE_iostream__
+// END BLOCK postfix
+

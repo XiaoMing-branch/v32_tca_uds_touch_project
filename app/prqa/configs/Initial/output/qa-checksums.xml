@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This file is API generated -->
+<dependencies location="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app" version="1">
+ <toolchain_history>
+  <component whole_project="yes" name="dataflow" language="C_CPP" version="1.3.0"/>
+  <component whole_project="no" name="m3cm" language="C" version="5.3.0"/>
+  <component whole_project="yes" name="mta" language="C_CPP" version="4.3.0"/>
+  <component whole_project="no" name="qac" language="C" version="11.3.0"/>
+  <component whole_project="no" name="qacpp" language="C++" version="6.3.0"/>
+  <component whole_project="yes" name="rcma" language="C_CPP" version="4.3.0"/>
+ </toolchain_history>
+ <baseline_history baseline="OFF"/>
+ <checksums>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\cma.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x11.c.dataflow.via"/>
+  <file hash="3341623cd8526fe699e916ca5804dc96" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diagnosticIII.c.qac.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2e.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2f.c.dataflow.via"/>
+  <file hash="c6d4aace8bc8ed71fe080e6b955c67c6" name="${SOURCE_ROOT}\device\gcc\inc\cmsis\cmsis_compiler.h"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x32.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x3e.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb0.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb1.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb2.c.dataflow.via"/>
+  <file hash="c53841e1e5e095cc0ca0b1321e947c1b" name="${SOURCE_ROOT}\prebuild\si_lib\si_hal.h"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb3.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb5.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb6.c.dataflow.via"/>
+  <file hash="6d40f4c2d85f6e84fb5010b52ae9b241" name="${SOURCE_ROOT}\driver\inc\reg\register.h"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb7.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbc.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbd.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diagnosticIII.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\platform\pal\utilities\utilities.c.dataflow.via"/>
+  <file hash="ebb0903de8feec8bf63b48f2e482eb03" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\app.c.dataflow.via"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\custom_diagnosticIII.c.dataflow.via"/>
+  <file hash="09c1b5c9a7db39e587368f93e1d41ced" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\math.h"/>
+  <file hash="b8ec95c037a6cacd39839a32d4d891da" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\lin_frame.c.dataflow.via"/>
+  <file hash="344433c10ab120ca22f151e0a3144e80" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x11.c.qac.via"/>
+  <file hash="1ea77bad180367a545e7fd9078bdc859" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2e.c.qac.via"/>
+  <file hash="4261d38f6d2e6785b98bbefa3751e28f" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2f.c.qac.via"/>
+  <file hash="907362e86dc71ca0b6d321c7c5857479" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x32.c.qac.via"/>
+  <file hash="abb76f6f906487340dc054c543e28fff" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x3e.c.qac.via"/>
+  <file hash="6c2110af85e9f6d3b948830da54bd686" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb0.c.qac.via"/>
+  <file hash="26bd27d70e6035c665ec90588795ec69" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb1.c.qac.via"/>
+  <file hash="e990dc0107198093b19fc7052f6a280b" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb2.c.qac.via"/>
+  <file hash="9a4eeeecb63a86b707dbc2ec6632eb77" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb3.c.qac.via"/>
+  <file hash="83ca0fffa5a826c10543bb6f2b6c147d" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb5.c.qac.via"/>
+  <file hash="ccef7abbf1ee8cdaa83674ee25ab2360" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb6.c.qac.via"/>
+  <file hash="696dacacd82db1e9674d2f2159442b85" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb7.c.qac.via"/>
+  <file hash="b51f3a5b67f205255818d55191706619" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbc.c.qac.via"/>
+  <file hash="a0bdc4c6add6c2f47c486d37c67e355b" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbd.c.qac.via"/>
+  <file hash="f4eaff6a7c82045c0b41642f7f7ce853" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\platform\pal\utilities\utilities.c.qac.via"/>
+  <file hash="f75dfb7f385ec7a2e0c7266603283516" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\custom_diagnosticIII.c.qac.via"/>
+  <file hash="5bcb6be5660b8cd50bed812fd664c2ba" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\lin_frame.c.qac.via"/>
+  <file hash="d4039cca29b3c072361e49771dd0211b" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\cma.rcma.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2e.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x2f.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x11.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x32.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0x3e.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb0.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb1.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb2.c.m3cm.via"/>
+  <file hash="ff8973f980950726ecbe341efeb417d0" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\string.h"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb3.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb5.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb6.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xb7.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbc.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diag_sid\sid_0xbd.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\midware\lin_manager\diagnosticIII.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\platform\pal\utilities\utilities.c.m3cm.via"/>
+  <file hash="8a09c5a23a8d6b237b6fea4f52222111" name="${SOURCE_ROOT}\midware\store_manager\inc\store_map.h"/>
+  <file hash="b31f0c70721a3ef2278536d78eb291fc" name="${SOURCE_ROOT}\prebuild\si_lib\si_type.h"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\custom_diagnosticIII.c.m3cm.via"/>
+  <file hash="c3713761f196a1eddf40fab01932dab3" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\lin_frame.c.m3cm.via"/>
+  <file hash="ed0a5f27ba0cae8f3bc867b377cf3171" name="${SOURCE_ROOT}\prqa\configs\Initial\output\_SOURCE_ROOT\cma.mta.via"/>
+  <file hash="1a34c9d38ba52fde59a8cb743a6b8c2b" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_spi.h"/>
+  <file hash="d6addf4b67e726a324712cf9781355d9" tu_hash="e8e77172c946eb35a83737013b9485ea" anatime="616" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0x11.c"/>
+  <file hash="f6e4881578123aa4eae8e0a6aa6008d2" name="${SOURCE_ROOT}\prebuild\lin_lib\inc\lin.h"/>
+  <file hash="291a95a08cccc91759d49b767afec878" name="${SOURCE_ROOT}\midware\store_manager\inc\store_manager.h"/>
+  <file hash="41d85cac98e82db5fd1ef562805a78aa" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\lin_cfg\lin_cfg.h"/>
+  <file hash="7aa9030ca1d3cb0960580fc672363e49" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\lin_cfg\lin_hw_cfg.h"/>
+  <file hash="b9c2e45db3906bc9a6e46f1b01971355" name="${SOURCE_ROOT}\device\common\inc\tcae10.h"/>
+  <file hash="c8806175759f45aa3927457b1e6577a3" name="${SOURCE_ROOT}\midware\lin_manager\inc\diagnosticIII.h"/>
+  <file hash="544e23d833d9b3bfd82a9081077f13b9" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_flash.h"/>
+  <file hash="7242827f45c0626a7b345688a6df5f3e" name="${SOURCE_ROOT}\driver\inc\reg\adc_reg_def.h"/>
+  <file hash="6d0229685871d29a0bcf007152812ba0" name="${SOURCE_ROOT}\driver\inc\reg\crg_reg_def.h"/>
+  <file hash="4dd024d81197f04a8df7ba026b249590" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_def.h"/>
+  <file hash="f9865288a4eff549ea85a4aba045f3a1" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\test_config.h"/>
+  <file hash="f7a538b911da02af11ee94d0c2e34799" name="${SOURCE_ROOT}\driver\inc\reg\pinmux_reg_def.h"/>
+  <file hash="dba1af2a80099310e03d21f0187f62bb" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\stdbool.h"/>
+  <file hash="9ab1dc16bd86fc063a4589f01af4af99" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\_annexK.h"/>
+  <file hash="c98b796f729eee045d564f842ee9b9fb" name="${SOURCE_ROOT}\driver\inc\reg\gpio_reg_def.h"/>
+  <file hash="2fbdca974e1925a5894abc5d66555f1d" name="${SOURCE_ROOT}\midware\common\misc.h"/>
+  <file hash="7baec6edd38dcde55a31b38aa484cdbd" name="${SOURCE_ROOT}\driver\inc\reg\test_reg_def.h"/>
+  <file hash="65ec643f4a198e913a1924ce04b9f3fd" name="${SOURCE_ROOT}\driver\inc\reg\syscfg_reg_def.h"/>
+  <file hash="ba7e4770884341336138fcec9d34fc09" name="${SOURCE_ROOT}\device\gcc\inc\cmsis\cmsis_gcc.h"/>
+  <file hash="d6d91230741c0bd3dbb32ee3dc055667" name="${SOURCE_ROOT}\prebuild\lin_lib\inc\lin_precfg.h"/>
+  <file hash="cacb641688416f3619b516b9bc59fdc3" name="${SOURCE_ROOT}\device\gcc\inc\cmsis\cmsis_version.h"/>
+  <file hash="7163c30e7b643aa706fdc7320e723f2d" name="${SOURCE_ROOT}\driver\inc\reg\pwm_reg_def.h"/>
+  <file hash="6d0c02585125cd61b5bc95c0bf3c3281" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\assert.h"/>
+  <file hash="82ae0b4b3c5153058781b533b98784b5" tu_hash="1ff7f57024b13ca7297cdff2d2dcbdef" anatime="782" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb6.c"/>
+  <file hash="d7a6e702153e50e2eba3744a7bc28bc6" name="${SOURCE_ROOT}\driver\inc\reg\register_map.h"/>
+  <file hash="f1bf9db110ff8a8bfe9e286a2d79efe2" name="${SOURCE_ROOT}\driver\inc\reg\lin_sci_reg_def.h"/>
+  <file hash="390a268a837210a64f2972ca3800bee3" name="${SOURCE_ROOT}\driver\inc\reg\print_uart_reg_def.h"/>
+  <file hash="0f3087a652b6362a6085e3551f4745e8" name="${SOURCE_ROOT}\device\gcc\inc\cmsis\core_cm0.h"/>
+  <file hash="196211a4b40f5b08fbdce8c90d34211e" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\stdio.h"/>
+  <file hash="13fb873855dee72f04f31f17a82c5609" name="${SOURCE_ROOT}\prebuild\lin_lib\inc\linlib.h"/>
+  <file hash="6438a3db15cfa57db18deb48b416de13" name="${SOURCE_ROOT}\driver\inc\reg\tim_lite_reg_def.h"/>
+  <file hash="3384d229d88ecdcc0fa553c9e0bd28dd" name="${SOURCE_ROOT}\driver\inc\reg\captouch_reg_def.h"/>
+  <file hash="3e5df8857a1315d413d4d36f221df1e4" name="${SOURCE_ROOT}\driver\inc\reg\spi_reg_def.h"/>
+  <file hash="02814b0e7f4e072531fc22ff3f178790" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\stddef.h"/>
+  <file hash="b296570772f8d978161f12b5bf6b2c9f" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\stdint.h"/>
+  <file hash="5bb0cccf54874d428ce9925c8237e254" name="${SOURCE_ROOT}\driver\inc\reg\asyscfg_reg_def.h"/>
+  <file hash="7d11fb3e8e5517c0b99055455317c3c8" name="${SOURCE_ROOT}\driver\inc\reg\eflash_reg_def.h"/>
+  <file hash="c81bb63336d43d42fd51c1710b780bbe" name="${SOURCE_ROOT}\device\common\inc\base_types.h"/>
+  <file hash="401d30313189a296227322abc1c1ea24" name="${SOURCE_ROOT}\driver\inc\reg\iwdg_reg_def.h"/>
+  <file hash="500b3348fc78c1218f6deab9f64b3ae1" name="${SOURCE_ROOT}\driver\inc\reg\lin_sci1_reg_def.h"/>
+  <file hash="6fa85d320464961e9b4a9816ce1e20d7" tu_hash="b6a20f678db0b63c0be632b0ee5a78f7" anatime="769" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\custom_diagnosticIII.c"/>
+  <file hash="2cf3ae5d7bf91317b54bc321744aa058" tu_hash="7889eac76d2a14548eff31d031e8873a" anatime="631" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0x2e.c"/>
+  <file hash="6a30eaa3b872cad5b7f2e9090625f751" name="${SOURCE_ROOT}\platform\pal\utilities\inc\utilities.h"/>
+  <file hash="925e699fa26b46e488d6a2aa4c07ce80" tu_hash="c6242d05b4b841a7b362505b09a5e9e2" anatime="545" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0x2f.c"/>
+  <file hash="dfd6e1781fd401829c954a4079485265" tu_hash="28bff5e0bf46a4f5859ac98814369c6e" anatime="633" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0x32.c"/>
+  <file hash="00c6690562afdddfdd7cb4b9527ed4bf" tu_hash="54bc2d9f747cda9ce6c8464817dcf3dd" anatime="581" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0x3e.c"/>
+  <file hash="f1f477529efb6b4f763b195db08a7c07" tu_hash="113d07c7e30bc42c59eacde992d51361" anatime="689" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb0.c"/>
+  <file hash="9916b0a2b69165066ac1b8255a09bd1d" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_adc.h"/>
+  <file hash="33705e1d77898e7a0b7ad18ccfe3315f" name="${SOURCE_ROOT}\platform\pal\utilities\inc\pal_func_def.h"/>
+  <file hash="ca674396754159201ee9f76ab59e5e8d" name="${SOURCE_ROOT}\platform\pal\pal_store\inc\pal_store.h"/>
+  <file hash="b9fd6661ed0aaa8bf5c18f7ae157cb51" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_cortex.h"/>
+  <file hash="57fd54f68c0f9715bf26b64fa6be347d" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_uart.h"/>
+  <file hash="9f8751bf3fb777649c788695ee85b715" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_gpio.h"/>
+  <file hash="3b113244e051ee1c53ae698ae2e4e41d" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_lpm.h"/>
+  <file hash="ebea64ee6625db9d512d5f0bb72975a3" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_pwm.h"/>
+  <file hash="2d995d98fe5e5b0c59ffdb86d777d405" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_sci.h"/>
+  <file hash="eff34441ec475c90c19f0ce9b29f9962" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_timer.h"/>
+  <file hash="029b439c9288b88018205784f991aa4f" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_wdg.h"/>
+  <file hash="87b3e00446028a9b4882bec50878cd05" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_captouch.h"/>
+  <file hash="b051fb0b524efde715a6fc0f23a1739e" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_sys.h"/>
+  <file hash="9b74d67b311f147254c5155892ab9745" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\app.h"/>
+  <file hash="2a27c7a33224c13d659b973fee0d2d23" name="${SOURCE_ROOT}\driver\inc\tcae10_ll_delay.h"/>
+  <file hash="e095c94e545b78dbd95a7db1d9000fde" tu_hash="ecf1f9500433e406fd7c8e17869afb35" anatime="632" name="${SOURCE_ROOT}\platform\pal\utilities\utilities.c"/>
+  <file hash="2fde9a74439e7731119e26c5d4e2e2c4" name="${SOURCE_ROOT}\midware\lin_manager\inc\lin_process.h"/>
+  <file hash="5f076cb3ecc15b4f72587bd35dc1737a" tu_hash="614dc28a426096d9fe1e602b1e46a349" anatime="590" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb1.c"/>
+  <file hash="3e7cd5d5e7bb9e36a2f15264206983fa" tu_hash="9e9042e0c8777096558ab55a476016ab" anatime="669" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb2.c"/>
+  <file hash="b027d24dd493e62e0056a1ad5b90b606" name="${SOURCE_ROOT}\midware\tclog\tc_log.h"/>
+  <file hash="e20869cce8ee467f9088fe7c4b0b505c" name="${SOURCE_ROOT}\midware\tclog\tc_log_conf.h"/>
+  <file hash="f91efd5ae0912eeb020a365cb53596d3" tu_hash="c75453634e30e37d8e4c2da4f6b246e0" anatime="770" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb3.c"/>
+  <file hash="2fa21f94c471e2fa0bd49cb4235d14f4" tu_hash="11e8b1ad6ad02f6c8792874c60dac4c7" anatime="804" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb5.c"/>
+  <file hash="b60f3105eddd7d73e9e017aef301ad8e" tu_hash="7142177874fecc07af8b0470b861c91e" anatime="817" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xb7.c"/>
+  <file hash="3bf4968f7ffb854caeaee3d5f2085ca5" tu_hash="eb19d4ff3bba3e2cde1ba777f6499958" anatime="837" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xbc.c"/>
+  <file hash="8347d894788907cabc4bd25015888de6" tu_hash="53aa9ae43cc8bcaaccfe96f211c9481b" anatime="832" name="${SOURCE_ROOT}\midware\lin_manager\diag_sid\sid_0xbd.c"/>
+  <file hash="64cad2ab9d5c3a049a42feb2171a629c" tu_hash="c426459eb290d4a46d39198c7013f7cd" anatime="738" name="${SOURCE_ROOT}\midware\lin_manager\diagnosticIII.c"/>
+  <file hash="6c11608e9febfbc3a4a578611b568fb9" name="${SOURCE_ROOT}\midware\task_manager\lin_task.h"/>
+  <file hash="5eec3fa936f8b40e872742dfda64be25" name="${SOURCE_ROOT}\midware\common\tc_halt.h"/>
+  <file hash="053768318cfd86d732022ddddeabd8b2" name="${SOURCE_ROOT}\prebuild\si_lib\si_tool.h"/>
+  <file hash="525e8ed4f7a268accf71853830997749" name="${SOURCE_ROOT}\midware\touch\si_touch_port.h"/>
+  <file hash="47426d1935043b9faed5505f68db0d1e" name="${SOURCE_ROOT}\prebuild\si_lib\si_filter_dctor.h"/>
+  <file hash="6140a4a4b0df02f6deadf6078a33b69c" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_condition_set.h"/>
+  <file hash="a055fff4e88a0d39a44ee66b7ddd2bbe" name="${SOURCE_ROOT}\prebuild\si_lib\si_noise.h"/>
+  <file hash="e73f56e3db058e14ae174d8dd1c6b0d3" name="${SOURCE_ROOT}\prebuild\si_lib\si_para_adjuster.h"/>
+  <file hash="940b5d65755e6acd53d369afa9d39141" name="${SOURCE_ROOT}\midware\touch\touch_haldispatch.h"/>
+  <file hash="bfa7634d6096a32a1f1bba6c390cf7ad" name="${SOURCE_ROOT}\midware\touch\touch_halnode.h"/>
+  <file hash="61612a914b2ca9a9c311f2974914cfe2" name="${SOURCE_ROOT}\prebuild\si_lib\si_filter.h"/>
+  <file hash="9d4603d1f612e5994f49e50a57ed9d64" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter.h"/>
+  <file hash="0f018bbc8788db9010f80d18daa50f83" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_condition_key.h"/>
+  <file hash="47766fe47c0a479bcf3fc979b223dfa4" name="${SOURCE_ROOT}\prebuild\si_lib\si_log.h"/>
+  <file hash="4e1d610bbf34fb3922b73cbee2eeaf12" name="${SOURCE_ROOT}\os\litetask\tc_port.h"/>
+  <file hash="51fde2f6d941ef5d85d67a9b4921a047" name="${SOURCE_ROOT}\prebuild\si_lib\si_pr.h"/>
+  <file hash="d92f20a3e16acafd3b90e509113be60d" name="${SOURCE_ROOT}\prebuild\si_lib\si_include.h"/>
+  <file hash="e03ada74f89974d346c7db8966356760" name="${SOURCE_ROOT}\os\litetask\tc.h"/>
+  <file hash="770e57e099e975cb7fc2534b301c6418" name="${SOURCE_ROOT}\prebuild\si_lib\si_baseline.h"/>
+  <file hash="b6a25bb1e1218dec723badb1cea6dac1" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_action_set.h"/>
+  <file hash="8b2144b5f96992acfb431c2f07f98b55" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\touch_config.h"/>
+  <file hash="af93bf69c0f43fc6fdc997149c086a3b" name="${SOURCE_ROOT}\prebuild\si_lib\si_misc.h"/>
+  <file hash="a62dd29393af027384b18ddf8438f116" name="${SOURCE_ROOT}\prebuild\si_lib\si_amp.h"/>
+  <file hash="85812c535dcaef32359b27d2c3e1f3a9" name="${SOURCE_ROOT}\prebuild\si_lib\si_scheduler.h"/>
+  <file hash="7f8840409a522625f27b7db51f98e562" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_action_key.h"/>
+  <file hash="5ebb455f0913204eaf3933aea3bcbb7d" name="${SOURCE_ROOT}\prebuild\si_lib\si_noise_exit.h"/>
+  <file hash="b192170da7c848e31624b3fbb64cb00d" name="${SOURCE_ROOT}\prebuild\si_lib\si_core.h"/>
+  <file hash="96017c296530eae3afbc809ca100e852" name="${SOURCE_ROOT}\midware\common\tc_usermsg.h"/>
+  <file hash="d28c391f7167b28208d354e9b11e7e8f" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\lin_frame.h"/>
+  <file hash="a4902ee115a82bb379b021d99d217df6" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp.h"/>
+  <file hash="44f39b27199d3d1933e91bb31fbae33e" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\tc_conf.h"/>
+  <file hash="13157194630e229023bd0fbfa70cb4b9" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_matcher.h"/>
+  <file hash="5e7c61f29a4e8aa411794ce5fe2e6d79" name="${SOURCE_ROOT}\prebuild\si_lib\si_config.h"/>
+  <file hash="172bbbfe08696524beac3867f14babeb" name="${SOURCE_ROOT}\prqa\configs\Initial\config\DATA\Helix_Generic_C\Stub\include\iso_c\stdlib.h"/>
+  <file hash="ac5091d8cc7cca2746d40fb563398728" name="${SOURCE_ROOT}\prebuild\si_lib\si_arbiter_interp_event.h"/>
+  <file hash="e8943574e85fe9e596b8e223e18497fd" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\custom_diagnosticIII.h"/>
+  <file hash="63d01a632848f8a240f01fd5647d2ed8" name="${SOURCE_ROOT}\midware\touch\touch_include.h"/>
+  <file hash="d972cefafe10f6643b8612c9d9a2cf89" name="${SOURCE_ROOT}\midware\touch\touch_tool.h"/>
+  <file hash="215791ad6c59f579e09f594a243110ca" tu_hash="b9e2fedfc160afae4f2d94b1db69a755" anatime="520" name="${SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\lin_frame.c"/>
+  <file hash="" tu_hash="417597347db97ac659e8186813711e8e" name=""/>
+ </checksums>
+</dependencies>

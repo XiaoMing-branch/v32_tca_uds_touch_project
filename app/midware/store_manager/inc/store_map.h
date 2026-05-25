@@ -24,10 +24,10 @@
 #include "lin_cfg.h"
 
 
-#define FAST_LIN_NAD_ADDR                   (0x0000F600UL) /*存放临时lin nad*/
+#define FAST_LIN_NAD_ADDR                   (0x0000F600UL) /*瀛樻斁涓存椂lin nad*/
 #define SYSTEM_PARAM_BASE_ADDR              (0x0000FA00UL) /* sector 1*/
 #define CUSTOMER_PARAM_BASE_ADDR            (0x0000F800UL) /* sector 0*/
-#define FLASH_SWAP_BASE_ADDR                (0x0000FC00UL) /* sector 2，flash写入时做暂存区用 */
+#define FLASH_SWAP_BASE_ADDR                (0x0000FC00UL) /* sector 2锛宖lash鍐欏叆鏃跺仛鏆傚瓨鍖虹敤 */
 
 /* sector 0*/
 #define SYSTEM_PARAM_CRC_SIZE       (4)

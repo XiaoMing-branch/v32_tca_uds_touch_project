@@ -1,0 +1,95 @@
+// paulfitz Thu Jun  3 09:39:19 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_numeric__
+#define __QAC_INCLUDE_numeric__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+#include <iterator>
+
+// END BLOCK prefix
+
+
+__QAC_BEGIN_NAMESPACE
+
+  template <class InputIterator, class T>
+    T accumulate(InputIterator first, InputIterator last, T init);
+  template <class InputIterator, class T, class BinaryOperation>
+    T accumulate(InputIterator first, InputIterator last, T init,
+		 BinaryOperation binary_op);
+
+
+  template<class InputIterator>
+    typename iterator_traits<InputIterator>::value_type
+      reduce(InputIterator first, InputIterator last);
+  template<class InputIterator, class T>
+    T reduce(InputIterator first, InputIterator last, T init);
+  template<class InputIterator, class T, class BinaryOperation>
+    T reduce(InputIterator first, InputIterator last, T init,
+             BinaryOperation binary_op);
+  template<class ExecutionPolicy, class ForwardIterator>
+    typename iterator_traits<ForwardIterator>::value_type
+      reduce(ExecutionPolicy&& exec, // see 28.4.5
+             ForwardIterator first, ForwardIterator last);
+  template<class ExecutionPolicy, class ForwardIterator, class T>
+    T reduce(ExecutionPolicy&& exec, // see 28.4.5
+             ForwardIterator first, ForwardIterator last, T init);
+  template<class ExecutionPolicy, class ForwardIterator, class T, class BinaryOperation>
+    T reduce(ExecutionPolicy&& exec, // see 28.4.5
+             ForwardIterator first, ForwardIterator last, T init,
+             BinaryOperation binary_op);
+
+
+  template <class InputIterator1, class InputIterator2, class T>
+    T inner_product(InputIterator1 first1, InputIterator1 last1,
+		    InputIterator2 first2, T init);
+  template <class InputIterator1, class InputIterator2, class T,
+	    class BinaryOperation1, class BinaryOperation2>
+    T inner_product(InputIterator1 first1, InputIterator1 last1,
+		    InputIterator2 first2, T init,
+		    BinaryOperation1 binary_op1,
+		    BinaryOperation2 binary_op2);
+
+
+
+
+  template <class InputIterator, class OutputIterator>
+    OutputIterator partial_sum(InputIterator first,
+                               InputIterator last,
+			       OutputIterator result);
+  template <class InputIterator, class OutputIterator,
+            class BinaryOperation>
+    OutputIterator partial_sum(InputIterator first,
+                               InputIterator last,
+			       OutputIterator result,
+                               BinaryOperation binary_op);
+
+
+
+
+  template <class InputIterator, class OutputIterator>
+    OutputIterator adjacent_difference(InputIterator first,
+                                       InputIterator last,
+				       OutputIterator result);
+  template <class InputIterator, class OutputIterator,
+            class BinaryOperation>
+    OutputIterator adjacent_difference(InputIterator first,
+                                       InputIterator last,
+				       OutputIterator result,
+				       BinaryOperation binary_op);
+
+
+
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+#endif // ends __QAC_INCLUDE_numeric__
+// END BLOCK postfix

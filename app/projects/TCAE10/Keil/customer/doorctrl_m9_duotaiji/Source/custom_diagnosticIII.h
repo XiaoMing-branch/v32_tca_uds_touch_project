@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
   ******************************************************************************
   * @brief  application main file.
@@ -18,10 +19,16 @@
   *
   ******************************************************************************
   */
-#ifndef __CUSTOM_DIAGNOSTICLLL_H__
-#define __CUSTOM_DIAGNOSTICLLL_H__
+#ifndef CUSTOM_DIAGNOSTICLLL_H__
+#define CUSTOM_DIAGNOSTICLLL_H__
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_tcae10.h"
+#else
 #include "tcae10.h"
+#endif
 
 typedef enum
 {
@@ -29,6 +36,7 @@ typedef enum
     LEFT_REAR_DOOR,
     RIGHT_FRONT_DOOR,
     RIGHT_REAR_DOOR,
+/* PRQA S 1535 1 #3262 - Unused typedef defined for future extension and type consistency */
 } T_Door;
 
 /**
@@ -38,6 +46,7 @@ typedef struct
 {
     uint8_t config_word; /* user's config word */
     uint8_t nad_info;
+/* PRQA S 2071 1 #3269 - Language extension used for compiler and hardware optimization */
 } user_cfg_t __attribute__((aligned(1)));
 
 typedef struct

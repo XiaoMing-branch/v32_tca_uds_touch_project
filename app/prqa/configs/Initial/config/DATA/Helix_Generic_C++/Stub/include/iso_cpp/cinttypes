@@ -1,0 +1,26 @@
+/* "cinttypes"
+ */
+
+#ifndef __QAC_INCLUDE_cinttypes__
+#define __QAC_INCLUDE_cinttypes__
+
+#include <qac_config.h>
+#include <cstdint>
+#include <inttypes.h>
+
+__QAC_BEGIN_NAMESPACE
+
+using ::imaxdiv_t;
+using ::intmax_t;
+using ::uintmax_t;
+
+using ::imaxabs;
+using ::imaxdiv;
+using ::strtoimax;
+using ::strtoumax;
+using ::wcstoimax;
+using ::wcstoumax;
+
+__QAC_END_NAMESPACE
+
+#endif // __QAC_INCLUDE_cinttypes__

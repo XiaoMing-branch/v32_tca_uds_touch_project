@@ -18,7 +18,16 @@
  *
  *****************************************************************************
  */
-
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_utilities.h"
+#include "fff_store_manager.h"
+#include "fff_measure.h"
+#include "fff_colormixing.h"
+#include "fff_version.h"
+#include "fff_monitor_manager.h"
+#else
 #include "diagnosticIII.h"
 #include "utilities.h"
 #include "store_manager.h"
@@ -26,6 +35,7 @@
 #include "colormixing.h"
 #include "version.h"
 #include "monitor_manager.h"
+#endif
 
 extern LedCoordinate_t g_led_param;
 extern const uint8_t led_type[20];

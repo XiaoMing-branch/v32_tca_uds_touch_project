@@ -593,8 +593,7 @@ void lin_lld_isr_callback(uint32_t isr)
     /* stop err */
     if (0 != (isr & LIN_INT_STOP_BIT_ERROR_FLAG))
     {
-        LOG_LIN("LIN_INT_STOP_BIT_ERROR_FLAG\r\n");
-        lin_error = errSTOP;
+        LOG_LIN("LIN_INT_STOP_BIT_ERROR_FLAG\r\n"); 
 
         //if (((state == RECV_DATA) || (state == SEND_DATA)) && (tl_slaveresp_cnt != 0))
         if ((state == RECV_DATA) || (state == SEND_DATA) || (state == SEND_DATA_COMPLETED))
@@ -609,7 +608,7 @@ void lin_lld_isr_callback(uint32_t isr)
                 //tx_abort
                 pal_lin_abort_handle(LIN_BUS_0, LIN_ABORT_TYPE_TX);
             }
-
+            lin_error = errSTOP;
             CALLBACK_HANDLER((l_ifc_handle)ifc, LIN_LLD_FRAME_ERR, current_id);
             lin_goto_idle_state();
         }

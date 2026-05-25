@@ -1,0 +1,86 @@
+﻿* ===[ SOURCE FILE ]===
+* ===[ ACF INCLUDES ]===
+* ===[ PROJECT SETTINGS  ]===
+* ===[ PROJECT INCLUDES ]===
+* ===[ PROJECT DEFINES ]===
+* ===[ PROJECT OPTIONS ]===
+* ===[ DEPENDENCY SETTINGS ]===
+* ===[ INHERITED FILE CONTENT ]===
+-q ${HELIX_QAC_SOURCE_ROOT}\examples\tcpl03x\demo_apps\bootloader_seres\include\test_config.h
+-q ${HELIX_QAC_SOURCE_ROOT}\middleware
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\CMSIS
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\devices
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\drivers
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\pal_lin
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\pal_store
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\pal_systick
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\pal_wdg
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\utilities\inc\pal_func_def.h
+* ===[ ACTIVE MESSAGES ]===
+-o 1561
+-o 1562
+-o 1563
+-o 1564
+-o 1565
+-o 1566
+-o 1568
+-o 1569
+-o 1570
+-o 1571
+-o 1572
+-o 1573
+-o 1574
+-o 1575
+-o 1576
+-o 1577
+-o 1578
+-o 1579
+-o 1580
+-o 1581
+-o 1582
+-o 1585
+-o 1586
+-o 1590
+-o 1592
+-o 1593
+-o 1594
+-o 1598
+-o 1599
+-o 1765
+-o 1766
+-o 1767
+-o 1768
+-o 1769
+-o 1770
+-o 1774
+-o 1775
+-o 1776
+-o 1785
+-o 1786
+-o 1787
+-o 1788
+-o 1789
+-o 1790
+-o 5087
+-o 5118
+-o 5123
+-o 5124
+-o 5125
+-o 5127
+-o 5129
+-o 5130
+-o 5131
+-o 5132
+-o 5135
+-o 5136
+-o 5137
+-o 5138
+-o 5139
+-o 5140
+-o 5141
+-o 5142
+-o 5143
+-o 5150
+-o 5151
+-o 5152
+-o 5209

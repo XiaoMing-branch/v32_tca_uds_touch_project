@@ -1,0 +1,8 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/inc/diagnosticIII.h",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prebuild/lin_lib/inc/lin.h", "line": 33, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prebuild/lin_lib/inc/linlib.h", "line": 34, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/test_config.h", "line": 26, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/config/DATA/Helix_Generic_C/Stub/include/iso_c/stdint.h", "line": 32, "is_system": false}]
+}

@@ -1,0 +1,226 @@
+#ifndef __QAC_INCLUDE_system_error__
+#define __QAC_INCLUDE_system_error__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+#include <iosfwd>
+#include <stdexcept>
+#include <type_traits>
+
+__QAC_BEGIN_NAMESPACE
+
+class error_code;
+class error_condition;
+
+class error_category
+{
+public:
+  constexpr error_category() noexcept;
+  virtual ~ error_category();
+  error_category(const error_category&) = delete;
+  error_category& operator=(const error_category&) = delete;
+  virtual const char* name() const noexcept = 0;
+  virtual error_condition default_error_condition(int ev) const noexcept;
+  virtual bool equivalent(int code, const error_condition& condition) const noexcept;
+  virtual bool equivalent(const error_code& code, int condition) const noexcept;
+  virtual string message(int ev) const = 0;
+  bool operator==(const error_category& rhs) const noexcept;
+  bool operator!=(const error_category& rhs) const noexcept;
+  bool operator<(const error_category& rhs) const noexcept;
+};
+
+const error_category& generic_category() noexcept;
+
+const error_category& system_category() noexcept;
+
+class error_code
+{
+public:
+  // 22.5.3.2, constructors
+  error_code() noexcept;
+  error_code(int val, const error_category& cat) noexcept;
+  template <class ErrorCodeEnum>
+  error_code(ErrorCodeEnum e) noexcept;
+  // 22.5.3.3, modifiers
+  void assign(int val, const error_category& cat) noexcept;
+  template <class ErrorCodeEnum>
+  error_code& operator=(ErrorCodeEnum e) noexcept;
+  void clear() noexcept;
+  // 22.5.3.4, observers
+  int value() const noexcept;
+  const error_category& category() const noexcept;
+  error_condition default_error_condition() const noexcept;
+  string message() const;
+  explicit operator bool() const noexcept;
+private:
+  int val_;
+  // exposition only
+  const error_category* cat_; // exposition only
+};
+
+class error_condition
+{
+public:
+  // 22.5.4.2, constructors
+  error_condition() noexcept;
+  error_condition(int val, const error_category& cat) noexcept;
+  template <class ErrorConditionEnum>
+  error_condition(ErrorConditionEnum e) noexcept;
+  // 22.5.4.3, modifiers
+  void assign(int val, const error_category& cat) noexcept;
+  template <class ErrorConditionEnum>
+  error_condition& operator=(ErrorConditionEnum e) noexcept;
+  void clear() noexcept;
+  // 22.5.4.4, observers
+  int value() const noexcept;
+  const error_category& category() const noexcept;
+  string message() const;
+  explicit operator bool() const noexcept;
+private:
+  int val_;
+  // exposition only
+  const error_category* cat_; // exposition only
+};
+
+class system_error : public runtime_error
+{
+public:
+  system_error(error_code ec, const string& what_arg);
+  system_error(error_code ec, const char* what_arg);
+  system_error(error_code ec);
+  system_error(int ev, const error_category& ecat, const string& what_arg);
+  system_error(int ev, const error_category& ecat, const char* what_arg);
+  system_error(int ev, const error_category& ecat);
+  const error_code& code() const noexcept;
+  const char* what() const noexcept override;
+};
+
+template <class T>
+struct is_error_code_enum : public false_type
+{ };
+
+template <class T>
+struct is_error_condition_enum : public false_type
+{ };
+
+enum class errc {
+  address_family_not_supported,
+  address_in_use,
+  address_not_available,
+  already_connected,
+  argument_list_too_long,
+  argument_out_of_domain,
+  bad_address,
+  bad_file_descriptor,
+  bad_message,
+  broken_pipe,
+  connection_aborted,
+  connection_already_in_progress,
+  connection_refused,
+  connection_reset,
+  cross_device_link,
+  destination_address_required,
+  device_or_resource_busy,
+  directory_not_empty,
+  executable_format_error,
+  file_exists,
+  file_too_large,
+  filename_too_long,
+  function_not_supported,
+  host_unreachable,
+  identifier_removed,
+  illegal_byte_sequence,
+  inappropriate_io_control_operation,
+  interrupted,
+  invalid_argument,
+  invalid_seek,
+  io_error,
+  is_a_directory,
+  message_size,
+  network_down,
+  network_reset,
+  network_unreachable,
+  no_buffer_space,
+  no_child_process,
+  no_link,
+  no_lock_available,
+  no_message_available,
+  no_message,
+  no_protocol_option,
+  no_space_on_device,
+  no_stream_resources,
+  no_such_device_or_address,
+  no_such_device,
+  no_such_file_or_directory,
+  no_such_process,
+  not_a_directory,
+  not_a_socket,
+  not_a_stream,
+  not_connected,
+  not_enough_memory,
+  not_supported,
+  operation_canceled,
+  operation_in_progress,
+  operation_not_permitted,
+  operation_not_supported,
+  operation_would_block,
+  owner_dead,
+  permission_denied,
+  protocol_error,
+  protocol_not_supported,
+  read_only_file_system,
+  resource_deadlock_would_occur,
+  resource_unavailable_try_again,
+  result_out_of_range,
+  state_not_recoverable,
+  stream_timeout,
+  text_file_busy,
+  timed_out,
+  too_many_files_open_in_system,
+  too_many_files_open,
+  too_many_links,
+  too_many_symbolic_link_levels,
+  value_too_large,
+  wrong_protocol_type
+};
+
+template <> struct is_error_condition_enum<errc> : true_type
+{ };
+
+// 22.5.3.5, non-member functions
+error_code make_error_code(errc e) noexcept;
+
+template <class charT, class traits>
+basic_ostream<charT, traits>& operator<<(basic_ostream<charT, traits>& os, const error_code& ec);
+
+// 22.5.4.5, non-member functions
+error_condition make_error_condition(errc e) noexcept;
+
+// 22.5.5, comparison functions
+bool operator<(const error_code& lhs, const error_code& rhs) noexcept;
+bool operator<(const error_condition& lhs, const error_condition& rhs) noexcept;
+bool operator==(const error_code& lhs, const error_code& rhs) noexcept;
+bool operator==(const error_code& lhs, const error_condition& rhs) noexcept;
+bool operator==(const error_condition& lhs, const error_code& rhs) noexcept;
+bool operator==(const error_condition& lhs, const error_condition& rhs) noexcept;
+bool operator!=(const error_code& lhs, const error_code& rhs) noexcept;
+bool operator!=(const error_code& lhs, const error_condition& rhs) noexcept;
+bool operator!=(const error_condition& lhs, const error_code& rhs) noexcept;
+bool operator!=(const error_condition& lhs, const error_condition& rhs) noexcept;
+
+// 22.5.6, hash support
+template <class T> struct hash;
+template <> struct hash<error_code>;
+template <> struct hash<error_condition>;
+
+// 22.5, system error support
+template <class T>
+inline constexpr bool is_error_code_enum_v = is_error_code_enum<T>::value;
+
+template <class T>
+inline constexpr bool is_error_condition_enum_v = is_error_condition_enum<T>::value;
+
+__QAC_END_NAMESPACE
+
+#endif // ends __QAC_INCLUDE_system_error__

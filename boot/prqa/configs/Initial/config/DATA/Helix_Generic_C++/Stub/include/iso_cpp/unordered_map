@@ -1,0 +1,292 @@
+#ifndef __QAC_INCLUDE_unordered_map__
+#define __QAC_INCLUDE_unordered_map__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <qac_iterator.h>
+
+#include <initializer_list>
+#include <memory>
+#include <functional>
+
+__QAC_BEGIN_NAMESPACE
+
+  template <class Key, class T, class Hash = hash<Key>,
+            class KeyEqual = equal_to<Key>,
+	    class Allocator = allocator<pair<const Key, T> > >
+    class unordered_map;
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    bool operator==(const unordered_map<Key,T,Hash,KeyEqual,Allocator>& x,
+		    const unordered_map<Key,T,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    bool operator!=(const unordered_map<Key,T,Hash,KeyEqual,Allocator>& x,
+		    const unordered_map<Key,T,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    void swap(unordered_map<Key,T,Hash,KeyEqual,Allocator>& x,
+	      unordered_map<Key,T,Hash,KeyEqual,Allocator>& y);
+
+  template <class Key, class T, class Hash = hash<Key>,
+            class KeyEqual = equal_to<Key>,
+	    class Allocator = allocator<pair<const Key, T> > >
+    class unordered_multimap;
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    bool operator==(const unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& x,
+		    const unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    bool operator!=(const unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& x,
+		    const unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class T, class Hash, class KeyEqual, class Allocator>
+    void swap(unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& x,
+	      unordered_multimap<Key,T,Hash,KeyEqual,Allocator>& y);
+
+//  template <class Key, class T, class Hash = hash<Key>,
+//          class KeyEqual = equal_to<Key>,
+//	    class Allocator = allocator<pair<const Key, T> > >
+  template <class Key, class T, class Hash, class KeyEqual,
+	    class Allocator>
+  class unordered_map {
+  public:
+    //  types:
+    typedef Key                                   key_type;
+    typedef T                                     mapped_type;
+    typedef pair<const Key, T>                    value_type;
+    typedef Hash                                  hasher;
+    typedef KeyEqual                              key_equal;
+    typedef Allocator                             allocator_type;
+    typedef typename Allocator::reference         reference;
+    typedef typename Allocator::const_reference   const_reference;
+
+    // HIT picked 4 types - see lib.container.requirements	
+    typedef __normal_iterator<value_type*, unordered_map>
+                                                  iterator;
+    typedef __normal_iterator<const value_type*, unordered_map>
+                                                  const_iterator;
+    typedef __normal_iterator<value_type*, unordered_map>
+                                                  local_iterator;
+    typedef __normal_iterator<const value_type*, unordered_map>
+                                                  const_local_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+
+    typedef typename Allocator::pointer           pointer;
+    typedef typename Allocator::const_pointer     const_pointer;
+
+    //  lib.map.cons construct/copy/destroy:
+    unordered_map()
+    { hasher(); key_equal(); Allocator().allocate (sizeof(value_type)); }
+    explicit unordered_map(size_type n, const hasher& hf = hasher(),
+                 const key_equal& eql = key_equal(),
+		 const allocator_type& a = allocator_type())
+    { hasher h(hf); key_equal e(eql); Allocator().allocate (sizeof(value_type)); }
+    unordered_map(const unordered_map& x);
+    unordered_map(unordered_map&& x);
+    explicit unordered_map(const Allocator&);
+    unordered_map(const unordered_map&, const Allocator&);
+    unordered_map(unordered_map&&, const Allocator&);
+    unordered_map(size_t n, const allocator_type& a)
+      : unordered_map(n, hasher(), key_equal(), a) { }
+    unordered_map(size_t n, const hasher& hf, const allocator_type& a)
+      : unordered_map(n, hf, key_equal(), a) { }
+    unordered_map(std::initializer_list<value_type> il, size_t n = 1u, const hasher& hf = hasher(), const key_equal& eql = key_equal(), const allocator_type& a = allocator_type());
+   ~unordered_map()                        { } 
+    unordered_map&
+      operator=(const unordered_map& x)               { unordered_map(x).swap(*this); return *this; }
+
+    //
+    // Not in C++ 14882:1998
+    allocator_type get_allocator() const { static allocator_type  * volatile r; return * r; }
+
+    //  iterators:
+    iterator               begin()         { static iterator * volatile r; return * r;  }
+    const_iterator         begin() const   { static const_iterator * volatile r; return * r;  }
+    const_iterator         cbegin() const  { static const_iterator * volatile r; return * r;  }
+    iterator               end()           { static iterator * volatile r; return * r;  }
+    const_iterator         end() const     { static const_iterator * volatile r; return * r;  }
+    const_iterator         cend() const    { static const_iterator * volatile r; return * r;  }
+
+    //  capacity:
+    bool      empty() const               { static bool * volatile r; return * r;  }
+    size_type size() const                { static size_type * volatile r; return * r;  }
+    size_type max_size() const            { static size_type * volatile r; return * r;  }
+
+    //  lib.map.access element access:
+    mapped_type& operator[](const key_type& x) { return insert(make_pair (x, mapped_type ())).first->second; }
+    mapped_type& operator[](key_type&& k);
+    mapped_type& at(const key_type& k);
+    const mapped_type& at(const key_type& k) const;
+
+    // bucket interface
+    size_type bucket_count() const noexcept;
+    size_type max_bucket_count() const noexcept;
+    size_type bucket_size(size_type n) const;
+    size_type bucket(const key_type& k) const;
+    local_iterator begin(size_type n);
+    const_local_iterator begin(size_type n) const;
+    local_iterator end(size_type n);
+    const_local_iterator end(size_type n) const;
+    const_local_iterator cbegin(size_type n) const;
+    const_local_iterator cend(size_type n) const;
+
+    // hash policy
+    float load_factor() const noexcept;
+    float max_load_factor() const noexcept;
+    void max_load_factor(float z);
+    void rehash(size_type n);
+    void reserve(size_type n);
+
+    //  modifiers:
+    template <class... Args> pair<iterator, bool> emplace(Args&&... args);
+    template <class... Args> iterator emplace_hint(const_iterator position, Args&&... args);
+    pair<iterator, bool> insert(const value_type& x)                    { static bool * volatile r; return make_pair (insert (begin (), x), *r); }
+    iterator             insert(iterator pos, const value_type& x)
+      { hasher()(x.first); key_equal()(begin()->first, x.first); Allocator().allocate (sizeof(value_type)); return pos; }
+    template <class InputIterator>
+      void insert(InputIterator first, InputIterator last)              { insert (begin(), *first); ++first; }
+    void insert(initializer_list<value_type>);
+
+    iterator  erase(const_iterator position)                            { }
+    iterator  erase(iterator position)                                  { }
+    size_type erase(const key_type& x)                                  { iterator iter = find (x); erase (iter); static size_type  * volatile r; return * r;  }
+    iterator  erase(iterator first, iterator last)                      { }
+    void swap(unordered_map&)                                           { }
+    void clear()                                                        { erase (begin(), end ()); }
+
+    //  lib.map.ops map operations:
+    iterator       find(const key_type& x)                 { iterator iter = begin(); key_equal()(iter->first, x); ++iter; return iter; }
+    const_iterator find(const key_type& x) const           { const_iterator iter = begin(); key_equal()(iter->first, x); ++iter; return iter; }
+    size_type      count(const key_type& x) const          { find(x); static size_type * volatile r; return * r;  }
+
+    pair<iterator,iterator>
+	equal_range(const key_type& x)                           { return make_pair (lower_bound(x), upper_bound(x)); }
+    pair<const_iterator,const_iterator>
+	equal_range(const key_type& x) const                     { return make_pair (lower_bound(x), upper_bound(x)); }
+  };
+
+
+//  template <class Key, class T, class Hash = hash<Key>,
+//          class KeyEqual = equal_to<Key>,
+//	    class Allocator = allocator<pair<const Key, T> > >
+  template <class Key, class T, class Hash, class KeyEqual,
+	    class Allocator>
+  class unordered_multimap {
+  public:
+    //  types:
+    typedef Key                                   key_type;
+    typedef T                                     mapped_type;
+    typedef pair<const Key, T>                    value_type;
+    typedef Hash                                  hasher;
+    typedef KeyEqual                              key_equal;
+    typedef Allocator                             allocator_type;
+    typedef typename Allocator::reference         reference;
+    typedef typename Allocator::const_reference   const_reference;
+
+    // HIT picked 4 types - see lib.container.requirements	
+    typedef __normal_iterator<value_type*, unordered_multimap>
+                                                  iterator;
+    typedef __normal_iterator<const value_type*, unordered_multimap>
+                                                  const_iterator;
+    typedef __normal_iterator<value_type*, unordered_multimap>
+                                                  local_iterator;
+    typedef __normal_iterator<const value_type*, unordered_multimap>
+                                                  const_local_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+
+    typedef typename Allocator::pointer           pointer;
+    typedef typename Allocator::const_pointer     const_pointer;
+
+    //  lib.map.cons construct/copy/destroy:
+    unordered_multimap()
+    { hasher(); key_equal(); Allocator().allocate (sizeof(value_type)); }
+    explicit unordered_multimap(size_type n, const hasher& hf = hasher(),
+                 const key_equal& eql = key_equal(),
+		 const allocator_type& a = allocator_type())
+    { hasher h(hf); key_equal e(eql); Allocator().allocate (sizeof(value_type)); }
+    unordered_multimap(const unordered_multimap& x);
+    unordered_multimap(unordered_multimap&& x);
+    explicit unordered_multimap(const Allocator&);
+    unordered_multimap(const unordered_multimap&, const Allocator&);
+    unordered_multimap(unordered_multimap&&, const Allocator&);
+    unordered_multimap(size_t n, const allocator_type& a)
+      : unordered_multimap(n, hasher(), key_equal(), a) { }
+    unordered_multimap(size_t n, const hasher& hf, const allocator_type& a)
+      : unordered_multimap(n, hf, key_equal(), a) { }
+    unordered_multimap(std::initializer_list<value_type> il, size_t n = 1u, const hasher& hf = hasher(), const key_equal& eql = key_equal(), const allocator_type& a = allocator_type());
+   ~unordered_multimap()                        { } 
+    unordered_multimap&
+      operator=(const unordered_multimap& x)               { unordered_multimap(x).swap(*this); return *this; }
+
+    //
+    // Not in C++ 14882:1998
+    allocator_type get_allocator() const { static allocator_type  * volatile r; return * r; }
+
+    //  iterators:
+    iterator               begin()         { static iterator * volatile r; return * r;  }
+    const_iterator         begin() const   { static const_iterator * volatile r; return * r;  }
+    const_iterator         cbegin() const  { static const_iterator * volatile r; return * r;  }
+    iterator               end()           { static iterator * volatile r; return * r;  }
+    const_iterator         end() const     { static const_iterator * volatile r; return * r;  }
+    const_iterator         cend() const    { static const_iterator * volatile r; return * r;  }
+
+    //  capacity:
+    bool      empty() const               { static bool * volatile r; return * r;  }
+    size_type size() const                { static size_type * volatile r; return * r;  }
+    size_type max_size() const            { static size_type * volatile r; return * r;  }
+
+    //  lib.map.access element access:
+    T& operator[](const key_type& x)                                    { return insert(make_pair (x, mapped_type ())).first->second; }
+
+    // bucket interface
+    size_type bucket_count() const noexcept;
+    size_type max_bucket_count() const noexcept;
+    size_type bucket_size(size_type n) const;
+    size_type bucket(const key_type& k) const;
+    local_iterator begin(size_type n);
+    const_local_iterator begin(size_type n) const;
+    local_iterator end(size_type n);
+    const_local_iterator end(size_type n) const;
+    const_local_iterator cbegin(size_type n) const;
+    const_local_iterator cend(size_type n) const;
+
+    // hash policy
+    float load_factor() const noexcept;
+    float max_load_factor() const noexcept;
+    void max_load_factor(float z);
+    void rehash(size_type n);
+    void reserve(size_type n);
+
+    //  modifiers:
+    template <class... Args> iterator emplace(Args&&... args);
+    template <class... Args> iterator emplace_hint(const_iterator position, Args&&... args);
+    iterator             insert(const value_type& x)                    { static bool * volatile r; return make_pair (insert (begin (), x), *r); }
+    iterator             insert(iterator pos, const value_type& x)
+      { hasher()(x.first); key_equal()(begin()->first, x.first); Allocator().allocate (sizeof(value_type)); return pos; }
+    template <class InputIterator>
+      void insert(InputIterator first, InputIterator last)              { insert (begin(), *first); ++first; }
+    void insert(initializer_list<value_type>);
+
+    iterator  erase(const_iterator position)                            { }
+    iterator  erase(iterator position)                                  { }
+    size_type erase(const key_type& x)                                  { iterator iter = find (x); erase (iter); static size_type  * volatile r; return * r;  }
+    iterator  erase(iterator first, iterator last)                      { }
+    void swap(unordered_multimap&)                                           { }
+    void clear()                                                        { erase (begin(), end ()); }
+
+    //  lib.map.ops map operations:
+    iterator       find(const key_type& x)                 { iterator iter = begin(); key_equal()(iter->first, x); ++iter; return iter; }
+    const_iterator find(const key_type& x) const           { const_iterator iter = begin(); key_equal()(iter->first, x); ++iter; return iter; }
+    size_type      count(const key_type& x) const          { find(x); static size_type * volatile r; return * r;  }
+
+    pair<iterator,iterator>
+	equal_range(const key_type& x)                           { return make_pair (lower_bound(x), upper_bound(x)); }
+    pair<const_iterator,const_iterator>
+	equal_range(const key_type& x) const                     { return make_pair (lower_bound(x), upper_bound(x)); }
+  };
+
+
+__QAC_END_NAMESPACE
+
+#endif // ends __QAC_INCLUDE_unordered_map__

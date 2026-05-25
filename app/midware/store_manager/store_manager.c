@@ -243,7 +243,7 @@ bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length)
     uint16_t left_length;
     uint16_t value_begin;
 
-    if (offset) //¶Á¿ªÍ·²¿·Ö
+    if (offset) //è¯»å¼€å¤´éƒ¨åˆ†
     {
         pal_store_read(STORE_TYPE_SEL, addr - offset, ptr, sizeof(rdbuf));
 
@@ -272,11 +272,11 @@ bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length)
     for (uint16_t i = 0; i < left_length; i += sizeof(rdbuf))
     {
         pal_store_read(STORE_TYPE_SEL, align_addr + i, ptr, sizeof(rdbuf));
-        if (i + sizeof(rdbuf) >= left_length)       //¶Á½áÎ²²¿·Ö
+        if (i + sizeof(rdbuf) >= left_length)       //è¯»ç»“å°¾éƒ¨åˆ†
         {
             memcpy(&value[value_begin + i], ptr, left_length - i);
         }
-        else        //¶ÁÖÐ¼ä²¿·Ö
+        else        //è¯»ä¸­é—´éƒ¨åˆ†
         {
             memcpy(&value[value_begin + i], ptr, sizeof(rdbuf));
         }
@@ -324,24 +324,24 @@ bool store_slow_write(uint32_t addr, uint8_t *value, uint16_t length)
         begin_addr = sector_addr + i;
         end_addr = begin_addr + sizeof(swap_buf);
 
-        if (end_addr <= addr || begin_addr >= prog_end_addr)    //ÎÞ½»¼¯
+        if (end_addr <= addr || begin_addr >= prog_end_addr)    //æ— äº¤é›†
         {
         }
         else
         {
-            if (begin_addr <= addr && end_addr > addr && end_addr < prog_end_addr) //×ó½»²æ
+            if (begin_addr <= addr && end_addr > addr && end_addr < prog_end_addr) //å·¦äº¤å‰
             {
                 memcpy(&ptr[addr - begin_addr], value, end_addr - addr);
             }
-            else if (begin_addr < prog_end_addr && begin_addr >= addr && end_addr > prog_end_addr) //ÓÒ½»²æ
+            else if (begin_addr < prog_end_addr && begin_addr >= addr && end_addr > prog_end_addr) //å³äº¤å‰
             {
                 memcpy(ptr, &value[begin_addr - addr], prog_end_addr - begin_addr);
             }
-            else if (begin_addr >= addr && end_addr <= prog_end_addr) //prog buf°üº¬ swap buf
+            else if (begin_addr >= addr && end_addr <= prog_end_addr) //prog bufåŒ…å« swap buf
             {
                 memcpy(ptr, &value[begin_addr - addr], end_addr - begin_addr);
             }
-            else    //swap buf°üº¬prog buf
+            else    //swap bufåŒ…å«prog buf
             {
                 memcpy(&ptr[addr - begin_addr], value, prog_end_addr - addr);
             }

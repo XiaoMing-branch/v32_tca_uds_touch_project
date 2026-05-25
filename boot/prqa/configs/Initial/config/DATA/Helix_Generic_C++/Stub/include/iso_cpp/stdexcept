@@ -1,0 +1,95 @@
+// paulfitz Thu Jun  3 09:39:19 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_stdexcept__
+#define __QAC_INCLUDE_stdexcept__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <exception>
+#include <string>
+
+__QAC_BEGIN_NAMESPACE
+
+  class logic_error : public exception {
+  public:
+    explicit logic_error(const string&  what_arg ) : exception (), what_arg_ (what_arg) {}
+    virtual ~logic_error() noexcept;
+    std::string what_arg_;
+  };
+
+
+
+  class domain_error : public logic_error {
+  public:
+    explicit domain_error(const string&  what_arg ) : logic_error (what_arg)  {}
+  };
+
+
+
+  class invalid_argument : public logic_error {
+  public:
+    explicit invalid_argument(const string&  what_arg ) : logic_error (what_arg) {}
+  };
+
+
+
+  class length_error : public logic_error {
+  public:
+    explicit length_error(const string&  what_arg ) : logic_error (what_arg) {}
+  };
+
+
+
+  class out_of_range : public logic_error {
+  public:
+    explicit out_of_range(const string&  what_arg ) : logic_error (what_arg) {}
+  };
+
+
+
+  class runtime_error : public exception {
+  public:
+    explicit runtime_error(const string&  what_arg ) : exception (), what_arg_ (what_arg) {}
+    virtual ~runtime_error() noexcept;
+    std::string what_arg_;
+  };
+
+
+
+  class range_error : public runtime_error {
+  public:
+    explicit range_error(const string&  what_arg ) : runtime_error (what_arg) {}
+  };
+
+
+
+  class overflow_error : public runtime_error {
+  public:
+    explicit overflow_error(const string&  what_arg ) : runtime_error (what_arg) {}
+  };
+
+
+
+  class underflow_error : public runtime_error {
+  public:
+    explicit underflow_error(const string&  what_arg ) : runtime_error (what_arg) {}
+  };
+
+
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+#endif // ends __QAC_INCLUDE_stdexcept__
+// END BLOCK postfix
+

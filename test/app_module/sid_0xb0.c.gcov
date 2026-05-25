@@ -1,0 +1,231 @@
+        -:    0:Source:../../app/midware/lin_manager/diag_sid/sid_0xb0.c
+        -:    0:Graph:build/sid_0xb0.gcno
+        -:    0:Data:build/sid_0xb0.gcda
+        -:    0:Runs:16
+        -:    1:/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
+        -:    2:/**
+        -:    3: *****************************************************************************
+        -:    4: * @brief   lin dianosticiii source file.
+        -:    5: *
+        -:    6: * @file    diagnosticiii.c
+        -:    7: * @author  AE/FAE team
+        -:    8: * @date    2024.01.01
+        -:    9: *****************************************************************************
+        -:   10: *
+        -:   11: * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+        -:   12: * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+        -:   13: * TIME. AS A RESULT, TINYCHIP SHALL NOT BE HELD LIABLE FOR ANY
+        -:   14: * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+        -:   15: * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+        -:   16: * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+        -:   17: *
+        -:   18: * <b>&copy; Copyright (c) 2024 Tinychip Microelectronics Co.,Ltd.</b>
+        -:   19: *
+        -:   20: *****************************************************************************
+        -:   21: */
+        -:   22:#include "test_config.h"
+        -:   23:#ifdef ENABLE_TEST_MODE
+        -:   24:#include "fff_diagnosticIII.h"
+        -:   25:#include "fff_store_manager.h"
+        -:   26:#include "fff_pal_store.h"
+        -:   27:#include "fff_lin_precfg.h"
+        -:   28:#else
+        -:   29:/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
+        -:   30:#include "diagnosticIII.h"
+        -:   31:#include "store_manager.h"
+        -:   32:#include "pal_store.h"
+        -:   33:#include "lin_precfg.h"
+        -:   34:#endif
+        -:   35:
+        -:   36:static uint8_t fast_nad_write(uint8_t nad);
+        -:   37:
+        -:   38:#if LIN_PROTOCOL == PROTOCOL_J2602
+        -:   39:/********************************************************
+        -:   40:** \brief   ld_change_msg_id
+        -:   41:** \param   uint8_t                     dnn
+        -:   42:** \param   uint8_t                     frame_id_change
+        -:   43:** \retval  None
+        -:   44:*********************************************************/
+        -:   45:static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
+        -:   46:{
+        -:   47:    uint8_t i;
+        -:   48:    uint8_t id_origin;
+        -:   49:
+        -:   50:    /* If new DNN is greater than current DNN */
+        -:   51:    for (i = lin_num_of_frms; i > 0U; i--)
+        -:   52:    {
+        -:   53:        /* For non-broadcast frame identifiers  less than or equal to 0x37 */
+        -:   54:        if (lin_configuration_RAM[i] <= 0x37U)
+        -:   55:        {
+        -:   56:            /* get id with dnn equal 0 */
+        -:   57:            id_origin = (uint8_t)(lin_configuration_RAM[i] % frame_id_change);
+        -:   58:            lin_configuration_RAM[i] = (uint8_t)(id_origin + (uint8_t)(dnn << 2));
+        -:   59:        }
+        -:   60:        /* For broad cast message ID */
+        -:   61:        else if ((lin_configuration_RAM[i] <= 0x3BU) && (lin_configuration_RAM[i] >= 0x38U))
+        -:   62:        {
+        -:   63:            if ((dnn  >= 8U) &&
+        -:   64:                ((lin_configuration_RAM[i] == 0x38U) || (lin_configuration_RAM[i] == 0x3AU)))
+        -:   65:            {
+        -:   66:                lin_configuration_RAM[i] += 1U;
+        -:   67:            }
+        -:   68:            else if ((dnn  < 8U) &&
+        -:   69:                     ((lin_configuration_RAM[i] == 0x39U) || (lin_configuration_RAM[i] == 0x3BU)))
+        -:   70:            {
+        -:   71:                lin_configuration_RAM[i] -= 1U;
+        -:   72:            }
+        -:   73:        }
+        -:   74:    }
+        -:   75:
+        -:   76:    return (l_bool)0U;
+        -:   77:}
+        -:   78:
+        -:   79:/********************************************************
+        -:   80:** \brief   ld_reconfig_msg_ID
+        -:   81:** \param   uint8_t                     dnn
+        -:   82:** \retval  None
+        -:   83:*********************************************************/
+        -:   84:static l_bool ld_reconfig_msg_ID(uint8_t dnn)
+        -:   85:{
+        -:   86:    l_bool ret_val = 1U;
+        -:   87:    int8_t i = 0;
+        -:   88:    /* Get number of configurable_frames not calculate id 0x3C and 0x3D */
+        -:   89:    uint8_t number_of_configurable_frames = lin_num_of_frms - 2;
+        -:   90:
+        -:   91:    for (i = lin_num_of_frms - 3; i >= 0; i--)
+        -:   92:    {
+        -:   93:        if (lin_frame_tbl[i].frm_type == LIN_FRM_UNCD)
+        -:   94:        {
+        -:   95:            break;
+        -:   96:        }
+        -:   97:        else
+        -:   98:        {
+        -:   99:            number_of_configurable_frames--;
+        -:  100:        }
+        -:  101:    }
+        -:  102:
+        -:  103:    if (dnn <= 0xDU)
+        -:  104:    {
+        -:  105:        /* number of configurable frames greater than 16 */
+        -:  106:        if (number_of_configurable_frames > 16U)
+        -:  107:        {
+        -:  108:            /* Only 0x60 is valid NAD */
+        -:  109:            /* Do nothing */
+        -:  110:        }
+        -:  111:        /* number of configurable frames is from 9 - 16 */
+        -:  112:        else if (number_of_configurable_frames > 8U)
+        -:  113:        {
+        -:  114:            /* Only NAD 0x60, 0x64, 0x68 are valid, 0x6C and 0x6D not valid */
+        -:  115:            if ((dnn == 0U) || (dnn == 4U) || (dnn == 8U))
+        -:  116:            {
+        -:  117:                ret_val = ld_change_msg_id(dnn, 16U);
+        -:  118:            }
+        -:  119:        }
+        -:  120:        /* number of configurable frames is from 5 - 8 */
+        -:  121:        else if (number_of_configurable_frames > 4U)
+        -:  122:        {
+        -:  123:            /* Check to verify if dnn is 0x60, 0x62, 0x64, 0x66, 0x68, 0x6A, 0x6C */
+        -:  124:            if ((dnn % 2U) == 0U)
+        -:  125:            {
+        -:  126:                ret_val = ld_change_msg_id(dnn, 8U);
+        -:  127:            }
+        -:  128:        }
+        -:  129:        /* number of configurable frames is from 1 - 4 */
+        -:  130:        else
+        -:  131:        {
+        -:  132:            ret_val = ld_change_msg_id(dnn, 4U);
+        -:  133:        }
+        -:  134:    }
+        -:  135:
+        -:  136:    return ret_val;
+        -:  137:}
+        -:  138:#endif
+        -:  139:
+        -:  140:/********************************************************
+        -:  141:** \brief   lin_diagservice_assign_nad
+        -:  142:** \param   uint8_t                     NAD
+        -:  143:** \param   uint8_t*                    ptr
+        -:  144:** \param   uint16_t                    length
+        -:  145:** \retval  None
+        -:  146:*********************************************************/
+        -:  147:/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+       22:  148:void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
+        -:  149:{
+        -:  150:    uint16_t supplierIdLsb;
+        -:  151:    uint16_t supplierIdMsb;
+        -:  152:    uint16_t functionIdLsb;
+        -:  153:    uint16_t functionIdMsb;
+        -:  154:
+       22:  155:    if (((NAD == lin_initial_NAD) || (NAD == (uint8_t)LD_BROADCAST) || (NAD == lin_configured_NAD)) && (6U == length))
+        -:  156:    {
+        -:  157:        /* Get Supplier ID and Function ID*/
+       20:  158:        supplierIdLsb = ptr[1];
+       20:  159:        supplierIdMsb = ptr[2];
+       20:  160:        functionIdLsb = ptr[3];
+       20:  161:        functionIdMsb = ptr[4];
+        -:  162:
+        -:  163:        /*Check if Supplier ID and Function ID match, then send positive response */
+       20:  164:        if ((((supplierIdMsb << 8) | supplierIdLsb) == product_id.supplier_id) ||
+        2:  165:                (((supplierIdMsb << 8) | supplierIdLsb) == (uint16_t)LD_ANY_SUPPLIER))
+        -:  166:        {
+       19:  167:            if ((((functionIdMsb << 8) | functionIdLsb) == product_id.function_id) ||
+        2:  168:                    (((functionIdMsb << 8) | functionIdLsb) == (uint16_t)LD_ANY_FUNCTION))
+        -:  169:            {
+       18:  170:                lin_configured_NAD = lin_initial_NAD; /* use lin_initial_NAD for response*/
+        -:  171:#if LIN_PROTOCOL != PROTOCOL_J2602
+       18:  172:                lin_diag_positive_notify(ptr[0], NULL, 0);
+        -:  173:#else
+        -:  174:
+        -:  175:                if ((ptr[5] >= 0x60) && (ptr[5] <= 0x6D) && (0 == ld_reconfig_msg_ID(ptr[5] - 0x60)))
+        -:  176:                {
+        -:  177:                    lin_diag_positive_notify(ptr[0], NULL, 0);
+        -:  178:                }
+        -:  179:                else
+        -:  180:                {
+        -:  181:                    lin_diag_negative_notify(ptr[0], ROOR);
+        -:  182:                }
+        -:  183:
+        -:  184:#endif
+       18:  185:                lin_configured_NAD = ptr[5];
+       18:  186:                g_sys_cfgs.nad = lin_configured_NAD;
+        -:  187:
+        -:  188:/* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+       18:  189:                fast_nad_write(lin_configured_NAD);
+        -:  190:
+        -:  191://                store_system_data_set(SYSTEM_CFG_PARAM, (uint8_t *)&g_sys_cfgs, SYSTEM_CFG_SIZE);
+        -:  192:            }
+        -:  193:        }
+        -:  194:    }
+       22:  195:}
+        -:  196:
+        -:  197:/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+       18:  198:static uint8_t fast_nad_write(uint8_t nad)
+        -:  199:{
+        -:  200:    uint32_t alignbuf[2];
+       18:  201:    uint8_t *rdbuf = (uint8_t *)alignbuf;
+        -:  202:
+       82:  203:    for (uint32_t i = 0; i < (uint32_t)FLASH_SECTOR_SIZE; i += sizeof(alignbuf))
+        -:  204:    {
+        -:  205:/* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+       81:  206:        pal_store_read(STORE_TYPE_SEL, FAST_LIN_NAD_ADDR + i, rdbuf, sizeof(alignbuf));
+       81:  207:	uint32_t j = 0;
+        -:  208:/* PRQA S 2467 1 #2467 - Loop variable modification is intentional via indirect means. */
+      595:  209:	for (; j < sizeof(alignbuf);)
+        -:  210:        {
+      531:  211:            if (rdbuf[j] == 0xFFu)
+        -:  212:            {
+       17:  213:                if ((j > 0u) && (rdbuf[j - 1u] == nad)) //No need to save duplicate nad
+        -:  214:                {
+        1:  215:                    return 1;
+        -:  216:                }
+       16:  217:                rdbuf[j] = nad;
+        -:  218:/* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+       16:  219:                pal_store_write(STORE_TYPE_SEL, FAST_LIN_NAD_ADDR + i, rdbuf, sizeof(alignbuf));
+       16:  220:                return 1;
+        -:  221:            }
+      514:  222:	    ++j;
+        -:  223:        }
+        -:  224:    }
+        -:  225:
+        1:  226:    return 0;
+        -:  227:}

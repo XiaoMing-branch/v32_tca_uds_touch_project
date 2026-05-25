@@ -1,0 +1,87 @@
+        -:    0:Source:../../app/midware/lin_manager/diag_sid/sid_0xb3.c
+        -:    0:Graph:build/sid_0xb3.gcno
+        -:    0:Data:build/sid_0xb3.gcda
+        -:    0:Runs:16
+        -:    1:/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
+        -:    2:/**
+        -:    3: *****************************************************************************
+        -:    4: * @brief   lin dianosticiii source file.
+        -:    5: *
+        -:    6: * @file    diagnosticiii.c
+        -:    7: * @author  AE/FAE team
+        -:    8: * @date    2024.01.01
+        -:    9: *****************************************************************************
+        -:   10: *
+        -:   11: * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+        -:   12: * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+        -:   13: * TIME. AS A RESULT, TINYCHIP SHALL NOT BE HELD LIABLE FOR ANY
+        -:   14: * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+        -:   15: * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+        -:   16: * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+        -:   17: *
+        -:   18: * <b>&copy; Copyright (c) 2024 Tinychip Microelectronics Co.,Ltd.</b>
+        -:   19: *
+        -:   20: *****************************************************************************
+        -:   21: */
+        -:   22:
+        -:   23:#include "test_config.h"
+        -:   24:#ifdef ENABLE_TEST_MODE
+        -:   25:#include "fff_diagnosticIII.h"
+        -:   26:#else
+        -:   27:/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
+        -:   28:#include "diagnosticIII.h"
+        -:   29:#endif
+        -:   30:
+        -:   31:#if LIN_PROTOCOL != PROTOCOL_J2602
+        -:   32:/********************************************************
+        -:   33:** \brief   lin_diag_conditional_change_nad
+        -:   34:** \param   uint8_t*                    ptr
+        -:   35:** \param   uint16_t                    length
+        -:   36:** \retval  None
+        -:   37:*********************************************************/
+        -:   38:/* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+        7:   39:void lin_diag_conditional_change_nad(uint8_t *ptr, uint16_t length)
+        -:   40:{
+        -:   41:    (void)length;
+        -:   42:    uint8_t id, byte, mask, invert;
+        -:   43:
+        7:   44:    id      = ptr[1];
+        7:   45:    byte    = ptr[2];
+        7:   46:    mask    = ptr[3];
+        7:   47:    invert  = ptr[4];
+        -:   48:
+        -:   49:    /* Possible positive ID */
+        7:   50:    if (id == 0u)
+        -:   51:    {
+        6:   52:        if ((byte > 0u) && (byte < 6u))
+        -:   53:        {
+        -:   54:            /*Byte 1: Supplier ID LSB; Byte 2: Supplier ID MSB*/
+        4:   55:            if (byte < 3u)
+        -:   56:            {
+        1:   57:                byte = (uint8_t)(product_id.supplier_id >> ((byte - 1u) * 8u));
+        -:   58:            }
+        -:   59:            /*Byte 3: Function ID LSB; Byte 4: Function ID MSB*/
+        3:   60:            else if (byte < 5u)
+        -:   61:            {
+        2:   62:                byte = (uint8_t)product_id.function_id >> ((byte - 3u) * 8u);
+        -:   63:            }
+        -:   64:            /* Byte 5: Variant */
+        -:   65:            else
+        -:   66:            {
+        1:   67:                byte = product_id.variant;
+        -:   68:            }
+        -:   69:
+        -:   70:            /* Do a bitwise XOR with Invert and Do a bitwise AND with Mask */
+        4:   71:            byte = (byte ^ invert)&mask;
+        -:   72:
+        -:   73:            /* If the final result is zero, then give positive response*/
+        4:   74:            if (byte == 0u)
+        -:   75:            {
+        4:   76:                lin_diag_positive_notify(ptr[0], NULL, 0);
+        -:   77:                /* If the final result is zero then change the NAD to New NAD */
+        4:   78:                lin_configured_NAD = ptr[5];
+        -:   79:            }
+        -:   80:        }
+        -:   81:    }
+        7:   82:}
+        -:   83:#endif

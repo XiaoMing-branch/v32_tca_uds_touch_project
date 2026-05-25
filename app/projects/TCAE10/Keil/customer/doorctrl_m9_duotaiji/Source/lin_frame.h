@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
 *****************************************************************************
 * @brief  demo example source file.
@@ -17,31 +18,37 @@
 *
 *****************************************************************************
 */
-#ifndef __LIN_FRAME_H__
-#define __LIN_FRAME_H__
+#ifndef LIN_FRAME_H__
+#define LIN_FRAME_H__
 
+#include "test_config.h"
+
+#ifdef ENABLE_TEST_MODE
+#include "fff_base_types.h"
+#else
 #include "base_types.h"
+#endif
 
 typedef struct
 {
-    uint8_t FltSt;          // ����״̬
-    uint8_t SwtSt;          // ����״̬
-    uint8_t SW_MinorVersA;  // �����ΰ汾��
-    uint8_t SW_MajorVersA;  // �������汾��
-    uint8_t HW_PhaVers;     // Ӳ���׶ΰ汾��
-    uint8_t HW_MinorVersB;  // Ӳ���ΰ汾��
-    uint8_t HW_MajorVersB;  // Ӳ�����汾��
-    uint8_t SN_MinorVersB;  // �����к�B
-    uint8_t SN_MajorVersB;  // �����к�B
-    uint8_t SN_SupplierCod; // ��Ӧ�̴���
+    uint8_t FltSt;          // 
+    uint8_t SwtSt;          // 
+    uint8_t SW_MinorVersA;  // 
+    uint8_t SW_MajorVersA;  // 
+    uint8_t HW_PhaVers;     // 
+    uint8_t HW_MinorVersB;  // 
+    uint8_t HW_MajorVersB;  // 
+    uint8_t SN_MinorVersB;  // 
+    uint8_t SN_MajorVersB;  // 
+    uint8_t SN_SupplierCod; // 
 } DoorSt_T;
 
 typedef struct
 {
 
-    uint8_t UsageMode;          // 整车用户模式
-    uint8_t VehicleSpeedValid;  // 车速有效位
-    uint16_t VehicleSpeed;      // 车速
+    uint8_t UsageMode;          // Vehicle User Mode
+    uint8_t VehicleSpeedValid;  // Effective vehicle speed digits
+    uint16_t VehicleSpeed;      // Vehicle speed
 } DoorCmd_T;
 
 typedef enum
@@ -49,14 +56,16 @@ typedef enum
     SW_INVALID_ST = 0,
     SW_PUSH_ST,
     SW_IDLE_ST,
+/* PRQA S 1535 1 #3262 - Unused typedef defined for future extension and type consistency */
 } T_SWSt;
 
 typedef enum
 {
     NORMAL_ST = 0,
     FAULT_ST,
-} T_FaultSt;   // ��������
+/* PRQA S 1535 1 #3262 - Unused typedef defined for future extension and type consistency */
+} T_FaultSt;   //
 
-extern DoorCmd_T door_cmd; // ECU对门把手控制信号
+extern DoorCmd_T door_cmd; // ECU control signal for the door handle
 void App_LinControlMsg(void);
 #endif  //__LIN_FRAME_H__

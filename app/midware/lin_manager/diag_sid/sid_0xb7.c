@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,9 +20,15 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_lin_precfg.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
-
 #include "lin_precfg.h"
+#endif
 
 #if LIN_PROTOCOL == PROTOCOL_21
 /********************************************************
@@ -30,13 +37,15 @@
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 2889 2 #3257 - Multiple return statements for logical clarity and efficiency */
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_assign_frame_id_range(uint8_t *ptr, uint16_t length)
 {
     uint8_t start_index;
     uint8_t i, j;
     uint8_t fid;
 
-    if (length != 6)
+    if (length != 6u)
     {
         lin_diag_negative_notify(ptr[0], GENERAL_REJECT);
         return;
@@ -44,17 +53,23 @@ void lin_diag_assign_frame_id_range(uint8_t *ptr, uint16_t length)
 
     start_index = ptr[1];
 
-    for (i = 5, j = start_index + 4; j > start_index; i--, j--)
+    i = 5u;
+    j = start_index + 4u;
+/* PRQA S 3387 1 #3265 - Increment or decrement operation is safe with no unintended side effects */
+    for (; j > start_index; j--)
     {
-        if (ptr[i] != 0xFF && j > lin_cfg.lin_cfg_frame_num)
+        if ((ptr[i] != 0xFFu) && (j > lin_cfg.lin_cfg_frame_num))
         {
-            //lin_diag_negative_notify(ptr[0], GENERAL_REJECT);
             return;
         }
+	i--;
     }
 
     /* Store PIDs */
-    for (i = 2, j = start_index + 1; i < length; i++, j++)
+    i = 2u; 
+    j = start_index + 1u;
+/* PRQA S 3387 1 #3265 - Increment or decrement operation is safe with no unintended side effects */
+    for (; i < length; i++)
     {
         switch (ptr[i])
         {
@@ -70,7 +85,7 @@ void lin_diag_assign_frame_id_range(uint8_t *ptr, uint16_t length)
             default:
                 /* Calculate frame ID & Assign ID to frame */
                 fid = lin_process_parity(ptr[i], CHECK_PARITY);
-                if (0xFF == fid)
+                if (0xFFu == fid)
                 {
                     lin_diag_negative_notify(ptr[0], GENERAL_REJECT);
                     return;
@@ -81,6 +96,7 @@ void lin_diag_assign_frame_id_range(uint8_t *ptr, uint16_t length)
                 }
                 break;
         }
+	j++;
     } /* End of for statement */
 
     lin_diag_positive_notify(ptr[0], NULL, 0);

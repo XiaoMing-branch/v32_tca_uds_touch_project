@@ -1,0 +1,25 @@
+/* "ciso646"
+ * Modified from iso646.h (original module comments below)
+ * paulfitz, Tue Jun  8 11:15:26 IST 1999
+ */
+
+#ifndef __QAC_INCLUDE_ciso646__
+#define __QAC_INCLUDE_ciso646__
+
+
+// Include the original C code
+#include <iso646.h>
+
+// BEGIN BLOCK cprefix
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+// Deal with entities required by spec to be std namespace
+__QAC_BEGIN_NAMESPACE
+// END BLOCK cprefix
+
+
+// BEGIN BLOCK cpostfix
+__QAC_END_NAMESPACE
+// END BLOCK cpostfix
+
+#endif // __QAC_INCLUDE_ciso646__

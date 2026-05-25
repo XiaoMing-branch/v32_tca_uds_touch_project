@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<acf xmlversion="2.0.0">
+  <components>
+    <component name="qac" target="C" version="11.3.0"/>
+    <component name="qacpp" target="C++" version="6.3.0"/>
+    <component name="dataflow" target="C_CPP" version="1.3.0"/>
+    <component name="mta" target="C_CPP" version="4.3.0"/>
+    <component name="rcma" target="C_CPP" version="4.3.0"/>
+    <component name="m3cm" target="C" version="5.3.0"/>
+  </components>
+  <component_settings>
+    <input_to component="qac" target="C" version="11.3.0">
+      <option name="-d " argument="__TCPL03X__"/>
+      <option name="-d " argument="TCAE10X"/>
+      <option name="-d " argument="LIN_TX_QUEUE_SIZE=8"/>
+      <option name="-d " argument="__GNUC__"/>
+      <option name="-i " argument="examples\tcpl03x\demo_apps\bootloader_seres\include"/>
+      <option name="-i " argument="lib\lin\inc"/>
+      <option name="-i " argument="middleware\lin_manager\inc"/>
+      <option name="-i " argument="middleware\log_manager\inc"/>
+      <option name="-i " argument="middleware\os_manager\inc"/>
+      <option name="-i " argument="middleware\store_manager\inc"/>
+      <option name="-i " argument="middleware\task_manager"/>
+      <option name="-i " argument="platform\CMSIS\Core\Include"/>
+      <option name="-i " argument="platform\devices\tcpl03x\inc"/>
+      <option name="-i " argument="platform\drivers\tcpl03x_ll_driver\inc\reg"/>
+      <option name="-i " argument="platform\drivers\tcpl03x_ll_driver\inc"/>
+      <option name="-i " argument="platform\pal\multiplexing\inc"/>
+      <option name="-i " argument="platform\pal\pal_gpio\inc"/>
+      <option name="-i " argument="platform\pal\pal_led\inc"/>
+      <option name="-i " argument="platform\pal\pal_lin\inc"/>
+      <option name="-i " argument="platform\pal\pal_log\inc"/>
+      <option name="-i " argument="platform\pal\pal_meas\inc"/>
+      <option name="-i " argument="platform\pal\pal_pmu\inc"/>
+      <option name="-i " argument="platform\pal\pal_store\inc"/>
+      <option name="-i " argument="platform\pal\pal_systick\inc"/>
+      <option name="-i " argument="platform\pal\pal_timer\inc"/>
+      <option name="-i " argument="platform\pal\pal_wdg\inc"/>
+      <option name="-i " argument="platform\pal\utilities\inc"/>
+      <option name="-quiet " argument="examples\tcpl03x\demo_apps\bootloader_seres\include\test_config.h"/>
+      <option name="-quiet " argument="middleware"/>
+      <option name="-quiet " argument="platform\CMSIS"/>
+      <option name="-quiet " argument="platform\devices"/>
+      <option name="-quiet " argument="platform\drivers"/>
+      <option name="-quiet " argument="platform\pal\pal_lin"/>
+      <option name="-quiet " argument="platform\pal\pal_store"/>
+      <option name="-quiet " argument="platform\pal\pal_systick"/>
+      <option name="-quiet " argument="platform\pal\pal_wdg"/>
+      <option name="-quiet " argument="platform\pal\utilities\inc\pal_func_def.h"/>
+    </input_to>
+  </component_settings>
+</acf>

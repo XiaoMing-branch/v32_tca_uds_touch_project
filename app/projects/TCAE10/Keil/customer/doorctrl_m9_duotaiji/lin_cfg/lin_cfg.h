@@ -19,7 +19,14 @@
 */
 #ifndef    _LIN_CFG_H_
 #define    _LIN_CFG_H_
+
+#include "test_config.h"
+
+#ifdef ENABLE_TEST_MODE
+#include "fff_lin_hw_cfg.h"
+#else
 #include "lin_hw_cfg.h"
+#endif
 /* Define operating mode */
 #define _MASTER_MODE_     0
 #define _SLAVE_MODE_      1

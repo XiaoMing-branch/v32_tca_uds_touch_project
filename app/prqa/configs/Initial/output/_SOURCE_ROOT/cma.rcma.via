@@ -1,0 +1,116 @@
+﻿* ===[ SOURCE FILE ]===
+* ===[ ACF INCLUDES ]===
+* ===[ PROJECT SETTINGS  ]===
+* ===[ PROJECT INCLUDES ]===
+* ===[ PROJECT DEFINES ]===
+* ===[ PROJECT OPTIONS ]===
+* ===[ DEPENDENCY SETTINGS ]===
+-po close_name::any_case
+-po "close_name::ignore=[ '_' ]"
+-po "close_name::similar=['I1l', 'O0', 'nh', '2Z', '5S', 'B8', 'rn:m']"
+-po close_name::sig_char=63
+* ===[ INHERITED FILE CONTENT ]===
+-q ${HELIX_QAC_SOURCE_ROOT}\device
+-q ${HELIX_QAC_SOURCE_ROOT}\driver
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\common
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\lin_manager\inc\lin_process.h
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\lin_manager\inc\lin_snpd.h
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\lin_manager\inc\lin_wakeup.h
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\store_manager
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\task_manager
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\tclog
+-q ${HELIX_QAC_SOURCE_ROOT}\midware\touch
+-q ${HELIX_QAC_SOURCE_ROOT}\os
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\pal_store
+-q ${HELIX_QAC_SOURCE_ROOT}\platform\pal\utilities\inc\pal_func_def.h
+-q ${HELIX_QAC_SOURCE_ROOT}\prebuild
+-q ${HELIX_QAC_SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\app.h
+-q ${HELIX_QAC_SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\tc_conf.h
+-q ${HELIX_QAC_SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\test_config.h
+-q ${HELIX_QAC_SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\Source\touch_config.h
+-q ${HELIX_QAC_SOURCE_ROOT}\projects\TCAE10\Keil\customer\doorctrl_m9_duotaiji\lin_cfg
+* ===[ ACTIVE MESSAGES ]===
+-O 1502
+-O 1503
+-O 1504
+-O 1505
+-O 1506
+-O 1507
+-O 1508
+-O 1509
+-O 1510
+-O 1513
+-O 1514
+-O 1520
+-O 1525
+-O 1526
+-O 1527
+-O 1528
+-O 1533
+-O 1534
+-O 1535
+-O 1536
+-O 1561
+-O 1562
+-O 1563
+-O 1564
+-O 1565
+-O 1566
+-O 1568
+-O 1569
+-O 1570
+-O 1571
+-O 1572
+-O 1573
+-O 1574
+-O 1575
+-O 1576
+-O 1577
+-O 1578
+-O 1579
+-O 1580
+-O 1581
+-O 1582
+-O 1585
+-O 1586
+-O 1590
+-O 1592
+-O 1593
+-O 1594
+-O 1598
+-O 1599
+-O 1707
+-O 1708
+-O 1709
+-O 1710
+-O 1711
+-O 1750
+-O 1752
+-O 1753
+-O 1755
+-O 1756
+-O 1758
+-O 1759
+-O 5087
+-O 5118
+-O 5123
+-O 5124
+-O 5125
+-O 5127
+-O 5129
+-O 5130
+-O 5131
+-O 5132
+-O 5135
+-O 5136
+-O 5137
+-O 5138
+-O 5139
+-O 5140
+-O 5141
+-O 5142
+-O 5143
+-O 5150
+-O 5151
+-O 5152
+-O 5209

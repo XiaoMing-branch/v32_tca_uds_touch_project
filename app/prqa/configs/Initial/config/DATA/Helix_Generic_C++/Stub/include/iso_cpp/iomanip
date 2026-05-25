@@ -1,0 +1,62 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_iomanip__
+#define __QAC_INCLUDE_iomanip__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <iostream>
+
+#define __QAC_CHOICE_IOMANIP_T1 __QAC_IOMANIP<__T1_TAG>
+#define __QAC_CHOICE_IOMANIP_T2 __QAC_IOMANIP<__T2_TAG>
+#define __QAC_CHOICE_IOMANIP_T3 __QAC_IOMANIP<__T3_TAG>
+#define __QAC_CHOICE_IOMANIP_T4 __QAC_IOMANIP<__T4_TAG>
+#define __QAC_CHOICE_IOMANIP_T5 __QAC_IOMANIP<__T5_TAG>
+#define __QAC_CHOICE_IOMANIP_T6 __QAC_IOMANIP<__T6_TAG>
+
+__QAC_BEGIN_NAMESPACE
+
+    // **************************
+    // Helper for IOMANIP operators used inline with overloaded operator
+    struct __T1_TAG;
+    struct __T2_TAG;
+    struct __T3_TAG;
+    struct __T4_TAG;
+    struct __T5_TAG;
+    struct __T6_TAG;
+    
+    template <typename Tag> struct __QAC_IOMANIP { };
+    template <class charT, class traits, class Tag> basic_istream<charT,traits>& operator>>(basic_istream<charT,traits>&, __QAC_IOMANIP<Tag> const &);
+    template <class charT, class traits, class Tag> basic_ostream<charT,traits>& operator<<(basic_ostream<charT,traits>&, __QAC_IOMANIP<Tag> const &);
+    // **************************
+    
+    
+    // SPEC CHOICE (see 27.6.3 etc)
+    //  Types T1,  T2, ... are unspecified implementation types
+    __QAC_CHOICE_IOMANIP_T1 resetiosflags(ios_base::fmtflags mask);
+    __QAC_CHOICE_IOMANIP_T2 setiosflags  (ios_base::fmtflags mask);
+    __QAC_CHOICE_IOMANIP_T3 setbase(int base);
+
+    // SPEC TYPO (assumed) -- added "class" before charT
+    template<class charT> __QAC_CHOICE_IOMANIP_T4 setfill(charT c);
+    __QAC_CHOICE_IOMANIP_T5 setprecision(int n);
+    __QAC_CHOICE_IOMANIP_T6 setw(int n);
+    
+    
+__QAC_END_NAMESPACE
+
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+#endif // ends __QAC_INCLUDE_iomanip__
+// END BLOCK postfix
+

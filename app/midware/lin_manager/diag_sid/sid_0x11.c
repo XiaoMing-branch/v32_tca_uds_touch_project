@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,7 +20,13 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
+#endif
 
 extern void ll_wdg_enable(bool enable);
 
@@ -29,11 +36,13 @@ extern void ll_wdg_enable(bool enable);
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_ecu_reset(uint8_t *ptr, uint16_t length)
-{
+{	
+    (void)length;
     switch (ptr[1])
     {
-        /* ISO14429 还支持好几种复位 to do */
+        /* ISO14429 also supports several kinds of reset to do */
         case 0x01:
             /* hardware reset  to do*/
             lin_diag_positive_notify(ptr[0], &ptr[1], 1);

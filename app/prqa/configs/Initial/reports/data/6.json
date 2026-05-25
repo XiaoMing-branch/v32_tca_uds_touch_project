@@ -1,0 +1,18 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x32.c",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/inc/diagnosticIII.h", "line": 29, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/store_manager/inc/store_manager.h", "line": 31, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/platform/pal/utilities/inc/utilities.h", "line": 30, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/test_config.h", "line": 22, "is_system": false}],
+"metrics": {"COMF": "2.000", "STBME": "0.092", "STBMO": "0.097", "STBMS": "0.098", "STBUG": "0", "STCDN": "1.439", "STDEV": "0.313", "STDIF": "8.850", "STECT": "0", "STEFF": "1880", "STFCO": "0", "STFNC": "1", "STHAL": "64", "STM20": "8", "STM21": "35", "STM22": "2", "STM28": "4", "STM33": "0", "STOPN": "6", "STOPT": "13", "STSCT": "0", "STSHN": "192", "STTDE": "1.164", "STTDO": "1.029", "STTDS": "1.108", "STTLN": "5", "STTOT": "50", "STTPP": "47", "STVAR": "6", "STVOL": "212", "STZIP": "67", "VOCF": "2.263"},
+"entities": [
+{"type": "function",
+"name": "lin_diag_get_traceability_msg",
+"line": 42,
+"metrics": {"NPATH": "1", "STAKI": "1", "STAV1": "6.000", "STAV2": "6.000", "STAV3": "6.000", "STBAK": "0", "STCAL": "0", "STCYC": "1", "STELF": "0", "STFDN": "2", "STFDT": "6", "STFN1": "10", "STFN2": "2", "STGTO": "0", "STKDN": "0.000", "STKNT": "0", "STLCT": "0", "STLIN": "2", "STLOP": "0", "STM07": "1", "STM19": "0", "STM29": "1", "STMCC": "0 (1:1)", "STMIF": "0", "STPAR": "2", "STPBG": "0", "STPDN": "0.500", "STPTH": "1", "STRET": "1", "STST1": "2", "STST2": "2", "STST3": "2", "STSUB": "0", "STUNR": "0", "STUNV": "0", "STXLN": "2"},
+"plot": [
+{"edge": [0.2,1,1.2,1], "color": "BLACK"},
+{"edge": [1.2,1,2.2,1], "color": "BLACK"},
+{"edge": [2.2,1,4.2,1], "color": "BLACK"}]}]
+}

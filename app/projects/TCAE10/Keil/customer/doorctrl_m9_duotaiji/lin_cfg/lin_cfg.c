@@ -17,8 +17,13 @@
 *
 *****************************************************************************
 */
+#ifdef ENABLE_TEST_MODE
+#include "fff_lin_cfg.h"
+#include "fff_lin.h"
+#else
 #include "lin_cfg.h"
 #include "lin.h"
+#endif
 
 /* Mapping interface with hardware */
 const lin_hardware_name lin_virtual_ifc = SLIC;

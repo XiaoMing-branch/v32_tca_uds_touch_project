@@ -1,0 +1,279 @@
+#ifndef __QAC_INCLUDE_unordered_set__
+#define __QAC_INCLUDE_unordered_set__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <qac_iterator.h>
+
+#include <initializer_list>
+#include <memory>
+#include <functional>
+
+__QAC_BEGIN_NAMESPACE
+
+  template <class Key, class Hash = hash<Key>,
+            class KeyEqual = equal_to<Key>,
+	    class Allocator = allocator<Key> >
+    class unordered_set;
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    bool operator==(const unordered_set<Key,Hash,KeyEqual,Allocator>& x,
+		    const unordered_set<Key,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    bool operator!=(const unordered_set<Key,Hash,KeyEqual,Allocator>& x,
+		    const unordered_set<Key,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    void swap(unordered_set<Key,Hash,KeyEqual,Allocator>& x,
+	      unordered_set<Key,Hash,KeyEqual,Allocator>& y);
+
+  template <class Key, class Hash = hash<Key>,
+            class KeyEqual = equal_to<Key>,
+	    class Allocator = allocator<Key> >
+    class unordered_multiset;
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    bool operator==(const unordered_multiset<Key,Hash,KeyEqual,Allocator>& x,
+		    const unordered_multiset<Key,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    bool operator!=(const unordered_multiset<Key,Hash,KeyEqual,Allocator>& x,
+		    const unordered_multiset<Key,Hash,KeyEqual,Allocator>& y);
+  template <class Key, class Hash, class KeyEqual, class Allocator>
+    void swap(unordered_multiset<Key,Hash,KeyEqual,Allocator>& x,
+	      unordered_multiset<Key,Hash,KeyEqual,Allocator>& y);
+
+//  template <class Key, class Hash = hash<Key>,
+//          class KeyEqual = equal_to<Key>,
+//	    class Allocator = allocator<Key> >
+  template <class Key, class Hash, class KeyEqual,
+	    class Allocator>
+  class unordered_set {
+  public:
+    //  types:
+    typedef Key                                   key_type;
+    typedef Key                                   value_type;
+    typedef Hash                                  hasher;
+    typedef KeyEqual                              key_equal;
+    typedef Allocator                             allocator_type;
+    typedef typename Allocator::reference         reference;
+    typedef typename Allocator::const_reference   const_reference;
+
+    // HIT picked 4 types - see lib.container.requirements	
+    typedef __normal_iterator<value_type*, unordered_set>
+                                                  iterator;
+    typedef __normal_iterator<const value_type*, unordered_set>
+                                                  const_iterator;
+    typedef __normal_iterator<value_type*, unordered_set>
+                                                  local_iterator;
+    typedef __normal_iterator<const value_type*, unordered_set>
+                                                  const_local_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+
+    typedef typename Allocator::pointer           pointer;
+    typedef typename Allocator::const_pointer     const_pointer;
+
+    //  lib.map.cons construct/copy/destroy:
+    unordered_set()
+    { hasher(); key_equal(); Allocator().allocate (sizeof(value_type)); }
+    explicit unordered_set(size_type n, const hasher& hf = hasher(),
+                 const key_equal& eql = key_equal(),
+		 const allocator_type& a = allocator_type())
+    { hasher h(hf); key_equal e(eql); Allocator().allocate (sizeof(value_type)); }
+    unordered_set(const unordered_set& x);
+    unordered_set(unordered_set&& x);
+    explicit unordered_set(const Allocator&);
+    unordered_set(const unordered_set&, const Allocator&);
+    unordered_set(unordered_set&&, const Allocator&);
+    unordered_set(size_t n, const allocator_type& a)
+      : unordered_set(n, hasher(), key_equal(), a) { }
+    unordered_set(size_t n, const hasher& hf, const allocator_type& a)
+      : unordered_set(n, hf, key_equal(), a) { }
+   ~unordered_set()                        { } 
+    unordered_set&
+      operator=(const unordered_set& x)               { unordered_set(x).swap(*this); return *this; }
+
+    //
+    // Not in C++ 14882:1998
+    allocator_type get_allocator() const { static allocator_type  * volatile r; return * r; }
+
+    //  iterators:
+    iterator               begin()         { static iterator * volatile r; return * r;  }
+    const_iterator         begin() const   { static const_iterator * volatile r; return * r;  }
+    const_iterator         cbegin() const  { static const_iterator * volatile r; return * r;  }
+    iterator               end()           { static iterator * volatile r; return * r;  }
+    const_iterator         end() const     { static const_iterator * volatile r; return * r;  }
+    const_iterator         cend() const    { static const_iterator * volatile r; return * r;  }
+
+    //  capacity:
+    bool      empty() const               { static bool * volatile r; return * r;  }
+    size_type size() const                { static size_type * volatile r; return * r;  }
+    size_type max_size() const            { static size_type * volatile r; return * r;  }
+
+    //  modifiers:
+    template <class... Args> pair<iterator, bool> emplace(Args&&... args);
+    template <class... Args> iterator emplace_hint(const_iterator position, Args&&... args);
+    pair<iterator, bool> insert(const value_type& x)                    { static bool * volatile r; return make_pair (insert (begin (), x), *r); }
+    iterator             insert(iterator pos, const value_type& x)
+      { hasher()(x); key_equal()(*begin(), x); Allocator().allocate (sizeof(value_type)); return pos; }
+    template <class InputIterator>
+      void insert(InputIterator first, InputIterator last)              { insert (begin(), *first); ++first; }
+    void insert(initializer_list<value_type>);
+
+    iterator  erase(const_iterator position)                            { }
+    iterator  erase(iterator position)                                  { }
+    size_type erase(const key_type& x)                                  { iterator iter = find (x); erase (iter); static size_type  * volatile r; return * r;  }
+    iterator  erase(iterator first, iterator last)                      { }
+    void swap(unordered_set&)                                           { }
+    void clear()                                                        { erase (begin(), end ()); }
+
+    //  lib.map.ops map operations:
+    iterator       find(const key_type& x)                 { iterator iter = begin(); key_equal()(*iter, x); ++iter; return iter; }
+    const_iterator find(const key_type& x) const           { const_iterator iter = begin(); key_equal()(*iter, x); ++iter; return iter; }
+    size_type      count(const key_type& x) const          { find(x); static size_type * volatile r; return * r;  }
+
+    pair<iterator,iterator>
+	equal_range(const key_type& x)                           { return make_pair (lower_bound(x), upper_bound(x)); }
+    pair<const_iterator,const_iterator>
+	equal_range(const key_type& x) const                     { return make_pair (lower_bound(x), upper_bound(x)); }
+
+    // bucket interface
+    size_type bucket_count () const noexcept;
+    size_type max_bucket_count () const noexcept;
+    size_type bucket_size (size_type n) const;
+    size_type bucket (const key_type& k) const;
+    local_iterator begin (size_type n);
+    const_local_iterator begin (size_type n) const;
+    local_iterator end (size_type n);
+    const_local_iterator end (size_type n) const;
+    const_local_iterator cbegin (size_type n) const;
+    const_local_iterator cend (size_type n) const;
+
+    // hash policy
+    float load_factor () const noexcept;
+    float max_load_factor () const noexcept;
+    void max_load_factor (float z);
+    void rehash (size_type n);
+    void reserve (size_type n);
+  };
+
+
+//  template <class Key, class Hash = hash<Key>,
+//          class KeyEqual = equal_to<Key>,
+//	    class Allocator = allocator<Key> >
+  template <class Key, class Hash, class KeyEqual,
+	    class Allocator>
+  class unordered_multiset {
+  public:
+    //  types:
+    typedef Key                                   key_type;
+    typedef Key                                   value_type;
+    typedef Hash                                  hasher;
+    typedef KeyEqual                              key_equal;
+    typedef Allocator                             allocator_type;
+    typedef typename Allocator::reference         reference;
+    typedef typename Allocator::const_reference   const_reference;
+
+    // HIT picked 4 types - see lib.container.requirements	
+    typedef __normal_iterator<value_type*, unordered_multiset>
+                                                  iterator;
+    typedef __normal_iterator<const value_type*, unordered_multiset>
+                                                  const_iterator;
+    typedef __normal_iterator<value_type*, unordered_multiset>
+                                                  local_iterator;
+    typedef __normal_iterator<const value_type*, unordered_multiset>
+                                                  const_local_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+
+    typedef typename Allocator::pointer           pointer;
+    typedef typename Allocator::const_pointer     const_pointer;
+
+    //  lib.map.cons construct/copy/destroy:
+    unordered_multiset()
+    { hasher(); key_equal(); Allocator().allocate (sizeof(value_type)); }
+    explicit unordered_multiset(size_type n, const hasher& hf = hasher(),
+                 const key_equal& eql = key_equal(),
+		 const allocator_type& a = allocator_type())
+    { hasher h(hf); key_equal e(eql); Allocator().allocate (sizeof(value_type)); }
+    unordered_multiset(const unordered_multiset& x);
+    unordered_multiset(unordered_multiset&& x);
+    explicit unordered_multiset(const Allocator&);
+    unordered_multiset(const unordered_multiset&, const Allocator&);
+    unordered_multiset(unordered_multiset&&, const Allocator&);
+    unordered_multiset(size_t n, const allocator_type& a)
+      : unordered_multiset(n, hasher(), key_equal(), a) { }
+    unordered_multiset(size_t n, const hasher& hf, const allocator_type& a)
+      : unordered_multiset(n, hf, key_equal(), a) { }
+   ~unordered_multiset()                        { } 
+    unordered_multiset&
+      operator=(const unordered_multiset& x)               { unordered_multiset(x).swap(*this); return *this; }
+
+    //
+    // Not in C++ 14882:1998
+    allocator_type get_allocator() const { static allocator_type  * volatile r; return * r; }
+
+    //  iterators:
+    iterator               begin()         { static iterator * volatile r; return * r;  }
+    const_iterator         begin() const   { static const_iterator * volatile r; return * r;  }
+    const_iterator         cbegin() const  { static const_iterator * volatile r; return * r;  }
+    iterator               end()           { static iterator * volatile r; return * r;  }
+    const_iterator         end() const     { static const_iterator * volatile r; return * r;  }
+    const_iterator         cend() const    { static const_iterator * volatile r; return * r;  }
+
+    //  capacity:
+    bool      empty() const               { static bool * volatile r; return * r;  }
+    size_type size() const                { static size_type * volatile r; return * r;  }
+    size_type max_size() const            { static size_type * volatile r; return * r;  }
+
+    //  modifiers:
+    template <class... Args> iterator emplace(Args&&... args);
+    template <class... Args> iterator emplace_hint(const_iterator position, Args&&... args);
+    iterator             insert(const value_type& x)                    { static bool * volatile r; return make_pair (insert (begin (), x), *r); }
+    iterator             insert(iterator pos, const value_type& x)
+      { hasher()(x); key_equal()(*begin(), x); Allocator().allocate (sizeof(value_type)); return pos; }
+    template <class InputIterator>
+      void insert(InputIterator first, InputIterator last)              { insert (begin(), *first); ++first; }
+    void insert(initializer_list<value_type>);
+
+    iterator  erase(const_iterator position)                            { }
+    iterator  erase(iterator position)                                  { }
+    size_type erase(const key_type& x)                                  { iterator iter = find (x); erase (iter); static size_type  * volatile r; return * r;  }
+    iterator  erase(iterator first, iterator last)                      { }
+    void swap(unordered_multiset&)                                           { }
+    void clear()                                                        { erase (begin(), end ()); }
+
+    //  lib.map.ops map operations:
+    iterator       find(const key_type& x)                 { iterator iter = begin(); key_equal()(*iter, x); ++iter; return iter; }
+    const_iterator find(const key_type& x) const           { const_iterator iter = begin(); key_equal()(*iter, x); ++iter; return iter; }
+    size_type      count(const key_type& x) const          { find(x); static size_type * volatile r; return * r;  }
+
+    pair<iterator,iterator>
+	equal_range(const key_type& x)                           { return make_pair (lower_bound(x), upper_bound(x)); }
+    pair<const_iterator,const_iterator>
+	equal_range(const key_type& x) const                     { return make_pair (lower_bound(x), upper_bound(x)); }
+
+    // bucket interface
+    size_type bucket_count() const noexcept;
+    size_type max_bucket_count() const noexcept;
+    size_type bucket_size(size_type n) const;
+    size_type bucket(const key_type& k) const;
+    local_iterator begin(size_type n);
+    const_local_iterator begin(size_type n) const;
+    local_iterator end(size_type n);
+    const_local_iterator end(size_type n) const;
+    const_local_iterator cbegin(size_type n) const;
+    const_local_iterator cend(size_type n) const;
+
+    // hash policy
+    float load_factor() const noexcept;
+    float max_load_factor() const noexcept;
+    void max_load_factor(float z);
+    void rehash(size_type n);
+    void reserve(size_type n);
+  };
+
+
+__QAC_END_NAMESPACE
+
+#endif // ends __QAC_INCLUDE_unordered_set__

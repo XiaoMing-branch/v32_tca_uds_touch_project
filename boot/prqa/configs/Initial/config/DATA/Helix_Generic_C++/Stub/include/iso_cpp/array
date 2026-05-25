@@ -1,0 +1,103 @@
+#ifndef __QAC_INCLUDE_array__
+#define __QAC_INCLUDE_array__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+#include <qac_iterator.h>
+#include <iterator>
+
+__QAC_BEGIN_NAMESPACE
+
+template <class T, size_t N > struct array;
+template <class T, size_t N>
+bool operator==(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N>
+bool operator!=(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N>
+bool operator<(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N>
+bool operator>(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N>
+bool operator<=(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N>
+bool operator>=(const array<T,N>& x, const array<T,N>& y);
+template <class T, size_t N >
+void swap(array<T,N>& x, array<T,N>& y);
+
+template <class T> class tuple_size;
+template <size_t I, class T> class tuple_element;
+template <class T, size_t N>
+struct tuple_size<array<T, N> >;
+template <size_t I, class T, size_t N>
+struct tuple_element<I, array<T, N> >;
+template <size_t I, class T, size_t N> constexpr T& get( array<T, N>& a) { return a._elems[I]; } 
+template <size_t I, class T, size_t N> constexpr T&& get(array<T, N>&& a) { return a._elems[I]; } 
+template <size_t I, class T, size_t N> constexpr const T& get(const array<T, N>& a) { return const_cast<T&> (a._elems[I]); } 
+
+template <class T, size_t N >
+struct array {
+  //  types:
+  typedef T&                                    reference;
+  typedef const T&                              const_reference;
+  typedef __normal_iterator<T*, array<T, N> >
+                                                iterator;
+  typedef __normal_iterator<const T*, array<T, N> >
+                                                const_iterator;
+  typedef size_t                                size_type;
+  typedef ptrdiff_t                             difference_type;
+  typedef T                                     value_type;
+  typedef T*                                    pointer;
+  typedef const T*                              const_pointer;
+  typedef std::reverse_iterator<iterator>       reverse_iterator;
+  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+  T _elems[N];
+
+  // no explicit construct/copy/destroy for aggregate type
+  void fill(const T& u);
+  void swap(array&);
+
+  // iterators:
+  iterator               begin() noexcept;
+  const_iterator         begin() const noexcept;
+  iterator               end() noexcept;
+  const_iterator         end() const noexcept;
+
+  reverse_iterator       rbegin() noexcept;
+  const_reverse_iterator rbegin() const noexcept;
+  reverse_iterator       rend() noexcept;
+  const_reverse_iterator rend() const noexcept;
+
+  const_iterator         cbegin() const noexcept;
+  const_iterator         cend() const noexcept;
+  const_reverse_iterator crbegin() const noexcept;
+  const_reverse_iterator crend() const noexcept;
+
+  // capacity:
+  constexpr size_type size() const noexcept { return N; }
+  size_type max_size() const noexcept;
+  bool      empty() const noexcept;
+
+  // element access:
+  reference       operator[](size_type n) { return _elems[n]; }
+  const_reference operator[](size_type n) const { return _elems[n]; }
+  const_reference at(size_type n) const;
+  reference       at(size_type n);
+  reference       front();
+  const_reference front() const;
+  reference       back();
+  const_reference back() const;
+
+  T *       data() noexcept;
+  const T * data() const noexcept;
+};
+
+// __cpp_deduction_guides >= 201606
+template<typename T, typename... U> array(T, U...) -> array<T, 1 + sizeof...(U)>;
+
+
+__QAC_END_NAMESPACE
+
+
+#endif

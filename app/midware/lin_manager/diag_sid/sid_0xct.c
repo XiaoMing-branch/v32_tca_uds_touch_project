@@ -19,9 +19,16 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_utilities.h"
+#include "fff_pal_store.h"
+#else
 #include "diagnosticIII.h"
 #include "utilities.h"
 #include "pal_store.h"
+#endif
 
 /********************************************************
 ** \brief   diag_0xad_command

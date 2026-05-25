@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<prqaproject xmlversion="3.0.0" qafversion="4.3.0">
+ <!-- Config file information... -->
+ <configurations>
+  <cosmetic_name name="app_qac_test"/>
+  <languageFamily name="C/C++"/>
+  <processMonitor>
+   <includeOptionSyntax>
+    <option string="-I"/>
+    <option string="/I"/>
+   </includeOptionSyntax>
+   <defineOptionSyntax>
+    <option string="-D"/>
+    <option string="/D"/>
+   </defineOptionSyntax>
+   <flagScript string=""/>
+   <settingsOptionSyntax>
+    <option string="@" compiler="Visual Studio" extension=".rsp" literal_quotes="no"/>
+    <option string="-@" compiler="Windriver" extension="" literal_quotes="no"/>
+    <option string="--Via" compiler="Greenhills" extension="__i" literal_quotes="no"/>
+   </settingsOptionSyntax>
+   <excludeStrings/>
+   <fileFilterStrings/>
+  </processMonitor>
+  <exclusionPattern method="CSV"/>
+  <root_paths>
+   <root_path path="${PROJECT_ROOT}" name="SOURCE_ROOT"/>
+  </root_paths>
+  <default_config name="Initial"/>
+  <!-- Individual Configs... -->
+  <config name="Initial">
+   <baselinedSourceRoot baseline="OFF"/>
+   <baselineSnapshot date="" id="" name=""/>
+   <acf name="default.acf"/>
+   <rcf name="m3cm-5.3.0-en_US.rcf"/>
+   <ccts>
+    <cct name="Helix_Generic_C.cct" target="C" active="yes"/>
+    <cct name="Helix_Generic_C++.cct" target="C++" active="yes"/>
+   </ccts>
+  </config>
+ </configurations>
+ <!-- Mapping of extension to target_language... -->
+ <file_extensions>
+  <language target="C">
+   <extension ext=".c"/>
+  </language>
+  <language target="C">
+   <extension ext=".C"/>
+  </language>
+  <language target="C++">
+   <extension ext=".cpp"/>
+  </language>
+  <language target="C++">
+   <extension ext=".cxx"/>
+  </language>
+  <language target="C++">
+   <extension ext=".cc"/>
+  </language>
+  <language target="C++">
+   <extension ext=".CPP"/>
+  </language>
+  <language target="C++">
+   <extension ext=".CXX"/>
+  </language>
+  <language target="C++">
+   <extension ext=".CC"/>
+  </language>
+ </file_extensions>
+ <!-- Files in project... -->
+ <files>
+  <!-- Explicit files... -->
+  <file folder="${SOURCE_ROOT}/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source" name="custom_diagnosticIII.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source" name="lin_frame.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/platform/pal/utilities" name="utilities.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0x11.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0x2e.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0x2f.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0x32.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0x3e.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb0.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb1.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb2.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb3.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb5.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb6.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xb7.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xbc.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager/diag_sid" name="sid_0xbd.c" target="C"/>
+  <file folder="${SOURCE_ROOT}/midware/lin_manager" name="diagnosticIII.c" target="C"/>
+ </files>
+</prqaproject>

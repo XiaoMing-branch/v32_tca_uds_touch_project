@@ -55,16 +55,16 @@ const uint8_t boot_version[4] = { 3, 0, 3, 0 };
 
 extern void lin_lld_isr_callback(uint32_t isr);
 
-static dfu_manager_context_t dfu_ctx = { 0 };
+STATIC dfu_manager_context_t dfu_ctx = { 0 };
 
-static ServiceUDS_TypeDef uds_request_info =
+STATIC ServiceUDS_TypeDef uds_request_info =
 {
     .sessionMode = DEFALUT_SESSION,
     .requsetMode = REQUEST_ID_ERROR,
     .securityLevel = SECURITY_LEVEL0
 };
 
-static const ServiceUDS_TypeDef ServiceUDS[] =
+STATIC const ServiceUDS_TypeDef ServiceUDS[] =
 {
     { 0x11u, DEFALUT_SESSION | PROGRAM_SESSION, PHYSICAL_ADDR | FUNCTION_ADDR, SECURITY_LEVEL0, },               /*reset mcu*/
     { 0x10u, DEFALUT_SESSION | PROGRAM_SESSION | EXTEND_SESSION, PHYSICAL_ADDR | FUNCTION_ADDR, SECURITY_LEVEL0, }, /*session control*/
@@ -83,8 +83,8 @@ static const ServiceUDS_TypeDef ServiceUDS[] =
 
 #define LIN_BAUD_RATE    19200UL       /*For slave*/
 
-static uint32_t lin_baud_rate = LIN_BAUD_RATE;
-static uint8_t  lin_configured_NAD = 0x01;
+STATIC uint32_t lin_baud_rate = LIN_BAUD_RATE;
+STATIC uint8_t  lin_configured_NAD = 0x01;
 
 typedef void (*FUNC_PTR)(void);
 
@@ -96,7 +96,7 @@ typedef void (*FUNC_PTR)(void);
 ** \retval  None
 ** \note    Direct operation register, reduce code flash
 *********************************************************/
-static void led_indicate_init(void)
+STATIC void led_indicate_init(void)
 {
 #if (defined (__TCPL01X__) || defined (__TCPL03X__))
 #if defined (__TCPL01X__)
@@ -154,7 +154,7 @@ static void led_indicate_init(void)
 ** \retval  None
 ** \note    Direct operation register, reduce code flash
 *********************************************************/
-static void led_indicate_deinit(void)
+STATIC void led_indicate_deinit(void)
 {
 #if (defined (__TCPL01X__) || defined (__TCPL03X__))
 #if defined (__TCPL01X__)
@@ -183,7 +183,7 @@ static void led_indicate_deinit(void)
 **
 ** \retval  None
 *********************************************************/
-static void led_indicate_toggle(void)
+STATIC void led_indicate_toggle(void)
 {
 #if (defined (__TCPL01X__) || defined (__TCPL03X__))
 #if defined (__TCPL01X__)
@@ -191,7 +191,7 @@ static void led_indicate_toggle(void)
     PRINT_UART->TX_DATA = (uint8_t)0x55;
 #endif
 #elif defined (__TCPL03X__)
-    static bool toggle_flag = true;
+    STATIC bool toggle_flag = true;
     uint32_t value = toggle_flag ? 1000 : 0;
 
     PWM->CH0_PWM_CFG_F.HT0 = value;
@@ -210,7 +210,7 @@ static void led_indicate_toggle(void)
 **
 ** \retval  None
 *********************************************************/
-static void JumpToApp(void)
+STATIC void JumpToApp(void)
 {
     NVIC_DisableIRQ(TIMER_IRQn);
 #if defined (__TCPL01X__)
@@ -235,7 +235,7 @@ static void JumpToApp(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t queue_lin_empty(void)
+STATIC uint8_t queue_lin_empty(void)
 {
     return ((dfu_ctx.queue_list.head == dfu_ctx.queue_list.tail) ? 1 : 0);
 }
@@ -247,7 +247,7 @@ static uint8_t queue_lin_empty(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t system_cfg_load(void)
+STATIC uint8_t system_cfg_load(void)
 {
     uint32_t nad;
 
@@ -268,7 +268,7 @@ static uint8_t system_cfg_load(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t dfu_image_erase(void)
+STATIC uint8_t dfu_image_erase(void)
 {
     if (pal_store_erase(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, FLASH_DFU_INFO_SIZE + FLASH_APP_IMAGE_SIZE))
     {
@@ -287,7 +287,7 @@ static uint8_t dfu_image_erase(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t dfu_image_program(uint32_t addr, packet_unit_t *packet, uint16_t length)
+STATIC uint8_t dfu_image_program(uint32_t addr, packet_unit_t *packet, uint16_t length)
 {
     if (addr < FLASH_APP_ADDR || addr >= FLASH_APP_END_ADDR)
     {
@@ -321,7 +321,7 @@ static uint8_t dfu_image_program(uint32_t addr, packet_unit_t *packet, uint16_t 
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t last_dfu_info_get(last_dfu_info_t *info)
+STATIC uint8_t last_dfu_info_get(last_dfu_info_t *info)
 {
     pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)info, sizeof(last_dfu_info_t));
 
@@ -340,7 +340,7 @@ static uint8_t last_dfu_info_get(last_dfu_info_t *info)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t last_dfu_info_update(last_dfu_info_t *info)
+STATIC uint8_t last_dfu_info_update(last_dfu_info_t *info)
 {
     pal_store_write(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)info, sizeof(last_dfu_info_t));
     return (DFU_MSG_SUCCESS);
@@ -353,7 +353,7 @@ static uint8_t last_dfu_info_update(last_dfu_info_t *info)
 **
 ** \retval  None
 *********************************************************/
-static void dfu_process_exit(uint8_t reason)
+STATIC void dfu_process_exit(uint8_t reason)
 {
     if (DFU_MSG_SUCCESS == reason)
     {
@@ -382,7 +382,7 @@ static void dfu_process_exit(uint8_t reason)
 **
 ** \retval  None
 *********************************************************/
-static void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
+STATIC void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
 {
     uint8_t response[20];
     uint8_t len = 2 + length;
@@ -407,7 +407,7 @@ static void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint1
 **
 ** \retval  None
 *********************************************************/
-static void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_value)
+STATIC void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_value)
 {
     if (POSITIVE == resp_type)
     {
@@ -427,7 +427,7 @@ static void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_
 **
 ** \retval  None
 *********************************************************/
-static void session_control_handle(uint8_t *param, uint16_t length)
+STATIC void session_control_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -468,7 +468,7 @@ static void session_control_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void communication_control_handle(uint8_t *param, uint16_t length)
+STATIC void communication_control_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -498,7 +498,7 @@ static void communication_control_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void link_control_handle(uint8_t *param, uint16_t length)
+STATIC void link_control_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -548,7 +548,7 @@ static void link_control_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static uint8_t cpmpare_key(uint8_t *seed, uint8_t *key, uint8_t length)
+STATIC uint8_t cpmpare_key(uint8_t *seed, uint8_t *key, uint8_t length)
 {
     /*compare key seed*/
     for (uint8_t i = 0; i < length; i++)
@@ -570,7 +570,7 @@ static uint8_t cpmpare_key(uint8_t *seed, uint8_t *key, uint8_t length)
 **
 ** \retval  None
 *********************************************************/
-static void security_access_handle(uint8_t *param, uint16_t length)
+STATIC void security_access_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -614,7 +614,7 @@ static void security_access_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void firmware_info_sync_handle(uint8_t *param, uint16_t length)
+STATIC void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 {
     dfu_ctx.op_code = DFU_CMD_SYNC_INFO;
 
@@ -676,7 +676,7 @@ static void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void request_download_handle(uint8_t *param, uint16_t length)
+STATIC void request_download_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -725,7 +725,7 @@ static void request_download_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void transfer_data_handle(uint8_t *param, uint16_t length)
+STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
 {
     if (DFU_CMD_TRANFER_START != dfu_ctx.op_code || DFU_MSG_PROGRA_ERROR == dfu_ctx.resp_value)
     {
@@ -785,7 +785,7 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void request_transfer_exit_handle(uint8_t *param, uint16_t length)
+STATIC void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -809,7 +809,7 @@ static void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void routine_control_handle(uint8_t *param, uint16_t length)
+STATIC void routine_control_handle(uint8_t *param, uint16_t length)
 {
     uint8_t resp_type = POSITIVE;
     uint8_t sid = param[0];
@@ -1094,7 +1094,7 @@ void dfu_manager_init(void)
 *********************************************************/
 void main_loops(void)
 {
-    static uint32_t LoopCnt = 0;
+    STATIC uint32_t LoopCnt = 0;
 
     lin_diag_service_handle();
 

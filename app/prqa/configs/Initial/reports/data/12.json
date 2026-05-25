@@ -1,0 +1,35 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb5.c",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/inc/diagnosticIII.h", "line": 28, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/test_config.h", "line": 23, "is_system": false}],
+"metrics": {"COMF": "1.286", "STBME": "0.235", "STBMO": "0.221", "STBMS": "0.235", "STBUG": "0", "STCDN": "1.652", "STDEV": "1.782", "STDIF": "9.125", "STECT": "0", "STEFF": "10691", "STFCO": "0", "STFNC": "2", "STHAL": "314", "STM20": "64", "STM21": "129", "STM22": "14", "STM28": "18", "STM33": "2", "STOPN": "32", "STOPT": "31", "STSCT": "0", "STSHN": "1068", "STTDE": "1.574", "STTDO": "1.408", "STTDS": "1.506", "STTLN": "9", "STTOT": "196", "STTPP": "103", "STVAR": "25", "STVOL": "1172", "STZIP": "297", "VOCF": "3.063"},
+"entities": [
+{"type": "function",
+"name": "lin_diag_snpd",
+"line": 99,
+"metrics": {"NPATH": "1", "STAKI": "2", "STAV1": "9.000", "STAV2": "9.000", "STAV3": "9.000", "STBAK": "0", "STCAL": "1", "STCYC": "1", "STELF": "0", "STFDN": "3", "STFDT": "6", "STFN1": "6", "STFN2": "3", "STGTO": "0", "STKDN": "0.000", "STKNT": "0", "STLCT": "0", "STLIN": "1", "STLOP": "0", "STM07": "1", "STM19": "0", "STM29": "0", "STMCC": "0 (1:1)", "STMIF": "0", "STPAR": "2", "STPBG": "0", "STPDN": "1.000", "STPTH": "1", "STRET": "1", "STST1": "1", "STST2": "1", "STST3": "1", "STSUB": "1", "STUNR": "0", "STUNV": "0", "STXLN": "1"},
+"relationships": [
+{"type": "CALL",
+"entity": "lin_snpd_diag_handle",
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb5.c",
+"line": 101,
+"info": ""},
+{"type": "REFERS_TO",
+"entity": "lin_snpd_diag_handle",
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb5.c",
+"line": 101,
+"info": "ReadFrom"}],
+"plot": [
+{"edge": [0.2,1,1.2,1], "color": "BLACK"},
+{"edge": [1.2,1,2.2,1], "color": "BLACK"},
+{"edge": [2.2,1,4.2,1], "color": "BLACK"}]},
+{"type": "function",
+"name": "lin_snpd_diag_handle",
+"line": 86,
+"metrics": {"NPATH": "1", "STAKI": "1", "STAV1": "6.000", "STAV2": "6.000", "STAV3": "6.000", "STBAK": "0", "STCAL": "0", "STCYC": "1", "STELF": "0", "STFDN": "2", "STFDT": "6", "STFN1": "10", "STFN2": "2", "STGTO": "0", "STKDN": "0.000", "STKNT": "0", "STLCT": "0", "STLIN": "2", "STLOP": "0", "STM07": "1", "STM19": "0", "STM29": "1", "STMCC": "0 (1:1)", "STMIF": "0", "STPAR": "2", "STPBG": "0", "STPDN": "0.500", "STPTH": "1", "STRET": "1", "STST1": "2", "STST2": "2", "STST3": "2", "STSUB": "0", "STUNR": "0", "STUNV": "0", "STXLN": "2"},
+"plot": [
+{"edge": [0.2,1,1.2,1], "color": "BLACK"},
+{"edge": [1.2,1,2.2,1], "color": "BLACK"},
+{"edge": [2.2,1,4.2,1], "color": "BLACK"}]}]
+}

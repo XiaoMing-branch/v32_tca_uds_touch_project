@@ -26,16 +26,16 @@ extern "C" {
 #endif
 
 //************************************************************************************
-//集合动作基类
+//闆嗗悎鍔ㄤ綔鍩虹被
 struct T_SiArbiterInterpSetActionBase
 {
     void (*run)(T_SiObject *obj, struct T_SiArbiterInterpSetActionBase *self);
 
-    struct T_SiArbiterInterpSetActionBase *link;        //单向链表
+    struct T_SiArbiterInterpSetActionBase *link;        //鍗曞悜閾捐〃
 };
 typedef struct T_SiArbiterInterpSetActionBase T_SiArbiterInterpSetActionBase;
 
-void SiArbiterInterpSetActionRun(T_SiObject *obj, struct T_SiArbiterInterpSetActionBase *header);  //执行动作
+void SiArbiterInterpSetActionRun(T_SiObject *obj, struct T_SiArbiterInterpSetActionBase *header);  //鎵ц鍔ㄤ綔
 
 #ifdef __cplusplus
 }

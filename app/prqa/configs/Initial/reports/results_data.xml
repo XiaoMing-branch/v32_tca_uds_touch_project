@@ -1,0 +1,1446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ This file can be used to generate your own custom reports using an
+ xsl translation file or any other method you wish. It contains all active and total diagnostic counts for each 
+ folder, file, rule, message, component and level in the project.
+ It also contains links to files with additional data for each analyzed file.
+ NOTE: The format of this file may change in the next version.
+-->
+<AnalysisData timestamp="20260515T093203" last_analysis_timestamp="20260513T141643" projectpath="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app" reportpath="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports" projectconfig="Initial" helix_qac_version="Helix QAC 2023.3 (English, Japanese)" helix_qac_build="4.3.0-3943-gee1990c9 Sep 13 2023 for Windows 64-bit (Qt 5.15.13)" components="qac-11.3.0,qacpp-6.3.0,dataflow-1.3.0,mta-4.3.0,rcma-4.3.0,m3cm-5.3.0">
+<dataroot type="per-file">
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/device/common/inc/base_types.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/1.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/device/common/inc/tcae10.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/2.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x11.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x11.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x11.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/3.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-2" enabled="true" total="2" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="2" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x2e.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x2e.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x2e.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/4.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="4" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="1" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="2" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="4" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x2f.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x2f.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x2f.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/5.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="1" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x32.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x32.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x32.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/6.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="1" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0x3e.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x3e.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0x3e.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/7.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-2" enabled="true" total="2" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="2" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb0.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb0.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb0.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/8.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="7" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="2" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-15.5" enabled="true" total="1" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="4" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="3" active="0" text="Rules" >
+<Rule id="Rule-17.7" enabled="true" total="3" active="0" text="The value returned by a function having non-void return type shall be used" >
+<Message guid="qac-11.3.0-3200" total="3" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="7" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="1" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Component>
+<Component guid="qac-11.3.0" total="6" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3200" total="3" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb1.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb1.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb1.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/9.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="4" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="2" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-15.5" enabled="true" total="1" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="4" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="1" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Component>
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb2.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb2.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb2.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/10.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="8" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="4" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="4" active="0" text="Rules" >
+<Rule id="Rule-15.5" enabled="true" total="1" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-2.5" enabled="true" total="1" active="0" text="A project should not contain unused macro definitions" >
+<Message guid="rcma-4.3.0-1534" total="1" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Rule>
+<Rule id="Rule-8.9" enabled="true" total="1" active="0" text="An object should be declared at block scope if its identifier only appears in a single function" >
+<Message guid="qac-11.3.0-3218" total="1" active="0" severity="2" text="3218. File scope static, '%1s', is only accessed in one function." />
+</Rule>
+<Rule id="Rule-1.2" enabled="true" total="1" active="0" text="Language extensions should not be used" >
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="4" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="2" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="2" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="qac-11.3.0-2880" total="1" active="0" severity="6" text="2880. This code is unreachable." />
+</Rule>
+<Rule id="Rule-14.3" enabled="true" total="1" active="0" text="Controlling expressions shall not be invariant" >
+<Message guid="qac-11.3.0-2742" total="1" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="8" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="1" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Component>
+<Component guid="qac-11.3.0" total="6" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+<Message guid="qac-11.3.0-2742" total="1" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+<Message guid="qac-11.3.0-2880" total="1" active="0" severity="6" text="2880. This code is unreachable." />
+<Message guid="qac-11.3.0-3218" total="1" active="0" severity="2" text="3218. File scope static, '%1s', is only accessed in one function." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1534" total="1" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb3.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb3.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb3.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/11.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="1" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb5.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb5.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb5.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/12.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="8" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="4" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="4" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+<Rule id="Rule-2.5" enabled="true" total="1" active="0" text="A project should not contain unused macro definitions" >
+<Message guid="rcma-4.3.0-1534" total="1" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Rule>
+<Rule id="Rule-8.7" enabled="true" total="1" active="0" text="Functions and objects should not be defined with external linkage if they are referenced in only one translation unit" >
+<Message guid="rcma-4.3.0-1505" total="1" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+</Rule>
+<Rule id="Rule-1.2" enabled="true" total="1" active="0" text="Language extensions should not be used" >
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="4" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="2" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="2" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="1" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="8" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="5" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+<Component guid="rcma-4.3.0" total="3" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="rcma-4.3.0-1505" total="1" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1534" total="1" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb6.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb6.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb6.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/13.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="1" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="1" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xb7.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb7.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xb7.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/14.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="4" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="2" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-15.5" enabled="true" total="1" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="4" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="1" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Component>
+<Component guid="qac-11.3.0" total="3" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xbc.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xbc.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xbc.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/15.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="5" active="0" languages="C" >
+<Rule id="M3CM-2" enabled="true" total="4" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="3" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="1" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+<Rule id="Rule-17.7" enabled="true" total="1" active="0" text="The value returned by a function having non-void return type shall be used" >
+<Message guid="qac-11.3.0-3200" total="1" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="5" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="4" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3200" total="1" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diag_sid/sid_0xbd.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xbd.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diag_sid/sid_0xbd.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/16.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="5" active="0" languages="C" >
+<Rule id="M3CM-2" enabled="true" total="4" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="3" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="1" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-11.3" enabled="true" total="1" active="0" text="A conversion shall not be performed between a pointer to object type and a pointer to a different object type" >
+<Message guid="qac-11.3.0-0310" total="1" active="0" severity="2" text="0310. Casting to different object pointer type." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="5" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="4" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0310" total="1" active="0" severity="2" text="0310. Casting to different object pointer type." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-3408" total="1" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/diagnosticIII.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diagnosticIII.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/midware/lin_manager/diagnosticIII.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/17.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="21" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="8" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="8" active="0" text="Rules" >
+<Rule id="Rule-8.13" enabled="true" total="2" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="2" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+<Rule id="Rule-8.9" enabled="true" total="2" active="0" text="An object should be declared at block scope if its identifier only appears in a single function" >
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+<Message guid="qac-11.3.0-3218" total="1" active="0" severity="2" text="3218. File scope static, '%1s', is only accessed in one function." />
+</Rule>
+<Rule id="Rule-8.7" enabled="true" total="1" active="0" text="Functions and objects should not be defined with external linkage if they are referenced in only one translation unit" >
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Rule>
+<Rule id="Rule-1.2" enabled="true" total="4" active="0" text="Language extensions should not be used" >
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-2071" total="2" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="16" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="5" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="5" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-2071" total="2" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="11" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="2" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="2" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-2.2" enabled="true" total="2" active="0" text="A project shall not contain dead code" >
+<Message guid="dataflow-1.3.0-2987" total="2" active="0" severity="4" text="2987. This function call produces no side effects and is redundant." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="3" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="2" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="qac-11.3.0-2880" total="1" active="0" severity="6" text="2880. This code is unreachable." />
+</Rule>
+<Rule id="Rule-8.5" enabled="true" total="2" active="0" text="An external object or function shall be declared once in one and only one file" >
+<Message guid="qac-11.3.0-3449" total="1" active="0" severity="2" text="3449. Multiple declarations of external object or function." />
+<Message guid="qac-11.3.0-3451" total="1" active="0" severity="2" text="3451. The global identifier '%1s' has been declared in more than one file." />
+</Rule>
+<Rule id="Rule-14.3" enabled="true" total="2" active="0" text="Controlling expressions shall not be invariant" >
+<Message guid="qac-11.3.0-2741" total="1" active="0" severity="2" text="2741. This 'if' controlling expression is a constant expression and its value is 'true'." />
+<Message guid="qac-11.3.0-2742" total="1" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="21" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="2" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2987" total="2" active="0" severity="4" text="2987. This function call produces no side effects and is redundant." />
+</Component>
+<Component guid="qac-11.3.0" total="16" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-2071" total="2" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+<Message guid="qac-11.3.0-2741" total="1" active="0" severity="2" text="2741. This 'if' controlling expression is a constant expression and its value is 'true'." />
+<Message guid="qac-11.3.0-2742" total="1" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+<Message guid="qac-11.3.0-2880" total="1" active="0" severity="6" text="2880. This code is unreachable." />
+<Message guid="qac-11.3.0-3218" total="1" active="0" severity="2" text="3218. File scope static, '%1s', is only accessed in one function." />
+<Message guid="qac-11.3.0-3408" total="2" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+<Message guid="qac-11.3.0-3449" total="1" active="0" severity="2" text="3449. Multiple declarations of external object or function." />
+<Message guid="qac-11.3.0-3451" total="1" active="0" severity="2" text="3451. The global identifier '%1s' has been declared in more than one file." />
+<Message guid="qac-11.3.0-3673" total="2" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+<Component guid="rcma-4.3.0" total="3" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="2" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/inc/diagnosticIII.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/18.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="66" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="65" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="65" active="0" text="Rules" >
+<Rule id="Rule-2.5" enabled="true" total="65" active="0" text="A project should not contain unused macro definitions" >
+<Message guid="rcma-4.3.0-1534" total="65" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="66" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="1" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Component>
+<Component guid="rcma-4.3.0" total="65" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1534" total="65" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/lin_manager/inc/lin_process.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/19.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/store_manager/inc/store_manager.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/20.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/tclog/tc_log.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/21.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/midware/touch/touch_include.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/22.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/platform/pal/pal_store/inc/pal_store.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/23.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/platform/pal/utilities/inc/pal_func_def.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/24.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/platform/pal/utilities/inc/utilities.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/25.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="4" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="3" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="3" active="0" text="Rules" >
+<Rule id="Rule-2.5" enabled="true" total="3" active="0" text="A project should not contain unused macro definitions" >
+<Message guid="rcma-4.3.0-1534" total="3" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="4" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="1" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Component>
+<Component guid="rcma-4.3.0" total="3" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1534" total="3" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/platform/pal/utilities/utilities.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/platform/pal/utilities/utilities.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/platform/pal/utilities/utilities.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/26.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="27" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="13" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="13" active="0" text="Rules" >
+<Rule id="Rule-13.3" enabled="true" total="6" active="0" text="A full expression containing an increment (++) or decrement (--) operator should have no other potential side effects other than that caused by the increment or decrement operator" >
+<Message guid="qac-11.3.0-3387" total="2" active="0" severity="3" text="3387. A full expression containing an increment (++) or decrement (--) operator should have no potential side effects other than that caused by the increment or decrement operator." />
+<Message guid="qac-11.3.0-3440" total="4" active="0" severity="2" text="3440. Using the value resulting from a ++ or -- operation." />
+</Rule>
+<Rule id="Rule-17.8" enabled="true" total="4" active="0" text="A function parameter should not be modified" >
+<Message guid="qac-11.3.0-1338" total="4" active="0" severity="2" text="1338. The parameter '%1s' is being modified." />
+</Rule>
+<Rule id="Rule-15.5" enabled="true" total="1" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+<Rule id="Rule-8.7" enabled="true" total="1" active="0" text="Functions and objects should not be defined with external linkage if they are referenced in only one translation unit" >
+<Message guid="rcma-4.3.0-1505" total="1" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="13" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="12" active="0" text="Rules" >
+<Rule id="Rule-2.1" enabled="true" total="3" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="3" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+<Rule id="Rule-20.7" enabled="true" total="4" active="0" text="Expressions resulting from the expansion of macro parameters shall be enclosed in parentheses" >
+<Message guid="qac-11.3.0-3432" total="4" active="0" severity="2" text="3432. Simple macro argument expression is not parenthesized." />
+</Rule>
+<Rule id="Rule-21.15" enabled="true" total="2" active="0" text="The pointer arguments to the Standard Library functions memcpy, memmove and memcmp shall be pointers to qualified or unqualified versions of compatible types" >
+<Message guid="qac-11.3.0-1496" total="2" active="0" severity="6" text="1496. [I] Destination and source objects may have incompatible types." />
+</Rule>
+<Rule id="Rule-17.7" enabled="true" total="3" active="0" text="The value returned by a function having non-void return type shall be used" >
+<Message guid="qac-11.3.0-3200" total="3" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="27" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="1" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="1" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Component>
+<Component guid="qac-11.3.0" total="22" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-1338" total="4" active="0" severity="2" text="1338. The parameter '%1s' is being modified." />
+<Message guid="qac-11.3.0-1496" total="2" active="0" severity="6" text="1496. [I] Destination and source objects may have incompatible types." />
+<Message guid="qac-11.3.0-3200" total="3" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+<Message guid="qac-11.3.0-3387" total="2" active="0" severity="3" text="3387. A full expression containing an increment (++) or decrement (--) operator should have no potential side effects other than that caused by the increment or decrement operator." />
+<Message guid="qac-11.3.0-3432" total="4" active="0" severity="2" text="3432. Simple macro argument expression is not parenthesized." />
+<Message guid="qac-11.3.0-3440" total="4" active="0" severity="2" text="3440. Using the value resulting from a ++ or -- operation." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+<Component guid="rcma-4.3.0" total="4" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="3" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="rcma-4.3.0-1505" total="1" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prebuild/lin_lib/inc/lin.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/27.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prebuild/lin_lib/inc/lin_precfg.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/28.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prebuild/lin_lib/inc/linlib.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/29.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/app.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/30.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/custom_diagnosticIII.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/custom_diagnosticIII.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/custom_diagnosticIII.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/31.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="121" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="56" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="56" active="0" text="Rules" >
+<Rule id="Rule-13.3" enabled="true" total="1" active="0" text="A full expression containing an increment (++) or decrement (--) operator should have no other potential side effects other than that caused by the increment or decrement operator" >
+<Message guid="qac-11.3.0-3440" total="1" active="0" severity="2" text="3440. Using the value resulting from a ++ or -- operation." />
+</Rule>
+<Rule id="Rule-15.5" enabled="true" total="4" active="0" text="A function should have a single point of exit at the end" >
+<Message guid="dataflow-1.3.0-2889" total="4" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+</Rule>
+<Rule id="Rule-8.13" enabled="true" total="1" active="0" text="A pointer should point to a const-qualified type whenever possible" >
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Rule>
+<Rule id="Rule-2.5" enabled="true" total="17" active="0" text="A project should not contain unused macro definitions" >
+<Message guid="rcma-4.3.0-1534" total="17" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Rule>
+<Rule id="Rule-2.8" enabled="true" total="1" active="0" text="A project should not contain unused object definitions" >
+<Message guid="qac-11.3.0-3205" total="1" active="0" severity="3" text="3205. The identifier '%1s' is not used and could be removed." />
+</Rule>
+<Rule id="Rule-2.3" enabled="true" total="1" active="0" text="A project should not contain unused type declarations" >
+<Message guid="qac-11.3.0-3205" total="1" active="0" severity="3" text="3205. The identifier '%1s' is not used and could be removed." />
+</Rule>
+<Rule id="Rule-8.9" enabled="true" total="6" active="0" text="An object should be declared at block scope if its identifier only appears in a single function" >
+<Message guid="rcma-4.3.0-1514" total="6" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Rule>
+<Rule id="Rule-8.7" enabled="true" total="27" active="0" text="Functions and objects should not be defined with external linkage if they are referenced in only one translation unit" >
+<Message guid="rcma-4.3.0-1504" total="9" active="0" severity="1" text="1504. The object '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1505" total="12" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1514" total="6" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Rule>
+<Rule id="Rule-1.2" enabled="true" total="5" active="0" text="Language extensions should not be used" >
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-2071" total="3" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="69" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="6" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="6" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-2071" total="3" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="63" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="30" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="30" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-2.2" enabled="true" total="1" active="0" text="A project shall not contain dead code" >
+<Message guid="dataflow-1.3.0-2983" total="1" active="0" severity="2" text="2983. This assignment is redundant. The value of this object is never subsequently used." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="8" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="5" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="qac-11.3.0-2880" total="3" active="0" severity="6" text="2880. This code is unreachable." />
+</Rule>
+<Rule id="Rule-8.5" enabled="true" total="2" active="0" text="An external object or function shall be declared once in one and only one file" >
+<Message guid="qac-11.3.0-3449" total="1" active="0" severity="2" text="3449. Multiple declarations of external object or function." />
+<Message guid="qac-11.3.0-3451" total="1" active="0" severity="2" text="3451. The global identifier '%1s' has been declared in more than one file." />
+</Rule>
+<Rule id="Rule-14.3" enabled="true" total="3" active="0" text="Controlling expressions shall not be invariant" >
+<Message guid="qac-11.3.0-2742" total="3" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+</Rule>
+<Rule id="Rule-21.15" enabled="true" total="2" active="0" text="The pointer arguments to the Standard Library functions memcpy, memmove and memcmp shall be pointers to qualified or unqualified versions of compatible types" >
+<Message guid="qac-11.3.0-1495" total="2" active="0" severity="6" text="1495. [I] Destination and source objects have incompatible types." />
+</Rule>
+<Rule id="Rule-17.7" enabled="true" total="17" active="0" text="The value returned by a function having non-void return type shall be used" >
+<Message guid="qac-11.3.0-3200" total="17" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="121" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="5" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2889" total="4" active="0" severity="2" text="2889. This function has more than one 'return' path." />
+<Message guid="dataflow-1.3.0-2983" total="1" active="0" severity="2" text="2983. This assignment is redundant. The value of this object is never subsequently used." />
+</Component>
+<Component guid="qac-11.3.0" total="67" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-1035" total="1" active="0" severity="2" text="1035. [E] No macro arguments supplied for variable argument list. This is a language extension." />
+<Message guid="qac-11.3.0-1036" total="1" active="0" severity="2" text="1036. [E] Comma before ## ignored in expansion of variadic macro. This is a language extension." />
+<Message guid="qac-11.3.0-1495" total="2" active="0" severity="6" text="1495. [I] Destination and source objects have incompatible types." />
+<Message guid="qac-11.3.0-2071" total="3" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+<Message guid="qac-11.3.0-2742" total="3" active="0" severity="2" text="2742. This 'if' controlling expression is a constant expression and its value is 'false'." />
+<Message guid="qac-11.3.0-2880" total="3" active="0" severity="6" text="2880. This code is unreachable." />
+<Message guid="qac-11.3.0-3200" total="17" active="0" severity="2" text="3200. '%1s' returns a value which is not being used." />
+<Message guid="qac-11.3.0-3205" total="1" active="0" severity="3" text="3205. The identifier '%1s' is not used and could be removed." />
+<Message guid="qac-11.3.0-3408" total="30" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+<Message guid="qac-11.3.0-3440" total="1" active="0" severity="2" text="3440. Using the value resulting from a ++ or -- operation." />
+<Message guid="qac-11.3.0-3449" total="1" active="0" severity="2" text="3449. Multiple declarations of external object or function." />
+<Message guid="qac-11.3.0-3451" total="1" active="0" severity="2" text="3451. The global identifier '%1s' has been declared in more than one file." />
+<Message guid="qac-11.3.0-3673" total="1" active="0" severity="2" text="3673. The object addressed by the pointer parameter '%1s' is not modified and so the pointer could be of type 'pointer to const'." />
+</Component>
+<Component guid="rcma-4.3.0" total="49" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="5" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="rcma-4.3.0-1504" total="9" active="0" severity="1" text="1504. The object '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1505" total="12" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1514" total="6" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+<Message guid="rcma-4.3.0-1534" total="17" active="0" severity="1" text="1534. The macro '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/custom_diagnosticIII.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/32.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="2" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-2.3" enabled="true" total="1" active="0" text="A project should not contain unused type declarations" >
+<Message guid="rcma-4.3.0-1535" total="1" active="0" severity="1" text="1535. The typedef '%1s' is declared but not used within this project." />
+</Rule>
+<Rule id="Rule-1.2" enabled="true" total="1" active="0" text="Language extensions should not be used" >
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="2" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="2" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="2" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="2" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-2071" total="1" active="0" severity="2" text="2071. [E] This attribute syntax is a language extension." />
+</Component>
+<Component guid="rcma-4.3.0" total="1" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1535" total="1" active="0" severity="1" text="1535. The typedef '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/lin_frame.c" languages="C" >
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/lin_frame.c.m3cm.via</AnalysisSettings>
+      <AnalysisSettings>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/lin_frame.c.qac.via</AnalysisSettings>
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/33.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="77" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="5" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="5" active="0" text="Rules" >
+<Rule id="Rule-2.8" enabled="true" total="1" active="0" text="A project should not contain unused object definitions" >
+<Message guid="qac-11.3.0-3207" total="1" active="0" severity="3" text="3207. File scope static, '%1s', is not used, and could be removed." />
+</Rule>
+<Rule id="Rule-8.9" enabled="true" total="1" active="0" text="An object should be declared at block scope if its identifier only appears in a single function" >
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Rule>
+<Rule id="Rule-8.7" enabled="true" total="4" active="0" text="Functions and objects should not be defined with external linkage if they are referenced in only one translation unit" >
+<Message guid="rcma-4.3.0-1505" total="3" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="71" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-2_1" enabled="true" total="70" active="0" text="Rules" >
+<Rule id="Rule-8.4" enabled="true" total="4" active="0" text="A compatible declaration shall be visible when an object or function with external linkage is defined" >
+<Message guid="qac-11.3.0-3408" total="4" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+</Rule>
+<Rule id="Rule-2.2" enabled="true" total="30" active="0" text="A project shall not contain dead code" >
+<Message guid="dataflow-1.3.0-2985" total="30" active="0" severity="4" text="2985. This operation is redundant. The value of the result is always that of the left-hand operand." />
+</Rule>
+<Rule id="Rule-2.1" enabled="true" total="1" active="0" text="A project shall not contain unreachable code" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+</Rule>
+<Rule id="Rule-10.4" enabled="true" total="8" active="0" text="Both operands of an operator in which the usual arithmetic conversions are performed shall have the same essential type category" >
+<Message guid="qac-11.3.0-1840" total="4" active="0" severity="3" text="1840. The %1s operand is constant, 'essentially signed' (%2s) and non-negative but will be implicitly converted to an unsigned type (%3s) in this arithmetic operation." />
+<Message guid="qac-11.3.0-1851" total="4" active="0" severity="4" text="1851. The %1s operand is 'essentially unsigned' (%2s) but will be implicitly converted to a signed type (%3s) in this bitwise operation." />
+</Rule>
+<Rule id="Rule-10.1" enabled="true" total="20" active="0" text="Operands shall not be of an inappropriate essential type." >
+<Message guid="qac-11.3.0-4532" total="4" active="0" severity="4" text="4532. An expression of 'essentially signed' type (%1s) is being used as the %2s operand of this bitwise operator (%3s)." />
+<Message guid="qac-11.3.0-4542" total="4" active="0" severity="3" text="4542. A non-negative constant expression of 'essentially signed' type (%1s) is being used as the %2s operand of this bitwise operator (%3s)." />
+<Message guid="qac-11.3.0-4543" total="4" active="0" severity="2" text="4543. A non-negative constant expression of 'essentially signed' type (%1s) is being used as the left-hand operand of this shift operator (%2s)." />
+<Message guid="qac-11.3.0-4559" total="8" active="0" severity="2" text="4559. An expression of 'essentially unsigned' type (%1s) is being used as the first operand of this conditional operator (%2s)." />
+</Rule>
+<Rule id="Rule-12.2" enabled="true" total="3" active="0" text="The right hand operand of a shift operator shall lie in the range zero to one less than the width in bits of the essential type of the left hand operand" >
+<Message guid="qac-11.3.0-0499" total="3" active="0" severity="2" text="0499. Right operand of shift operator is greater than or equal to the width of the essential type of the left operand." />
+</Rule>
+<Rule id="Rule-10.3" enabled="true" total="4" active="0" text="The value of an expression shall not be assigned to an object with a narrower essential type or of a different essential type category." >
+<Message guid="qac-11.3.0-4434" total="4" active="0" severity="4" text="4434. A non-constant expression of 'essentially signed' type (%1s) is being converted to unsigned type, '%2s' on assignment." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C99" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C99" enabled="true" total="1" active="0" text="C99 Specific Directives" >
+<Rule id="Dir-1.1-C99" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2-C11" enabled="false" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2-C11" enabled="false" total="1" active="0" text="C11 Specific Directives" >
+<Rule id="Dir-1.1-C11" enabled="false" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="77" active="0" name="Warnings" >
+<Component guid="dataflow-1.3.0" total="30" active="0" name="dataflow" >
+<Message guid="dataflow-1.3.0-2985" total="30" active="0" severity="4" text="2985. This operation is redundant. The value of the result is always that of the left-hand operand." />
+</Component>
+<Component guid="qac-11.3.0" total="42" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+<Message guid="qac-11.3.0-0380" total="1" active="0" severity="2" text="0380. [L] Number of macro definitions exceeds 4095 - program does not conform strictly to ISO:C99." />
+<Message guid="qac-11.3.0-0499" total="3" active="0" severity="2" text="0499. Right operand of shift operator is greater than or equal to the width of the essential type of the left operand." />
+<Message guid="qac-11.3.0-1840" total="4" active="0" severity="3" text="1840. The %1s operand is constant, 'essentially signed' (%2s) and non-negative but will be implicitly converted to an unsigned type (%3s) in this arithmetic operation." />
+<Message guid="qac-11.3.0-1851" total="4" active="0" severity="4" text="1851. The %1s operand is 'essentially unsigned' (%2s) but will be implicitly converted to a signed type (%3s) in this bitwise operation." />
+<Message guid="qac-11.3.0-3207" total="1" active="0" severity="3" text="3207. File scope static, '%1s', is not used, and could be removed." />
+<Message guid="qac-11.3.0-3408" total="4" active="0" severity="2" text="3408. '%1s' has external linkage and is being defined without any previous declaration." />
+<Message guid="qac-11.3.0-4434" total="4" active="0" severity="4" text="4434. A non-constant expression of 'essentially signed' type (%1s) is being converted to unsigned type, '%2s' on assignment." />
+<Message guid="qac-11.3.0-4532" total="4" active="0" severity="4" text="4532. An expression of 'essentially signed' type (%1s) is being used as the %2s operand of this bitwise operator (%3s)." />
+<Message guid="qac-11.3.0-4542" total="4" active="0" severity="3" text="4542. A non-negative constant expression of 'essentially signed' type (%1s) is being used as the %2s operand of this bitwise operator (%3s)." />
+<Message guid="qac-11.3.0-4543" total="4" active="0" severity="2" text="4543. A non-negative constant expression of 'essentially signed' type (%1s) is being used as the left-hand operand of this shift operator (%2s)." />
+<Message guid="qac-11.3.0-4559" total="8" active="0" severity="2" text="4559. An expression of 'essentially unsigned' type (%1s) is being used as the first operand of this conditional operator (%2s)." />
+</Component>
+<Component guid="rcma-4.3.0" total="5" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1503" total="1" active="0" severity="1" text="1503. The function '%1s' is defined but is not used within this project." />
+<Message guid="rcma-4.3.0-1505" total="3" active="0" severity="1" text="1505. The function '%1s' is only referenced in the translation unit where it is defined." />
+<Message guid="rcma-4.3.0-1514" total="1" active="0" severity="1" text="1514. The object '%1s' is only referenced by function '%2s', in the translation unit where it is defined" />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/lin_frame.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/34.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="3" active="0" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="2" active="0" text="MISRA Advisory" >
+<Rule id="M3CM-3_1" enabled="true" total="2" active="0" text="Rules" >
+<Rule id="Rule-2.3" enabled="true" total="2" active="0" text="A project should not contain unused type declarations" >
+<Message guid="rcma-4.3.0-1535" total="2" active="0" severity="1" text="1535. The typedef '%1s' is declared but not used within this project." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="1" active="0" text="MISRA Required" >
+<Rule id="M3CM-2_2" enabled="true" total="1" active="0" text="Directives" >
+<Rule id="Dir-1.1" enabled="true" total="1" active="0" text="Any implementation-defined behaviour on which the output of the program depends shall be documented and understood" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="3" active="0" name="Warnings" >
+<Component guid="qac-11.3.0" total="1" active="0" name="qac" >
+<Message guid="qac-11.3.0-0292" total="1" active="0" severity="2" text="0292. [I] Source file '%s' has comments containing one of the characters '$', '@' or '`'." />
+</Component>
+<Component guid="rcma-4.3.0" total="2" active="0" name="rcma" >
+<Message guid="rcma-4.3.0-1535" total="2" active="0" severity="1" text="1535. The typedef '%1s' is declared but not used within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/test_config.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/35.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/Source/touch_config.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/36.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/projects/TCAE10/Keil/customer/doorctrl_m9_duotaiji/lin_cfg/lin_cfg.h" languages="C" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/37.json</Json>
+<tree type="rules">
+</tree>
+<tree type="levels">
+</tree>
+</File>
+<File path="C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/output/_SOURCE_ROOT/cma" languages="C,C++" >
+<Json>C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/app/prqa/configs/Initial/reports/data/38.json</Json>
+<tree type="rules">
+<RuleGroup name="M3CM" enabled="true" total="15" active="15" languages="C" >
+<Rule id="M3CM-3" enabled="true" total="3" active="3" text="MISRA Advisory" >
+<Rule id="M3CM-3_2" enabled="true" total="2" active="2" text="Directives" >
+<Rule id="Dir-4.5" enabled="true" total="2" active="2" text="Identifiers in the same name space with overlapping visibility should be typographically unambiguous" >
+<Message guid="rcma-4.3.0-1710" total="2" active="2" severity="1" text="1710. Identifiers have the same matching pattern '%1s'." />
+</Rule>
+</Rule>
+<Rule id="M3CM-3_1" enabled="true" total="1" active="1" text="Rules" >
+<Rule id="Rule-5.9" enabled="true" total="1" active="1" text="Identifiers that define objects or functions with internal linkage should be unique" >
+<Message guid="rcma-4.3.0-1527" total="1" active="1" severity="1" text="1527. Object/function '%1s' with internal linkage has same identifier as another object/function with internal linkage." />
+</Rule>
+</Rule>
+</Rule>
+<Rule id="M3CM-2" enabled="true" total="12" active="12" text="MISRA Required" >
+<Rule id="M3CM-2_1" enabled="true" total="12" active="12" text="Rules" >
+<Rule id="Rule-8.3" enabled="true" total="1" active="1" text="All declarations of an object or function shall use the same names and type qualifiers" >
+<Message guid="rcma-4.3.0-1707" total="1" active="1" severity="1" text="1707. Function '%1s' is not using the same aliases." />
+</Rule>
+<Rule id="Rule-8.5" enabled="true" total="2" active="2" text="An external object or function shall be declared once in one and only one file" >
+<Message guid="rcma-4.3.0-1513" total="2" active="2" severity="3" text="1513. Identifier '%1s' with external linkage has separate non-defining declarations in more than one location." />
+</Rule>
+<Rule id="Rule-8.6" enabled="true" total="9" active="9" text="An identifier with external linkage shall have exactly one external definition" >
+<Message guid="rcma-4.3.0-1509" total="3" active="3" severity="8" text="1509. '%1s' has external linkage and has multiple definitions." />
+<Message guid="rcma-4.3.0-1752" total="1" active="1" severity="1" text="1752. The object '%1s' with external linkage is declared but not defined within this project." />
+<Message guid="rcma-4.3.0-1753" total="5" active="5" severity="1" text="1753. The function '%1s' with external linkage is declared but not defined within this project." />
+</Rule>
+<Rule id="Rule-1.3" enabled="true" total="3" active="3" text="There shall be no occurrence of undefined or critical unspecified behaviour" >
+<Message guid="rcma-4.3.0-1509" total="3" active="3" severity="8" text="1509. '%1s' has external linkage and has multiple definitions." />
+</Rule>
+</Rule>
+</Rule>
+</RuleGroup>
+</tree>
+<tree type="levels">
+<Level guid="QA_WARNING" total="15" active="15" name="Warnings" >
+<Component guid="rcma-4.3.0" total="15" active="15" name="rcma" >
+<Message guid="rcma-4.3.0-1509" total="3" active="3" severity="8" text="1509. '%1s' has external linkage and has multiple definitions." />
+<Message guid="rcma-4.3.0-1513" total="2" active="2" severity="3" text="1513. Identifier '%1s' with external linkage has separate non-defining declarations in more than one location." />
+<Message guid="rcma-4.3.0-1527" total="1" active="1" severity="1" text="1527. Object/function '%1s' with internal linkage has same identifier as another object/function with internal linkage." />
+<Message guid="rcma-4.3.0-1707" total="1" active="1" severity="1" text="1707. Function '%1s' is not using the same aliases." />
+<Message guid="rcma-4.3.0-1710" total="2" active="2" severity="1" text="1710. Identifiers have the same matching pattern '%1s'." />
+<Message guid="rcma-4.3.0-1752" total="1" active="1" severity="1" text="1752. The object '%1s' with external linkage is declared but not defined within this project." />
+<Message guid="rcma-4.3.0-1753" total="5" active="5" severity="1" text="1753. The function '%1s' with external linkage is declared but not defined within this project." />
+</Component>
+</Level>
+</tree>
+</File>
+</dataroot>
+</AnalysisData>

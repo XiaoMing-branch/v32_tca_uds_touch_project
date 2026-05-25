@@ -1,0 +1,6 @@
+{
+"file": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/examples/tcpl03x/demo_apps/bootloader_seres/include/aes_cmac.h",
+"includes": [
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/examples/tcpl03x/demo_apps/bootloader_seres/include/test_config.h", "line": 27, "is_system": false},
+{"path": "C:/Users/DTJ-SE-01/Desktop/ts-tyc-p01v02-tyc/boot/platform/devices/tcpl03x/inc/system_tcpl03x.h", "line": 31, "is_system": false}]
+}

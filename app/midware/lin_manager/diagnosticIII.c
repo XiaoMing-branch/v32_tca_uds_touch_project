@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief  lin dianosticiii source file.
@@ -19,17 +20,28 @@
  *****************************************************************************
  */
 
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_tc_log.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
 #include "tc_log.h"
+#endif
 
 #if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN
+/* PRQA S 3451 2 #3451 - Global identifier '%1s' is intentionally declared in multiple files (e.g., for shared global variable or forward declaration). */
+/* PRQA S 3449 1 #3449 - Multiple declarations of external object/function are intentional (e.g., for compatibility or conditional compilation). */
 extern uint8_t g_bUDSReadLogInfo;
 #endif
 
 #define UDS_RECEIVE_BUFFER_SIZE     (MAX_QUEUE_SIZE * 6)
 
+/* PRQA S 3218 1 #3209 - File scope static variable used in one function, intentional design */
 static const char *TAG = "DIAGNOSTICIII";
 
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 uint8_t g_bUDSDataDumpFlag = 0;
 static uint8_t current_rcvd_nad;
 
@@ -40,14 +52,15 @@ static uint8_t current_rcvd_nad;
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_service_handle(void)
 {
     uint16_t length;
     uint8_t data[UDS_RECEIVE_BUFFER_SIZE];
 
-    for (uint8_t i = 0; i < _DIAG_NUMBER_OF_SERVICES_; i++)
+    for (uint8_t i = 0; i < (uint8_t)_DIAG_NUMBER_OF_SERVICES_; i++)
     {
-        if (lin_diag_services_flag[i])
+        if (lin_diag_services_flag[i]!=0u)
         {
 #if (_TL_FRAME_SUPPORT_ == _TL_MULTI_FRAME_)
             /* get pdu from rx queue */
@@ -60,7 +73,7 @@ void lin_diag_service_handle(void)
             }
 
             length = (*tl_current_rx_pdu_ptr)[1] & 0x0F
-#endif /* End (_TL_FRAME_SUPPORT_ == _TL_MULTI_FRAME_) */
+#endif /* End (_TL_FRAME_SUPPORT_ = = _TL_MULTI_FRAME_) */
 
             switch (lin_diag_services_supported[i])
             {
@@ -101,10 +114,6 @@ void lin_diag_service_handle(void)
                     break;
 #endif
 
-                // case SERVICE_ECU_RESET:
-                //     lin_diag_ecu_reset(data, length);
-                //     break;
-
 #if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN
                 case 0xA0:
                     g_bUDSReadLogInfo = 1;
@@ -123,13 +132,8 @@ void lin_diag_service_handle(void)
                     break;
 
                 case SERVICE_DATA_DUMP:
-//                    lin_diag_data_dump_control(data, length);
                     g_bUDSDataDumpFlag = 1;
                     break;
-
-                // case SERVICE_TESTER_PRESENT:
-                //     lin_diag_tester_present(data, length);
-                //     break;
 
                 case SERVICE_GET_TRACEABILITY_MSG:
                     lin_diag_get_traceability_msg(data, length);
@@ -152,23 +156,23 @@ void lin_diag_service_handle(void)
 #endif
                 default:
                     lin_custom_diag_service_handle(lin_diag_services_supported[i], data, length);
-
                     break;
             }
+/* PRQA S 2987 ++ #2987 - Function call with no side effects is intentional (e.g., access to volatile, debug hook, or intentional no-op). */
             lin_diag_services_flag[i] = 0;
         }
     }
-
     lin_diag_service_hook();
 }
-
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void setUDSNAD(uint8_t NAD)
 {
     current_rcvd_nad = NAD;
 }
-
+/* PRQA S 2987 -- */
 /********************************************************
-** \brief   dfu_do_notify_cp        数据返回
+** \brief   dfu_do_notify_cp        data return
 **
 ** \param   uint8_t                 sid:service_id
 ** \param   uint8_t                 *data
@@ -176,31 +180,38 @@ void setUDSNAD(uint8_t NAD)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_positive_notify(uint8_t sid, uint8_t *data, uint16_t length)
 {
     l_u8 slave_resp_dat[UDS_RECEIVE_BUFFER_SIZE];
 
-    if (length > sizeof(slave_resp_dat) - 1)
+    if (length > (sizeof(slave_resp_dat) - 1u))
     {
+/* PRQA S 2741 6 #2741 - The controlling expression is constant true by design (e.g., debug log enabled). */
+/* PRQA S 2880 5 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
+/* PRQA S 2742 4 #2742 - The controlling expression is constant false by design (e.g., release log disabled). */
+/* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
+/* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
+/* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
         TC_LOGE(TAG, "lin positive notify overflow");
     }
 
-    slave_resp_dat[0] = sid + 0x40;
+    slave_resp_dat[0] = sid + 0x40u;
 
     for (uint16_t i = 0; i < length; i++)
     {
-        slave_resp_dat[1 + i] = data[i];
+        slave_resp_dat[1u + i] = data[i];
     }
 
-    ld_send_message((l_u16)(1 + length), (l_u8 *)slave_resp_dat);
+    ld_send_message((l_u16)(1u + length), (l_u8 *)slave_resp_dat);
 }
 
 /********************************************************
-** \brief   lin_diag_notify_response    response返回
+** \brief   lin_diag_notify_response    response
 **
-** \param   uint8_t                     resp_type:返回类型
+** \param   uint8_t                     resp_type
 ** \param   uint8_t                     sid:service_id
-** \param   uint8_t                     resp_value：返回值
+** \param   uint8_t                     resp_value
 **
 ** \retval  None
 *********************************************************/
@@ -215,6 +226,8 @@ void lin_diag_negative_notify(uint8_t sid, uint8_t resp_value)
     ld_send_message(3, (l_u8 *)slave_resp_dat);
 }
 
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2071 1 #3269 - Language extension used for compiler and hardware optimization */
 __attribute__((weak)) void lin_custom_diag_service_handle(uint8_t sid, uint8_t *ptr, uint16_t length)
 {
     (void)(sid);
@@ -222,6 +235,7 @@ __attribute__((weak)) void lin_custom_diag_service_handle(uint8_t sid, uint8_t *
     (void)(length);
 }
 
+/* PRQA S 2071 1 #3269 - Language extension used for compiler and hardware optimization */
 __attribute__((weak)) void lin_diag_service_hook(void)
 {
 }

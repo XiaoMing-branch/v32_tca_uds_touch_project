@@ -1,0 +1,169 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_fstream__
+#define __QAC_INCLUDE_fstream__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <char_traits.h>
+#include <iostream>
+#include <locale>
+#include <streambuf>
+
+__QAC_BEGIN_NAMESPACE
+
+/*
+  template <class charT, class traits = char_traits<charT> >
+    class basic_filebuf;
+  typedef basic_filebuf<char>    filebuf;
+  typedef basic_filebuf<wchar_t> wfilebuf;
+
+  template <class charT, class traits = char_traits<charT> >
+    class basic_ifstream;
+  typedef basic_ifstream<char>    ifstream;
+  typedef basic_ifstream<wchar_t> wifstream;
+
+  template <class charT, class traits = char_traits<charT> >
+    class basic_ofstream;
+  typedef basic_ofstream<char>    ofstream;
+  typedef basic_ofstream<wchar_t> wofstream;
+
+  template <class charT, class traits = char_traits<charT> >
+    class basic_fstream;
+  typedef basic_fstream<char>     fstream;
+  typedef basic_fstream<wchar_t> wfstream;
+*/
+
+//  template <class charT, class traits = char_traits<charT> >
+template <class charT, class traits> class basic_filebuf : public basic_streambuf<charT, traits>
+{
+public:
+  typedef charT char_type;
+  typedef typename traits::int_type int_type;
+  typedef typename traits::pos_type pos_type;
+  typedef typename traits::off_type off_type;
+  typedef traits traits_type;
+
+  //  lib.filebuf.cons Constructors/destructor:
+  basic_filebuf ();
+  basic_filebuf (const basic_filebuf & rhs) = delete;
+  basic_filebuf (basic_filebuf && rhs);
+  virtual ~basic_filebuf ();
+
+  //  lib.filebuf.members Members:
+  basic_filebuf & operator= (const basic_filebuf & rhs) = delete;
+  basic_filebuf & operator= (basic_filebuf && rhs);
+  bool is_open () const;
+  basic_filebuf<charT, traits> * open (const char * s, ios_base::openmode mode);
+  basic_filebuf<charT, traits> * close ();
+
+protected:
+  //  lib.filebuf.virtuals Overridden virtual functions:
+  virtual streamsize showmanyc ();
+  virtual int_type underflow ();
+  virtual int_type uflow ();
+  virtual int_type pbackfail (int_type c = traits::eof ());
+  virtual int_type overflow (int_type c = traits::eof ());
+
+  virtual basic_streambuf<charT, traits> * setbuf (char_type * s, streamsize n);
+  virtual pos_type
+  seekoff (off_type off, ios_base::seekdir way, ios_base::openmode which = ios_base::in | ios_base::out);
+  virtual pos_type seekpos (pos_type sp, ios_base::openmode which = ios_base::in | ios_base::out);
+  virtual int sync ();
+  virtual void imbue (const locale & loc);
+};
+
+//  template <class charT, class traits = char_traits<charT> >
+template <class charT, class traits> class basic_ifstream : public basic_istream<charT, traits>
+{
+public:
+  typedef charT char_type;
+  typedef typename traits::int_type int_type;
+  typedef typename traits::pos_type pos_type;
+  typedef typename traits::off_type off_type;
+  typedef traits traits_type;
+
+  //  lib.ifstream.cons Constructors:
+  basic_ifstream ();
+  explicit basic_ifstream (const char * s, ios_base::openmode mode = ios_base::in);
+
+  explicit basic_ifstream (const string & s, ios_base::openmode mode = ios_base::in);
+
+  //  lib.ifstream.members Members:
+  basic_filebuf<charT, traits> * rdbuf () const;
+
+  bool is_open ();
+  void open (const char * s, ios_base::openmode mode = ios_base::in);
+  void close ();
+
+private:
+  //  basic_filebuf<charT,traits> sb;       exposition only
+};
+
+//  template <class charT, class traits = char_traits<charT> >
+template <class charT, class traits> class basic_ofstream : public basic_ostream<charT, traits>
+{
+public:
+  typedef charT char_type;
+  typedef typename traits::int_type int_type;
+  typedef typename traits::pos_type pos_type;
+  typedef typename traits::off_type off_type;
+  typedef traits traits_type;
+
+  //  lib.ofstream.cons Constructors:
+  basic_ofstream ();
+  explicit basic_ofstream (const char * s, ios_base::openmode mode = ios_base::out);
+
+  explicit basic_ofstream (const string & s, ios_base::openmode mode = ios_base::out);
+
+  //  lib.ofstream.members Members:
+  basic_filebuf<charT, traits> * rdbuf () const;
+
+  bool is_open ();
+  void open (const char * s, ios_base::openmode mode = ios_base::out);
+  void close ();
+
+private:
+  //  basic_filebuf<charT,traits> sb;       exposition only
+};
+
+//  template <class charT, class traits=char_traits<charT> >
+template <class charT, class traits> class basic_fstream : public basic_iostream<charT, traits>
+{
+
+public:
+  typedef charT char_type;
+  typedef typename traits::int_type int_type;
+  typedef typename traits::pos_type pos_type;
+  typedef typename traits::off_type off_type;
+  typedef traits traits_type;
+
+  //  constructors/destructor
+  basic_fstream ();
+  explicit basic_fstream (const char * s, ios_base::openmode mode = ios_base::in | ios_base::out);
+  explicit basic_fstream (std::string const & s, ios_base::openmode mode = ios_base::in | ios_base::out);
+
+  //  Members:
+  basic_filebuf<charT, traits> * rdbuf () const;
+  bool is_open ();
+  void open (const char * s, ios_base::openmode mode = ios_base::in | ios_base::out);
+  void close ();
+
+private:
+  // basic_filebuf<charT,traits> sb; exposition only
+};
+
+__QAC_END_NAMESPACE
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+#endif // ends __QAC_INCLUDE_fstream__
+// END BLOCK postfix

@@ -1,0 +1,147 @@
+// paulfitz Thu Jun  3 09:39:19 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_queue__
+#define __QAC_INCLUDE_queue__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <deque>
+#include <vector>
+#include <functional>
+
+__QAC_BEGIN_NAMESPACE
+
+
+
+  template <class T, class Container = deque<T> > class queue;
+  template <class T, class Container>
+    bool operator==(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator< (const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator!=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator> (const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator>=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator<=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+
+
+
+
+  template <class T, class Container = vector<T>,
+	    class Compare = less<typename Container::value_type> >
+  class priority_queue;
+
+
+
+
+
+//  template <class T, class Container = deque<T> >
+  template <class T, class Container>
+  class queue {
+  public:
+    typedef typename Container::value_type            value_type;
+    typedef typename Container::size_type             size_type;
+    typedef          Container                        container_type;
+  protected:
+    Container c;
+
+
+
+
+  public:
+    explicit queue(const Container& = Container());
+
+    bool      empty() const             { return c.empty(); }
+    size_type size()  const             { return c.size(); }
+    value_type&       front()           { return c.front(); }
+    const value_type& front() const     { return c.front(); }
+    value_type&       back()            { return c.back(); }
+    const value_type& back() const      { return c.back(); }
+    void push(const value_type& x)      { c.push_back(x); }
+    void pop()                          { c.pop_front(); }
+  };
+
+
+
+
+  template <class T, class Container>
+    bool operator==(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator< (const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator!=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator> (const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator>=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+  template <class T, class Container>
+    bool operator<=(const queue<T, Container>& x,
+		    const queue<T, Container>& y);
+
+
+template <class T, class Container = vector<T>, class Compare = less<typename Container::value_type> >
+class priority_queue
+{
+public:
+  typedef typename Container::value_type value_type;
+  typedef typename Container::size_type size_type;
+  typedef Container container_type;
+  
+protected:
+  Container c;
+  Compare comp;
+  
+public:
+  explicit priority_queue(const Compare& x = Compare(), const Container& = Container());
+  
+  template <class InputIterator> priority_queue(InputIterator first, InputIterator last, const Compare& x = Compare(), const Container& = Container());
+  
+  bool empty() const
+  {
+    return c.empty();
+  }
+  
+  size_type size() const
+  {
+    return c.size();
+  }
+  
+  const value_type& top() const
+  {
+    return c.front();
+  }
+  
+  void push(const value_type& x);
+  void pop();
+};
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+#endif // ends __QAC_INCLUDE_queue__
+// END BLOCK postfix
+

@@ -1,0 +1,53 @@
+/* "cstring"
+ * Modified from string.h (original module comments below)
+ * paulfitz, Tue Jun  8 11:15:27 IST 1999
+ */
+
+#ifndef __QAC_INCLUDE_cstring__
+#define __QAC_INCLUDE_cstring__
+
+
+// Include the original C code
+#include <string.h>
+
+// BEGIN BLOCK cprefix
+// Updated by paul on Wed Jul  7 17:51:50 IST 1999
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+// Deal with entities required by spec to be std namespace
+__QAC_BEGIN_NAMESPACE
+#ifndef __QAC_NO_INDIVIDUAL_USING
+// END BLOCK cprefix
+
+	using ::size_t;
+	using ::memchr;
+	using ::memcmp;
+	using ::memcpy;
+	using ::memmove;
+	using ::memset;
+	using ::strcat;
+	using ::strchr;
+	using ::strcmp;
+	using ::strcoll;
+	using ::strcpy;
+	using ::strcspn;
+	using ::strerror;
+	using ::strlen;
+	using ::strncat;
+	using ::strncmp;
+	using ::strncpy;
+	using ::strpbrk;
+	using ::strrchr;
+	using ::strspn;
+	using ::strstr;
+	using ::strtok;
+	using ::strxfrm;
+
+// BEGIN BLOCK cpostfix
+// Updated by paul on Wed Jul  7 17:51:50 IST 1999
+#endif
+__QAC_END_NAMESPACE
+
+// END BLOCK cpostfix
+
+#endif // __QAC_INCLUDE_cstring__

@@ -94,8 +94,8 @@ bool store_customer_data_set(uint32_t addr_offset, uint8_t *param, uint16_t len)
 bool store_customer_data_get(uint32_t addr_offset, uint8_t *param, uint16_t len);
 void store_default_whitepoint(void);
 
-bool store_slow_read(uint32_t addr, uint8_t *value, uint16_t length);		//地址4字节对齐
-bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length);	//无地址对齐限制
+bool store_slow_read(uint32_t addr, uint8_t *value, uint16_t length);		//鍦板潃4瀛楄妭瀵归綈
+bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length);	//鏃犲湴鍧�瀵归綈闄愬埗
 bool store_slow_write(uint32_t addr, uint8_t *value, uint16_t length);
 
 #ifdef __cplusplus

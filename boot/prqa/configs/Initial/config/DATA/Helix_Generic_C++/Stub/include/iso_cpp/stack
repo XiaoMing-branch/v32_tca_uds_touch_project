@@ -1,0 +1,100 @@
+// paulfitz Thu Jun  3 09:39:19 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_stack__
+#define __QAC_INCLUDE_stack__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+
+#include <deque>
+
+__QAC_BEGIN_NAMESPACE
+
+
+  template <class T, class Container = deque<T> > class stack;
+  template <class T, class Container>
+    bool operator==(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator< (const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator!=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator> (const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator>=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator<=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+
+
+
+
+//  template <class T, class Container = deque<T> >
+  template <class T, class Container>
+  class stack {
+  public:
+    typedef typename Container::value_type            value_type;
+    typedef typename Container::size_type             size_type;
+    typedef          Container                        container_type;
+  protected:
+    Container c;
+
+
+
+
+  public:
+    explicit stack(const Container& = Container());
+
+    bool      empty() const             { return c.empty(); }
+    size_type size()  const             { return c.size(); }
+    value_type&       top()             { return c.back(); }
+    const value_type& top() const       { return c.back(); }
+    void push(const value_type& x)      { c.push_back(x); }
+    void pop()                          { c.pop_back(); }
+  };
+
+
+
+
+  template <class T, class Container>
+    bool operator==(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator< (const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator!=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator> (const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator>=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+  template <class T, class Container>
+    bool operator<=(const stack<T, Container>& x,
+		    const stack<T, Container>& y);
+
+
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:39 IST 1999
+#endif // ends __QAC_INCLUDE_stack__
+// END BLOCK postfix
+

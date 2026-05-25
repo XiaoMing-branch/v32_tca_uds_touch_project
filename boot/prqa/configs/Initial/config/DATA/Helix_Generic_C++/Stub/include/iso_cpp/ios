@@ -1,0 +1,285 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_ios__
+#define __QAC_INCLUDE_ios__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+#include <iosfwd>
+#include <exception>
+#include <qac_implement.h>
+
+__QAC_BEGIN_NAMESPACE
+
+//
+// Used for ios_base::failure
+
+template<class charT> struct char_traits;
+template <class T> class allocator;
+
+# ifndef __QAC_BASIC_STRING_WITH_DEFAULTS__
+# define __QAC_BASIC_STRING_WITH_DEFAULTS__
+  //
+  // We only add default parameters iff we haven't already done so in
+  // a previous header (eg.) ios
+  template<class charT, class traits = char_traits<charT>,
+	   class Allocator = allocator<charT> >
+# else
+  template<class charT, class traits,
+     class Allocator >
+# endif
+  class basic_string;
+  typedef basic_string<char> string;
+
+class locale;  // SPEC HACK have to be careful with circular dependency
+	       // between <ios> and <locale>
+
+// SPEC CHOICE -- see 27.4.1, and <qac_implement.h>
+  typedef  __QAC_TYPE_OFF_T   streamoff;
+  typedef  __QAC_TYPE_SZ_T  streamsize;
+
+  template <class stateT> class fpos;
+
+  class ios_base {
+  public:
+    class failure : public exception
+    {
+    public:
+      explicit failure(const string& msg);
+      virtual ~failure() noexcept;
+      virtual const char* what() const noexcept;
+    };
+    
+    // SPEC CHOICE -- see 27.4.2.1.2
+    typedef  __QAC_TYPE_T1  fmtflags;
+    static const fmtflags boolalpha   = __QAC_TYPE_T1_BOOLALPHA;
+    static const fmtflags dec         = __QAC_TYPE_T1_DEC;
+    static const fmtflags fixed       = __QAC_TYPE_T1_FIXED;
+    static const fmtflags hex         = __QAC_TYPE_T1_HEX;
+    static const fmtflags internal    = __QAC_TYPE_T1_INTERNAL;
+    static const fmtflags left        = __QAC_TYPE_T1_LEFT;
+    static const fmtflags oct         = __QAC_TYPE_T1_OCT;
+    static const fmtflags right       = __QAC_TYPE_T1_RIGHT;
+    static const fmtflags scientific  = __QAC_TYPE_T1_SCIENTIFIC;
+    static const fmtflags showbase    = __QAC_TYPE_T1_SHOWBASE;
+    static const fmtflags showpoint   = __QAC_TYPE_T1_SHOWPOINT;
+    static const fmtflags showpos     = __QAC_TYPE_T1_SHOWPOS;
+    static const fmtflags skipws      = __QAC_TYPE_T1_SKIPWS;
+    static const fmtflags unitbuf     = __QAC_TYPE_T1_UNITBUF;
+    static const fmtflags uppercase   = __QAC_TYPE_T1_UPPERCASE;
+    static const fmtflags adjustfield = __QAC_TYPE_T1_ADJUSTFIELD;
+    static const fmtflags basefield   = __QAC_TYPE_T1_BASEFIELD;
+    static const fmtflags floatfield  = __QAC_TYPE_T1_FLOATFIELD;
+
+    // SPEC CHOICE -- see 27.4.2.1.3 : T2
+    typedef  __QAC_TYPE_T2  iostate;
+    static const iostate badbit  = __QAC_TYPE_T2_BADBIT;
+    static const iostate eofbit  = __QAC_TYPE_T2_EOFBIT;
+    static const iostate failbit = __QAC_TYPE_T2_FAILBIT;
+    static const iostate goodbit = __QAC_TYPE_T2_GOODBIT;
+
+    // SPEC CHOICE -- see 27.4.2.1.4: T3
+    typedef  __QAC_TYPE_T3  openmode;
+    static const openmode app    = __QAC_TYPE_T3_APP;
+    static const openmode ate    = __QAC_TYPE_T3_ATE;
+    static const openmode binary = __QAC_TYPE_T3_BINARY;
+    static const openmode in     = __QAC_TYPE_T3_IN;
+    static const openmode out    = __QAC_TYPE_T3_OUT;
+    static const openmode trunc  = __QAC_TYPE_T3_TRUNC;
+
+    // SPEC CHOICE -- see 27.4.2.1.5: T4
+    typedef  __QAC_TYPE_T4  seekdir;
+    static const seekdir beg = __QAC_TYPE_T4_BEG;
+    static const seekdir cur = __QAC_TYPE_T4_CUR;
+    static const seekdir end = __QAC_TYPE_T4_END;
+
+    class Init;
+
+    //  lib.fmtflags.state fmtflags state:
+    fmtflags flags() const                       { static fmtflags * volatile r; return * r; }
+    fmtflags flags(fmtflags fmtfl)               { return fmtfl; }
+    fmtflags setf(fmtflags fmtfl)                { return fmtfl; }
+    fmtflags setf(fmtflags fmtfl, fmtflags mask) { return fmtfl; }
+    void unsetf(fmtflags mask)                   {  }
+
+    streamsize precision() const                 { static streamsize * volatile r; return * r; }
+    streamsize precision(streamsize prec)        { return prec; }
+    streamsize width() const                     { static streamsize * volatile r; return * r; }
+    streamsize width(streamsize wide)            { return wide; }
+
+    //  lib.ios.base.locales locales:
+    locale imbue(const locale& loc);
+    locale getloc() const;
+
+    //  lib.ios.base.storage storage:
+    static int xalloc();
+    long&  iword(int index);
+    void*& pword(int index);
+
+    //  destructor
+    virtual ~ios_base()                          { }
+
+    //  lib.ios.base.callback callbacks;
+    enum event { erase_event, imbue_event, copyfmt_event };
+    typedef void (*event_callback)(event, ios_base&, int index);
+    // SPEC TYPO (assumed)
+    // replaced event_call_back with event_callback
+    void register_callback(event_callback fn, int index);
+  
+    static bool sync_with_stdio(bool sync = true);
+
+  protected:
+    ios_base()                                   { }
+
+
+    // SPEC DEPRECATED - remainder of class
+    // Types may be confused
+  public:
+    typedef  __QAC_TYPE_T1  io_state;
+    typedef  __QAC_TYPE_T2  open_mode;
+    typedef  __QAC_TYPE_T3  seek_dir;
+    
+    // SPEC MOD - already present
+    //typedef  __QAC_TYPE_OFF_T   streamoff;  
+    typedef  __QAC_TYPE_OFF_T  streampos;
+
+  };
+
+
+  class ios_base;
+
+//  lib.std.ios.manip, manipulators:
+  inline ios_base& boolalpha  (ios_base& str) { str.setf(ios_base::boolalpha); return str; }
+  inline ios_base& noboolalpha(ios_base& str) { str.unsetf(ios_base::boolalpha); return str; }
+
+  inline ios_base& showbase   (ios_base& str) { str.setf(ios_base::showbase); return str; }
+  inline ios_base& noshowbase (ios_base& str) { str.unsetf(ios_base::showbase); return str; }
+
+  inline ios_base& showpoint  (ios_base& str) { str.setf(ios_base::showpoint); return str; }
+  inline ios_base& noshowpoint(ios_base& str) { str.unsetf(ios_base::showpoint); return str; }
+
+  inline ios_base& showpos    (ios_base& str) { str.setf(ios_base::showpos); return str; }
+  inline ios_base& noshowpos  (ios_base& str) { str.unsetf(ios_base::showpos); return str; }
+
+  inline ios_base& skipws     (ios_base& str) { str.setf(ios_base::skipws); return str; }
+  inline ios_base& noskipws   (ios_base& str) { str.unsetf(ios_base::skipws); return str; }
+
+  inline ios_base& uppercase  (ios_base& str) { str.setf(ios_base::uppercase); return str; }
+  inline ios_base& nouppercase(ios_base& str) { str.unsetf(ios_base::uppercase); return str; }
+
+  inline ios_base& unitbuf    (ios_base& str) { str.setf(ios_base::unitbuf); return str; }
+  inline ios_base& nounitbuf  (ios_base& str) { str.unsetf(ios_base::unitbuf); return str; }
+  
+//  lib.adjustfield.manip adjustfield:
+  inline ios_base& internal   (ios_base& str) { str.setf(ios_base::internal); return str; }
+  inline ios_base& left       (ios_base& str) { str.setf(ios_base::left); return str; }
+  inline ios_base& right      (ios_base& str) { str.setf(ios_base::right); return str; }
+
+//  lib.basefield.manip basefield:
+  inline ios_base& dec        (ios_base& str) { str.setf(ios_base::dec); return str; }
+  inline ios_base& hex        (ios_base& str) { str.setf(ios_base::hex); return str; }
+  inline ios_base& oct        (ios_base& str) { str.setf(ios_base::oct); return str; }
+
+//  lib.floatfield.manip floatfield:
+  inline ios_base& fixed      (ios_base& str) { str.setf(ios_base::fixed); return str; }
+  inline ios_base& scientific (ios_base& str) { str.setf(ios_base::scientific); return str; }
+
+
+  class ios_base::Init {
+  public:
+    Init();
+   ~Init();
+  };
+
+
+
+  // SPEC MOVE -- moved this to <char_traits.h>
+/*
+  template <class stateT> class fpos {
+  public:
+    //  lib.fpos.members Members
+    stateT state() const;
+    void state(stateT);
+  private;
+    stateT st; // exposition only
+  };
+*/
+
+
+  template <class charT, class traits>
+  class basic_ios : public ios_base {
+  public:
+
+    //  Types:
+    typedef charT                     char_type;
+    typedef typename traits::int_type int_type;
+    typedef typename traits::pos_type pos_type;
+    typedef typename traits::off_type off_type;
+    typedef traits                    traits_type;
+
+    // SPEC TYPO (assumed) -- added semicolon
+    explicit operator bool() const { fail (); static void * * volatile r; return * r; }
+    // SPEC TYPO (assumed) -- added semicolon
+    bool operator!() const { return fail (); } 
+    iostate rdstate() const { static iostate  * volatile r; return * r; } 
+    void clear(iostate state = goodbit);
+    void setstate(iostate state) { clear (rdstate () | state); } 
+    bool good() const { return rdstate () == 0; }
+    bool eof()  const { return rdstate () & ios_base::eofbit; }
+    bool fail() const { return rdstate () & ios_base::failbit; }
+    bool bad()  const { return rdstate () & ios_base::badbit; }
+
+    iostate exceptions() const { static iostate  * volatile r; return * r; }
+    void exceptions(iostate except) { clear (rdstate ()); }
+
+    //  lib.basic.ios.cons Constructor/destructor:
+    explicit basic_ios(basic_streambuf<charT,traits>* sb) { init (sb); }
+    virtual ~basic_ios() {}
+
+    //  lib.basic.ios.members Members:
+    basic_ostream<charT,traits>* tie() const { static basic_ostream<charT,traits>* * volatile r; return * r; }
+    basic_ostream<charT,traits>* tie(basic_ostream<charT,traits>* tiestr) { return tie (); }
+
+    basic_streambuf<charT,traits>* rdbuf() const { static basic_streambuf<charT,traits>* * volatile r; return * r; }
+    basic_streambuf<charT,traits>* rdbuf(basic_streambuf<charT,traits>* sb) { clear (); return rdbuf (); }
+
+    basic_ios& copyfmt(const basic_ios& rhs) { exceptions (rhs.exceptions ());  return *this; }
+
+    char_type fill() const { static char_type  * volatile r; return * r; }
+    char_type fill(char_type ch) { return ch; }
+
+    //  lib.ios.base.locales locales:
+    locale imbue(const locale& loc);
+
+    char     narrow(char_type c, char dfault) const;
+    char_type widen(char c) const;
+
+  protected:
+    basic_ios() {}
+    void init(basic_streambuf<charT,traits>* sb) { rdbuf(sb); setf (skipws|dec); width (0); precision (6); fill ( widen (' ') ); }
+
+  private:
+    basic_ios(const basic_ios& );            //  not defined
+    basic_ios& operator=(const basic_ios&);  //  not defined
+
+  private:
+    char __padding_bytes[12];               // randomly sized member to create a non zero sized stream class (BOOST)
+  };
+
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+#endif // ends __QAC_INCLUDE_ios__
+// END BLOCK postfix
+

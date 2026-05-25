@@ -1,0 +1,19 @@
+#ifndef __QAC_INCLUDE_cuchar__
+#define __QAC_INCLUDE_cuchar__
+
+// Include the original C code
+#include <uchar.h>
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+__QAC_BEGIN_NAMESPACE
+
+using ::mbrtoc16;
+using ::c16rtomb;
+using ::mbrtoc32;
+using ::c32rtomb;
+
+__QAC_END_NAMESPACE
+
+#endif

@@ -1,0 +1,58 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_exception__
+#define __QAC_INCLUDE_exception__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+
+__QAC_BEGIN_NAMESPACE
+
+
+
+  typedef void (*unexpected_handler)();
+  unexpected_handler set_unexpected(unexpected_handler  f ) noexcept;
+  void unexpected();
+
+  typedef void (*terminate_handler)();
+  terminate_handler set_terminate(terminate_handler  f ) noexcept;
+  void terminate();
+
+  bool uncaught_exception();
+
+  class exception {
+  public:
+    exception() noexcept;
+    exception(const exception&) noexcept;
+    exception& operator=(const exception&) noexcept;
+    virtual ~exception() noexcept;
+    virtual const char* what() const noexcept;
+  };
+
+  class bad_exception : public exception {
+  public:
+    bad_exception() noexcept;
+    bad_exception(const bad_exception&) noexcept;
+    bad_exception& operator=(const bad_exception&) noexcept;
+    virtual ~bad_exception() noexcept;
+    virtual const char* what() const noexcept;
+  };
+
+  typedef exception* exception_ptr;
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:37 IST 1999
+#endif // ends __QAC_INCLUDE_exception__
+// END BLOCK postfix
+

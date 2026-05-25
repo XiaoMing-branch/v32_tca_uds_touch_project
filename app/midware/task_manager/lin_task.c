@@ -255,7 +255,7 @@ void LinDestroy(void)
 }
 
 //返回1表示收到lin sleep命令后可以进入低功耗，0表示不可以
-__WEAK int LinCanEnterSleep(void)
+__WEAK int32_t LinCanEnterSleep(void)
 {
     return 1;
 }

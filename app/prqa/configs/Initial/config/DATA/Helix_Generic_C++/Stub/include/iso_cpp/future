@@ -1,0 +1,313 @@
+#ifndef __QAC_INCLUDE_future__
+#define __QAC_INCLUDE_future__
+
+#include <qac_config.h>
+#include <chrono>
+#include <system_error>
+#include <type_traits>
+
+__QAC_BEGIN_NAMESPACE
+
+  enum class future_errc {
+    broken_promise,
+    future_already_retrieved,
+    promise_already_satisfied,
+    no_state
+  };
+
+  enum class launch {
+    async,
+    deferred
+  };
+
+  enum class future_status {
+    ready,
+    timeout,
+    deferred
+  };
+
+  template <> struct is_error_code_enum<future_errc> : public true_type { };
+  error_code make_error_code(future_errc e) noexcept;
+  error_condition make_error_condition(future_errc e) noexcept;
+
+  const error_category& future_category() noexcept;
+
+  class future_error;
+
+  template <class R> class promise;
+  template <class R> class promise<R&>;
+  template <> class promise<void>;
+
+  template <class R>
+    void swap(promise<R>& x, promise<R>& y) noexcept;
+
+  template <class R, class Alloc>
+    struct uses_allocator<promise<R>, Alloc>;
+
+  // Forward declarations
+  template <class R> class future;
+  template <class R> class future<R&>;
+  template <> class future<void>;
+
+  template <class R> class shared_future;
+  template <class R> class shared_future<R&>;
+  template <> class shared_future<void>;
+
+  template <class> class packaged_task; // not defined
+  template <class R, class... ArgTypes>
+    class packaged_task<R(ArgTypes...)>;
+
+  template <class R, class... ArgTypes>
+    void swap(packaged_task<R(ArgTypes...)>&, packaged_task<R(ArgTypes...)>&) noexcept;
+
+  template <class R, class Alloc>
+    struct uses_allocator<packaged_task<R>, Alloc>;
+
+  template <class F, class... Args>
+    future<invoke_result_t<decay_t<F>, decay_t<Args>...>>
+    async(F&& f, Args&&... args);
+
+  template <class F, class... Args>
+    future<invoke_result_t<decay_t<F>, decay_t<Args>...>>
+    async(launch policy, F&& f, Args&&... args);
+
+
+  // Primary template for future
+  template <class R> class future {
+  public:
+    future() noexcept;
+    future(future&&) noexcept;
+    future(const future& rhs) = delete;
+    ~future();
+    future& operator=(const future& rhs) = delete;
+    future& operator=(future&&) noexcept;
+    shared_future<R> share() noexcept;
+
+    // retrieving the value
+    R get();
+
+    // functions to check state
+    bool valid() const noexcept;
+
+    void wait() const;
+    template <class Rep, class Period>
+      future_status wait_for(const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+      future_status wait_until(const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+  // Partial specialization for future<R&>
+  template <class R> class future<R&> {
+  public:
+    future() noexcept;
+    future(future&&) noexcept;
+    future(const future& rhs) = delete;
+    ~future();
+    future& operator=(const future& rhs) = delete;
+    future& operator=(future&&) noexcept;
+    shared_future<R&> share() noexcept;
+
+    // retrieving the value
+    R& get();
+
+    // functions to check state
+    bool valid() const noexcept;
+
+    void wait() const;
+    template <class Rep, class Period>
+      future_status wait_for(const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+      future_status wait_until(const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+  // Partial specialization for future<void>
+  template <> class future<void> {
+  public:
+    future() noexcept;
+    future(future&&) noexcept;
+    future(const future& rhs) = delete;
+    ~future();
+    future& operator=(const future& rhs) = delete;
+    future& operator=(future&&) noexcept;
+    shared_future<void> share() noexcept;
+
+    // retrieving the value
+    void get();
+
+    // functions to check state
+    bool valid() const noexcept;
+
+    void wait() const;
+    template <class Rep, class Period>
+      future_status wait_for(const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+      future_status wait_until(const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+
+  // Primary template for promise
+  template <class R>
+  class promise {
+  public:
+    promise ();
+    template <class Allocator>
+    promise (allocator_arg_t, const Allocator& a);
+    promise (promise&& rhs) noexcept;
+    promise (const promise& rhs) = delete;
+    ~promise ();
+    // assignment
+    promise& operator=(promise&& rhs) noexcept;
+    promise& operator=(const promise& rhs) = delete;
+    void swap (promise& other) noexcept;
+    // retrieving the result
+    future<R> get_future ();
+    // setting the result
+    void set_value (const R& r);
+    void set_value (R&& r);
+    void set_exception (exception_ptr p);
+    // setting the result with deferred notification
+    void set_value_at_thread_exit (const R& r);
+    void set_value_at_thread_exit (R&& r);
+    void set_exception_at_thread_exit (exception_ptr p);
+  };
+
+  // Partial specialization for promise<R&>
+  template <class R> class promise<R&> {
+  public:
+    promise ();
+    template <class Allocator>
+    promise (allocator_arg_t, const Allocator& a);
+    promise (promise&& rhs) noexcept;
+    promise (const promise& rhs) = delete;
+    ~promise ();
+    // assignment
+    promise& operator=(promise&& rhs) noexcept;
+    promise& operator=(const promise& rhs) = delete;
+    void swap (promise& other) noexcept;
+    // retrieving the result
+    future<R&> get_future ();
+    // setting the result
+    void set_value (R& r);
+    void set_exception (exception_ptr p);
+    // setting the result with deferred notification
+    void set_value_at_thread_exit (R& r);
+    void set_exception_at_thread_exit (exception_ptr p);
+  };
+
+  // Partial specialization for promise<void>
+  template <> class promise<void> {
+  public:
+    promise ();
+    template <class Allocator>
+    promise (allocator_arg_t, const Allocator& a);
+    promise (promise&& rhs) noexcept;
+    promise (const promise& rhs) = delete;
+    ~promise ();
+    // assignment
+    promise& operator=(promise&& rhs) noexcept;
+    promise& operator=(const promise& rhs) = delete;
+    void swap (promise& other) noexcept;
+    // retrieving the result
+    future<void> get_future ();
+    // setting the result
+    void set_value ();
+    void set_exception (exception_ptr p);
+    // setting the result with deferred notification
+    void set_value_at_thread_exit ();
+    void set_exception_at_thread_exit (exception_ptr p);
+  };
+
+
+  // Primary template for shared_future
+  template <class R>
+  class shared_future {
+  public:
+    shared_future () noexcept;
+    shared_future (const shared_future& rhs);
+    shared_future (future<R>&&) noexcept;
+    shared_future (shared_future&& rhs) noexcept;
+    ~shared_future ();
+    shared_future& operator=(const shared_future& rhs);
+    shared_future& operator=(shared_future&& rhs) noexcept;
+    // retrieving the value
+    const R& get () const;
+    // functions to check state
+    bool valid () const noexcept;
+    void wait () const;
+    template <class Rep, class Period>
+    future_status wait_for (const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+    future_status wait_until (const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+  // Partial specialization for shared_future<R&>
+  template <class R> class shared_future<R&> {
+  public:
+    shared_future () noexcept;
+    shared_future (const shared_future& rhs);
+    shared_future (future<R&>&&) noexcept;
+    shared_future (shared_future&& rhs) noexcept;
+    ~shared_future ();
+    shared_future& operator=(const shared_future& rhs);
+    shared_future& operator=(shared_future&& rhs) noexcept;
+    // retrieving the value
+    R& get () const;
+    // functions to check state
+    bool valid () const noexcept;
+    void wait () const;
+    template <class Rep, class Period>
+    future_status wait_for (const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+    future_status wait_until (const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+  // Partial specialization for shared_future<void>
+  template <> class shared_future<void> {
+  public:
+    shared_future () noexcept;
+    shared_future (const shared_future& rhs);
+    shared_future (future<void>&&) noexcept;
+    shared_future (shared_future&& rhs) noexcept;
+    ~shared_future ();
+    shared_future& operator=(const shared_future& rhs);
+    shared_future& operator=(shared_future&& rhs) noexcept;
+    // retrieving the value
+    void get () const;
+    // functions to check state
+    bool valid () const noexcept;
+    void wait () const;
+    template <class Rep, class Period>
+    future_status wait_for (const chrono::duration<Rep, Period>& rel_time) const;
+    template <class Clock, class Duration>
+    future_status wait_until (const chrono::time_point<Clock, Duration>& abs_time) const;
+  };
+
+
+  template<class R, class... ArgTypes>
+  class packaged_task<R (ArgTypes...)> {
+  public:
+    // construction and destruction
+    packaged_task () noexcept;
+    template <class F>
+    explicit packaged_task (F&& f);
+    template <class F, class Allocator>
+    explicit packaged_task (allocator_arg_t, const Allocator& a, F&& f);
+    ~packaged_task ();
+    // no copy
+    packaged_task (packaged_task&) = delete;
+    packaged_task& operator=(packaged_task&) = delete;
+    // move support
+    packaged_task (packaged_task&& rhs) noexcept;
+    packaged_task& operator=(packaged_task&& rhs) noexcept;
+    void swap (packaged_task& other) noexcept;
+    bool valid () const noexcept;
+    // result retrieval
+    future<R> get_future ();
+    // execution
+    void operator()(ArgTypes...);
+    void make_ready_at_thread_exit (ArgTypes...);
+    void reset ();
+  };
+__QAC_END_NAMESPACE
+
+#endif

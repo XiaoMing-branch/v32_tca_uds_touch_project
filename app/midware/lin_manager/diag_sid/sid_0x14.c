@@ -19,7 +19,12 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#else
 #include "diagnosticIII.h"
+#endif
 
 
 void clear_dtc_info_handle(uint8_t *ptr, uint16_t length)

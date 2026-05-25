@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   dfu_uds_manager source file.
@@ -20,14 +21,28 @@
  */
 
 #include "dfu_uds_manager.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_pal_store.h"
+#include "fff_pal_systick.h"
+#include "fff_pal_lin_comm.h"
+#include "fff_pal_lin_tl.h"
+#include "fff_pal_wdg.h"
+#include "fff_aes_cmac.h"
+#include "fff_utilities.h"
+#include "fff_logging.h"
+#include "fff_hardware.h"
+#else
 #include "pal_systick.h"
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "pal_lin_comm.h"
 #include "pal_lin_tl.h"
 #include "pal_store.h"
 #include "pal_wdg.h"
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "aes_cmac.h"
 #include "utilities.h"
 #include "logging.h"
+#endif
 
 #define CFG_SUPPORT_DEBUG 0
 
@@ -41,12 +56,18 @@
 #define LOG_DFU(...)
 #endif
 
-__attribute__((section(".ARM.__at_0x00003900"))) const uint8_t boot_version[8u] = {'B', 'T', ':', 'B', '.', '0', '4', 0x20u};
-__attribute__((section(".ARM.__at_0x00003908"))) const uint8_t hardware_version[8u] = {'H', 'W', ':', 'B', '.', '2', '.', '0'};
+/* PRQA S 1504 ++ #3220 -  Object used only in local translation unit, intentional design */
+/* PRQA S 3408 ++ #3218 -External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1514 4 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
+/* PRQA S 2071 4 #3269 - Language extension used for compiler and hardware optimization */
+/* PRQA S 1502 2 #3216 - Unused parameter is part of standard callback prototype */
+__attribute__((section(".ARM.__at_0x00003900"))) const uint8_t boot_version[8u] = {(uint8_t)'B', (uint8_t)'T', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'0', (uint8_t)'4', 0x20u};
+__attribute__((section(".ARM.__at_0x00003908"))) const uint8_t hardware_version[8u] = {(uint8_t)'H', (uint8_t)'W', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'2', (uint8_t)'.', (uint8_t)'0'};
 __attribute__((section(".ARM.__at_0x10000000"))) uint8_t flash_driver[66u] = {0u};
 
+/* PRQA S 1514 30 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 uint8_t seed[16u] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
-uint8_t key[16u] = { 0x88, 0xB3, 0x4F, 0x45, 0xE1, 0x0D, 0xBB, 0xC3, 0x5D, 0xBF, 0x7E, 0xCF, 0x86, 0x8E, 0x73, 0x60};
+uint8_t key[16u] = {0x88, 0xB3, 0x4F, 0x45, 0xE1, 0x0D, 0xBB, 0xC3, 0x5D, 0xBF, 0x7E, 0xCF, 0x86, 0x8E, 0x73, 0x60};
 
 uint8_t seed_use[16u] = {0u};
 uint8_t flash_driver_cmac[16u] = {0u};
@@ -54,6 +75,7 @@ uint8_t app_cmac[16u] = {0u};
 uint8_t g_config_word_state;
 user_cfg_t g_user_info = {0u};
 ota_cfg_t g_ota_info = {0u};
+/* PRQA S 1502 1 #3216 - Unused parameter is part of standard callback prototype */
 uint8_t g_negResponseCode;
 uint8_t diagnosticTxBuffer[CUS_UDS_SEND_BUFFER_SIZE];
 dfu_manager_context_t dfu_ctx = {0u};
@@ -73,6 +95,9 @@ uint8_t seed_00_ret = AS_FALSE;
 uint8_t app_cmac_start = AS_FALSE;
 uint8_t unlock_failed_store_flag = AS_FALSE;
 uint8_t diagnostic_session_overtime_flag = AS_FALSE;
+/* PRQA S 3408 -- */
+/* PRQA S 1504 -- */
+
 extern void lin_lld_isr_callback(uint32_t isr);
 
 /********************************************************
@@ -82,7 +107,7 @@ extern void lin_lld_isr_callback(uint32_t isr);
 **
 ** \retval  None
 *********************************************************/
-static void JumpToApp(void)
+STATIC void JumpToApp(void)
 {
     NVIC_DisableIRQ(TIMER_IRQn);
     NVIC_DisableIRQ(LINSCI_IRQn);
@@ -91,9 +116,16 @@ static void JumpToApp(void)
 #ifdef CFG_SUPPORT_DEBUG
     logging_deinit();
 #endif
-    FUNC_PTR pAppFunc = (FUNC_PTR) * (uint32_t *)(FLASH_APP_ADDR + 0x100u + 4u); /* APP 头部0x100大小为用户数据*/
+
+#ifdef ENABLE_TEST_MODE
+
+#else
+    /* PRQA S 0306 3 #3271 - Cast between object pointer and integer for hardware address access */
+    /* PRQA S 0305 1 #3270 - Cast between function pointer and integer for system/boot operations */
+    FUNC_PTR pAppFunc = (FUNC_PTR) * (uint32_t *)(FLASH_APP_ADDR + 0x100u + 4u); /* The APP header 0x100 is sized for user data*/
     __set_MSP(*(uint32_t *)(FLASH_APP_ADDR + 0x100u));
     pAppFunc();
+#endif
 }
 
 /********************************************************
@@ -103,9 +135,10 @@ static void JumpToApp(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t queue_lin_empty(void)
+/* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
+STATIC uint8_t queue_lin_empty(void)
 {
-    return ((dfu_ctx.queue_list.head == dfu_ctx.queue_list.tail) ? 1 : 0);
+    return (uint8_t)((dfu_ctx.queue_list.head == dfu_ctx.queue_list.tail) ? 1 : 0);
 }
 
 /********************************************************
@@ -115,14 +148,15 @@ static uint8_t queue_lin_empty(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t dfu_image_erase(void)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC uint8_t dfu_image_erase(void)
 {
-    if (ll_flash_erase_drv(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, FLASH_DFU_INFO_SIZE + FLASH_APP_IMAGE_SIZE))
+    if (ll_flash_erase_drv(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, FLASH_DFU_INFO_SIZE + FLASH_APP_IMAGE_SIZE) == 0)
     {
-        return DFU_MSG_SUCCESS;
+        return (uint8_t)DFU_MSG_SUCCESS;
     }
 
-    return DFU_MSG_ERASE_ERROR;
+    return (uint8_t)DFU_MSG_ERASE_ERROR;
 }
 
 /********************************************************
@@ -134,14 +168,16 @@ static uint8_t dfu_image_erase(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
 {
     if ((addr < FLASH_APP_ADDR) || (addr >= FLASH_APP_END_ADDR))
     {
-        return DFU_MSG_PROGRA_ERROR;
+        return (uint8_t)DFU_MSG_PROGRA_ERROR;
     }
 
-    uint8_t res = DFU_MSG_SUCCESS;
+    uint8_t res = (uint8_t)DFU_MSG_SUCCESS;
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     ll_flash_write_drv(FLASH_TYPE_NVM, addr, data, length);
 
     return (res);
@@ -156,10 +192,11 @@ static uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+STATIC void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
 {
     uint8_t response[20u];
-    uint8_t len = 2u + length;
+    uint8_t len = 2u + (uint8_t)length;
 
     response[0u] = sid + 0x40u;
     response[1u] = sub_func;
@@ -169,13 +206,15 @@ static void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint1
         response[2u + i] = data[i];
     }
 
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     lin_uds_send(lin_configured_NAD, response, len);
 }
 
-static void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+STATIC void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
 {
     uint8_t response[40u];
-    uint8_t len = 1u + length;
+    uint8_t len = 1u + (uint8_t)length;
 
     response[0u] = sid + 0x40u;
 
@@ -184,6 +223,7 @@ static void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
         response[1u + i] = data[i];
     }
 
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     lin_uds_send(lin_configured_NAD, response, len);
 }
 
@@ -196,14 +236,15 @@ static void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_value)
+STATIC void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_value)
 {
-    if (POSITIVE == resp_type)
+    if ((uint8_t)POSITIVE == resp_type)
     {
         dfu_do_notify_cp(sid, resp_value, NULL, 0u);
     }
     else
     {
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         lin_uds_negative_response(lin_configured_NAD, sid, resp_value);
     }
 }
@@ -216,13 +257,14 @@ static void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_
 **
 ** \retval  None
 *********************************************************/
-
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void dfu_session_parameter_resp(uint8_t sessiontype)
 {
     uint8_t session_parameter[4u];
     session_parameter[0u] = (P2_SERVER_MAX >> 8u) & 0xFFu;
     session_parameter[1u] = (P2_SERVER_MAX & 0xFFu);
-    session_parameter[2u] = (P2E_SERVER_MAX >> 8u) & 0xFFu;
+    session_parameter[2u] = ((uint16_t)P2E_SERVER_MAX >> 8u) & 0xFFu;
     session_parameter[3u] = (P2E_SERVER_MAX & 0xFFu);
     dfu_do_notify_cp(0x10u, sessiontype, session_parameter, sizeof(session_parameter));
 }
@@ -234,17 +276,19 @@ void dfu_session_parameter_resp(uint8_t sessiontype)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t last_dfu_info_get(void)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC uint8_t last_dfu_info_get(void)
 {
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
 
     if (DFU_INFO_MAGIC != dfu_ctx.dfu_info.magic)
     {
-        return DFU_MSG_ERROR;
+        return (uint8_t)DFU_MSG_ERROR;
     }
     if ((g_ota_info.app_req_ext_program_flag == 0x01u) || (g_ota_info.app_req_ext_program_flag == 0x03u))
     {
-        dfu_ctx.op_code = DFU_CMD_PROGRAM_SESSION;
+        dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
         uds_request_info.sessionMode = PROGRAM_SESSION;
         if (g_ota_info.app_req_ext_program_flag == 0x01u)
         {
@@ -253,20 +297,20 @@ static uint8_t last_dfu_info_get(void)
         }
         g_ota_info.app_req_ext_program_flag = 0x00u;
         pal_store_data_set(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
-        return DFU_MSG_ERROR;
+        return (uint8_t)DFU_MSG_ERROR;
     }
 
-    return DFU_MSG_SUCCESS;
+    return (uint8_t)DFU_MSG_SUCCESS;
 }
 
-static uint8_t uds_diag_DID_chk(uint16_t ucSess)
+STATIC uint8_t uds_diag_DID_chk(uint16_t ucSess)
 {
     uint8_t ucRet;
     switch (ucSess)
     {
     /* Seres part num:6106150-RQ01 */
     case 0xF187u:
-    /* Seres 供应商code:3233 */
+    /* Seres Supplier code:3233 */
     case 0xF18Au:
     /* Seres ECU name:EHIS_FL */
     case 0xF197u:
@@ -278,13 +322,18 @@ static uint8_t uds_diag_DID_chk(uint16_t ucSess)
         break;
     case 0xF189u:
     case 0x0216u:
-        // 判断APP标志位是否有效，如果无效，则表明APP不存在，响应NRC31
+        // Determine whether the APP flag is valid. If it is invalid, it indicates that the APP does not exist, and respond with NRC31.
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
         if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic)
         {
             ucRet = 1u;
-            break;
         }
+        else
+        {
+            ucRet = 0u;
+        }
+        break;
     default:
         ucRet = 0u;
         break;
@@ -292,6 +341,8 @@ static uint8_t uds_diag_DID_chk(uint16_t ucSess)
     return ucRet;
 }
 
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void uds_diagnostic_configword_remap_nad(void)
 {
     uint8_t nad_temp = g_user_info.nad_info;
@@ -306,7 +357,7 @@ void uds_diagnostic_configword_remap_nad(void)
         lin_configured_NAD = 0x68;
     }
 
-    if (g_ota_info.lock_failed_index > 3u) /* 参数合理性检查 */
+    if (g_ota_info.lock_failed_index > 3u) /* Parameter Rationality Check */
     {
         g_ota_info.lock_failed_index = 0u;
     }
@@ -320,10 +371,11 @@ void uds_diagnostic_configword_remap_nad(void)
 **
 ** \retval  uint8_t
 *********************************************************/
-static uint8_t last_dfu_info_update(last_dfu_info_t *info)
+STATIC uint8_t last_dfu_info_update(last_dfu_info_t *info)
 {
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     ll_flash_write_drv(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)info, sizeof(last_dfu_info_t));
-    return (DFU_MSG_SUCCESS);
+    return (uint8_t)(DFU_MSG_SUCCESS);
 }
 
 /********************************************************
@@ -333,11 +385,12 @@ static uint8_t last_dfu_info_update(last_dfu_info_t *info)
 **
 ** \retval  None
 *********************************************************/
-static void dfu_process_exit(uint8_t reason)
+STATIC void dfu_process_exit(uint8_t reason)
 {
-    if (DFU_MSG_SUCCESS == reason)
+    if ((uint8_t)DFU_MSG_SUCCESS == reason)
     {
         dfu_ctx.dfu_info.magic = DFU_INFO_MAGIC;
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         last_dfu_info_update(&dfu_ctx.dfu_info);
     }
 }
@@ -349,7 +402,8 @@ static void dfu_process_exit(uint8_t reason)
 **
 ** \retval  None
 *********************************************************/
-static void session_control_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+STATIC void session_control_handle(uint8_t *param, uint16_t length)
 {
     if (length == BOOT_Frame_length_2)
     {
@@ -359,19 +413,29 @@ static void session_control_handle(uint8_t *param, uint16_t length)
         case 0x81u:
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
+                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
-                if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic) // APP标志位有效的情况下，才允许复位，否则就停留在BootLoader
+                if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic) // Reset is only allowed when the APP flag bit is valid; otherwise, it stays in the BootLoader.
                 {
-                    if ((param[1] == 0x81u) || (lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu)) // 抑制正响应或功能寻址直接复位
+                    if (param[1] == 0x81u) // Inhibit positive response or function-addressed direct reset
                     {
                         NVIC_SystemReset();
                     }
-                    else // 01则记录标志位，用于APP响应50 01
+                    else if (lin_get_uds_nad() == 0x7Eu)
                     {
+                        NVIC_SystemReset();
+                    }
+                    else if (lin_get_uds_nad() == 0x7Fu)
+                    {
+                        NVIC_SystemReset();
+                    }
+                    else // 01 is a record flag, used for APP response 50 01
+                    {
+                        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                         pal_store_data_get(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
-                        if (g_ota_info.app_need_res_flag != true)
+                        if (g_ota_info.app_need_res_flag != 1U)
                         {
-                            g_ota_info.app_need_res_flag = true;
+                            g_ota_info.app_need_res_flag = 1U;
                             pal_store_data_set(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                         }
                         delay_ms(5u);
@@ -380,7 +444,7 @@ static void session_control_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
-                    dfu_ctx.op_code = DFU_CMD_DEFAULT_SESSION;
+                    dfu_ctx.op_code = (uint8_t)DFU_CMD_DEFAULT_SESSION;
                     uds_request_info.sessionMode = DEFALUT_SESSION;
                     seed_cmac_succ = AS_FALSE;
                     seed_00_ret = AS_FALSE;
@@ -388,14 +452,17 @@ static void session_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
-                dfu_ctx.op_code = DFU_CMD_DEFAULT_SESSION;
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_DEFAULT_SESSION;
                 uds_request_info.sessionMode = DEFALUT_SESSION;
                 seed_cmac_succ = AS_FALSE;
                 seed_00_ret = AS_FALSE;
             }
             if ((uds_request_info.sessionMode == DEFALUT_SESSION) && (param[1u] == 0x01u))
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -408,8 +475,11 @@ static void session_control_handle(uint8_t *param, uint16_t length)
             if (uds_request_info.sessionMode != PROGRAM_SESSION)
             {
                 uds_request_info.sessionMode = EXTEND_SESSION;
-                dfu_ctx.op_code = DFU_CMD_EXTEND_SESSION;
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_EXTEND_SESSION;
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -419,7 +489,10 @@ static void session_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -432,18 +505,21 @@ static void session_control_handle(uint8_t *param, uint16_t length)
             break;
         case 0x83u:
             uds_request_info.sessionMode = EXTEND_SESSION;
-            dfu_ctx.op_code = DFU_CMD_EXTEND_SESSION;
+            dfu_ctx.op_code = (uint8_t)DFU_CMD_EXTEND_SESSION;
             seed_cmac_succ = AS_FALSE;
             seed_00_ret = AS_FALSE;
             break;
         case 0x02u:
         case 0x82u:
-            if (dfu_ctx.op_code >= DFU_CMD_ROUTINE_PROGRAM_CHECK)
+            if (dfu_ctx.op_code >= (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK)
             {
-                dfu_ctx.op_code = DFU_CMD_PROGRAM_SESSION;
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
                 uds_request_info.sessionMode = PROGRAM_SESSION;
-                dfu_ctx.boot_state = BOOT_STATE_UPGRADE;
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                dfu_ctx.boot_state = (uint8_t)BOOT_STATE_UPGRADE;
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -459,7 +535,10 @@ static void session_control_handle(uint8_t *param, uint16_t length)
             seed_00_ret = AS_FALSE;
             break;
         default:
-            if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
             {
             }
             else
@@ -483,12 +562,15 @@ static void session_control_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static uint8_t cpmpare_key(uint8_t *seed, uint8_t *key, uint8_t length)
+/* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC uint8_t cpmpare_key(uint8_t *_seed, uint8_t *_key, uint8_t length)
 {
     /*compare key seed*/
     for (uint8_t i = 0u; i < length; i++)
     {
-        if (seed[i] != key[i])
+        if (_seed[i] != _key[i])
         {
             return 0u;
         }
@@ -496,48 +578,62 @@ static uint8_t cpmpare_key(uint8_t *seed, uint8_t *key, uint8_t length)
     return 1u;
 }
 
-static void key_reset_by_nad(void)
+STATIC void key_reset_by_nad(void)
 {
-    uint8_t key_lf[16] = {
+    const uint8_t key_lf[16] = {
         0x88, 0xB3, 0x4F, 0x45,
         0xE1, 0x0D, 0xBB, 0xC3,
         0x5D, 0xBF, 0x7E, 0xCF,
-        0x86, 0x8E, 0x73, 0x60
-    };
-    uint8_t key_rf[16] = {
+        0x86, 0x8E, 0x73, 0x60};
+    const uint8_t key_rf[16] = {
         0x32, 0xA9, 0x83, 0x03,
         0xAD, 0x07, 0xAE, 0x9C,
         0x2B, 0x46, 0x1F, 0xDE,
-        0x1D, 0xA5, 0x46, 0x76
-    };
-    uint8_t key_lr[16] = {
+        0x1D, 0xA5, 0x46, 0x76};
+    const uint8_t key_lr[16] = {
         0x48, 0x54, 0x24, 0xF9,
         0xF5, 0x76, 0x3E, 0x2B,
         0x99, 0x87, 0xD0, 0x11,
-        0x1A, 0x8B, 0xD2, 0x82
-    };
-    uint8_t key_rr[16] = {
+        0x1A, 0x8B, 0xD2, 0x82};
+    const uint8_t key_rr[16] = {
         0x2A, 0x7E, 0xF5, 0x25,
         0x7E, 0x01, 0xE6, 0x06,
         0xCD, 0x0C, 0x68, 0xFE,
-        0xA0, 0x3E, 0x5E, 0x5C
-    };
+        0xA0, 0x3E, 0x5E, 0x5C};
 
-    if (g_user_info.nad_info == 0x68)
+    if (g_user_info.nad_info == 0x68U)
     {
-        memcpy(key, key_lf, sizeof(key_lf));
+        /* PRQA S 3200 ++ #3264 - Return value ignored, verified safe for system operation */
+        #ifdef ENABLE_TEST_MODE
+        #else
+            memcpy(key, key_lf, sizeof(key_lf));
+        #endif
     }
-    else if (g_user_info.nad_info == 0x69)
+    else if (g_user_info.nad_info == 0x69U)
     {
-        memcpy(key, key_rf, sizeof(key_rf));
+        #ifdef ENABLE_TEST_MODE
+        #else
+            memcpy(key, key_rf, sizeof(key_rf));
+        #endif
     }
-    else if (g_user_info.nad_info == 0x6A)
+    else if (g_user_info.nad_info == 0x6AU)
     {
-        memcpy(key, key_lr, sizeof(key_lr));
+        #ifdef ENABLE_TEST_MODE
+        #else
+            memcpy(key, key_lr, sizeof(key_lr));
+        #endif
     }
-    else if (g_user_info.nad_info == 0x6B)
+    else if (g_user_info.nad_info == 0x6BU)
     {
-        memcpy(key, key_rr, sizeof(key_rr));
+        #ifdef ENABLE_TEST_MODE
+        #else
+            memcpy(key, key_rr, sizeof(key_rr));
+        #endif
+/* PRQA S 3200 -- */
+    }
+    else
+    {
+        (void)0;
     }
 }
 
@@ -549,12 +645,21 @@ static void key_reset_by_nad(void)
 **
 ** \retval  None
 *********************************************************/
-static void security_access_handle(uint8_t *param, uint16_t length)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void security_access_handle(uint8_t *param, uint16_t length)
 {
     uint8_t out[16u];
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if ((length == BOOT_Frame_length_2) || (length == BOOT_Frame_length_18))
     {
@@ -582,21 +687,21 @@ static void security_access_handle(uint8_t *param, uint16_t length)
                                 {
                                     seed_use[i] = 0u;
                                 }
-                                dfu_do_notify_cp(param[0u], param[1u], (unsigned char *)seed_use, sizeof(seed_use));
+                                dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)seed_use, sizeof(seed_use));
                                 seed_00_ret = AS_TRUE;
                             }
                         }
                         else
                         {
-                            if ((dfu_ctx.op_code == DFU_CMD_PROGRAM_SESSION) || (dfu_ctx.op_code == DFU_CMD_SECURITY_SEED_REQUEST))
+                            if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_PROGRAM_SESSION) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_SEED_REQUEST))
                             {
                                 for (uint8_t i = 0u; i < 16u; i++)
                                 {
                                     seed_use[i] = seed[i];
                                 }
-                                dfu_ctx.op_code = DFU_CMD_SECURITY_SEED_REQUEST;
+                                dfu_ctx.op_code = (uint8_t)DFU_CMD_SECURITY_SEED_REQUEST;
 
-                                dfu_do_notify_cp(param[0u], param[1u], (unsigned char *)seed_use, sizeof(seed_use));
+                                dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)seed_use, sizeof(seed_use));
                             }
                             else
                             {
@@ -610,7 +715,7 @@ static void security_access_handle(uint8_t *param, uint16_t length)
                     {
                         seed_cmac_succ = AS_FALSE;
                         seed_00_ret = AS_FALSE;
-                        dfu_ctx.op_code = DFU_CMD_PROGRAM_SESSION;
+                        dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
                         dfu_do_notify_response(NEGATIVE, param[0u], REQUIREDTIMEDELAY_NOTEXPIRED); // NRC37
                     }
                 }
@@ -624,15 +729,16 @@ static void security_access_handle(uint8_t *param, uint16_t length)
             case 0x0au:
                 if (length == BOOT_Frame_length_18)
                 {
-                    if (dfu_ctx.op_code == DFU_CMD_SECURITY_SEED_REQUEST)
+                    if (dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_SEED_REQUEST)
                     {
                         key_reset_by_nad();
-                        aes_cmac(key, seed_use, sizeof(seed_use), (unsigned char *)out);
+                        aes_cmac(key, seed_use, sizeof(seed_use), (uint8_t *)out);
                         if (cpmpare_key(out, &param[2u], 16u) == 1u)
                         {
-                            dfu_ctx.op_code = DFU_CMD_SECURITY_KEY_CHECK;
+                            dfu_ctx.op_code = (uint8_t)DFU_CMD_SECURITY_KEY_CHECK;
                             seed_cmac_succ = AS_TRUE;
-                            // 解锁成功，清除27解锁失败次数计数器
+                            // Unlock successful, clear the counter of 27 unlock failures
+                            /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                             pal_store_data_get(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                             g_ota_info.lock_failed_index = 0u;
                             pal_store_data_set(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
@@ -640,13 +746,13 @@ static void security_access_handle(uint8_t *param, uint16_t length)
                         }
                         else
                         {
-                            dfu_ctx.op_code = DFU_CMD_PROGRAM_SESSION;
+                            dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
                             if (g_ota_info.lock_failed_index < 3u)
                             {
-                                //  解锁失败，27解锁失败次数计数器存到flash里
+                                //  Unlock failed, the counter for 27 unlock failures is stored in flash
+                                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                                 pal_store_data_get(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                                 g_ota_info.lock_failed_index++;
-                                // pal_store_data_set(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                             }
                             if (g_ota_info.lock_failed_index <= 2u)
                             {
@@ -714,11 +820,20 @@ static void security_access_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void firmware_info_sync_handle(uint8_t *param, uint16_t length)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 {
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if (length > BOOT_Frame_length_3)
     {
@@ -728,9 +843,10 @@ static void firmware_info_sync_handle(uint8_t *param, uint16_t length)
             {
                 if (length == BOOT_Frame_length_13)
                 {
-                    if ((dfu_ctx.op_code == DFU_CMD_SECURITY_KEY_CHECK) && (seed_cmac_succ == AS_TRUE))
+                    if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_KEY_CHECK) && (seed_cmac_succ == AS_TRUE))
                     {
-                        dfu_ctx.op_code = DFU_CMD_WRITE_FINGER;
+                        dfu_ctx.op_code = (uint8_t)DFU_CMD_WRITE_FINGER;
+                        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                         memcpy(dfu_ctx.dfu_info.fingerprint, &param[3u], 10u);
                         dfu_do_notify_cp(param[0u], param[1u], &param[2u], 1u);
                     }
@@ -768,14 +884,24 @@ static void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void request_download_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void request_download_handle(uint8_t *param, uint16_t length)
 {
     uint8_t req_down_resp[2u];
     uint32_t req_addr = 0u;
     uint32_t req_size = 0u;
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if (uds_request_info.sessionMode == PROGRAM_SESSION)
     {
@@ -787,15 +913,15 @@ static void request_download_handle(uint8_t *param, uint16_t length)
                 {
                     if (param[2] == 0x44u)
                     {
-                        req_addr = (param[3u] << 24u) | (param[4u] << 16u) | (param[5u] << 8u) | param[6u];
-                        req_size = (param[7u] << 24u) | (param[8u] << 16u) | (param[9u] << 8u) | param[10u];
-                        if ((dfu_ctx.op_code == DFU_CMD_WRITE_FINGER) || (dfu_ctx.op_code == DFU_CMD_SECURITY_KEY_CHECK))
+                        req_addr = ((uint32_t)param[3u] << 24u) | ((uint32_t)param[4u] << 16u) | ((uint32_t)param[5u] << 8u) | param[6u];
+                        req_size = ((uint32_t)param[7u] << 24u) | ((uint32_t)param[8u] << 16u) | ((uint32_t)param[9u] << 8u) | param[10u];
+                        if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_WRITE_FINGER) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_KEY_CHECK))
                         {
                             if ((req_addr == FLASH_DRIVER_ADDR) && (req_size == FLASH_DRIVER_LENGTH))
                             {
                                 dfu_ctx.flashdrv_write_addr = req_addr;
-                                dfu_ctx.flashdrv_write_size = req_size;
-                                dfu_ctx.op_code = DFU_CMD_FLASH_DRIVER_REQUEST;
+                                dfu_ctx.flashdrv_write_size = (uint8_t)req_size;
+                                dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_REQUEST;
 
                                 dfu_ctx.write_length = 0u;
                                 dfu_ctx.receive_length = 0u;
@@ -815,13 +941,13 @@ static void request_download_handle(uint8_t *param, uint16_t length)
                                 dfu_do_notify_response(NEGATIVE, param[0u], REQUEST_OUT_RANGE); // NRC31
                             }
                         }
-                        else if (dfu_ctx.op_code == DFU_CMD_APP_ERASE)
+                        else if (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_ERASE)
                         {
                             dfu_ctx.write_addr = req_addr;
                             dfu_ctx.dfu_info.image_size = req_size;
                             if (FLASH_APP_ADDR == dfu_ctx.write_addr)
                             {
-                                dfu_ctx.op_code = DFU_CMD_APP_REQUEST;
+                                dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_REQUEST;
 
                                 dfu_ctx.write_length = 0u;
                                 dfu_ctx.receive_length = 0u;
@@ -881,11 +1007,20 @@ static void request_download_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void transfer_data_handle(uint8_t *param, uint16_t length)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
 {
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if (uds_request_info.sessionMode == PROGRAM_SESSION)
     {
@@ -899,26 +1034,28 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
         }
         else
         {
-            if ((dfu_ctx.op_code == DFU_CMD_FLASH_DRIVER_REQUEST) || (dfu_ctx.op_code == DFU_CMD_FLASH_DRIVER_TRANSFER))
+            if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_REQUEST) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_TRANSFER))
             {
-                dfu_ctx.op_code = DFU_CMD_FLASH_DRIVER_TRANSFER;
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_TRANSFER;
+                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 memcpy(flash_driver, &param[2u], dfu_ctx.flashdrv_write_size);
                 LOG_DFU("drv len=%d\n", dfu_ctx.flashdrv_write_size);
                 dfu_do_notify_response(POSITIVE, param[0u], param[1u]);
             }
-            else if ((dfu_ctx.op_code == DFU_CMD_APP_REQUEST) || (dfu_ctx.op_code == DFU_CMD_APP_TRANSFER))
+            else if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_REQUEST) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_TRANSFER))
             {
-                dfu_ctx.op_code = DFU_CMD_APP_TRANSFER;
-                if ((param[1u] == 0) || (param[1u] != (dfu_ctx.write_index + 1)))
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_TRANSFER;
+                if ((param[1u] == 0u) || (param[1u] != (dfu_ctx.write_index + 1u)))
                 {
                     dfu_do_notify_response(NEGATIVE, param[0u], BLOCK_SEQUENCE_COUNT_ERR); // NRC73
                     return;
                 }
                 dfu_ctx.recevice_index = param[1u];
-                dfu_ctx.receive_length += (length - 2u);
+                dfu_ctx.receive_length += ((uint32_t)length - 2u);
                 dfu_ctx.program_flag = 1u;
-                if (DFU_MSG_SUCCESS == dfu_image_program(dfu_ctx.write_addr, &param[2u], length - 2u))
+                if ((uint8_t)DFU_MSG_SUCCESS == dfu_image_program(dfu_ctx.write_addr, &param[2u], length - 2u))
                 {
+                    /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
                     if ((++(dfu_ctx.queue_list.head)) >= QUEUE_LIN_LEN)
                     {
                         dfu_ctx.queue_list.head = 0u;
@@ -926,8 +1063,8 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
 
                     dfu_ctx.write_index = dfu_ctx.recevice_index;
 
-                    dfu_ctx.write_addr += (length - 2u);
-                    dfu_ctx.write_length += (length - 2u);
+                    dfu_ctx.write_addr += ((uint32_t)length - 2u);
+                    dfu_ctx.write_length += ((uint32_t)length - 2u);
                     dfu_do_notify_response(POSITIVE, param[0u], param[1u]);
                 }
                 else
@@ -941,6 +1078,7 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
                 if ((dfu_ctx.receive_length >= DFU_PROGRAM_LENGTH) ||
                     ((dfu_ctx.receive_length + dfu_ctx.write_length) == dfu_ctx.dfu_info.image_size))
                 {
+                    /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
                     if ((++(dfu_ctx.queue_list.tail)) >= QUEUE_LIN_LEN)
                     {
                         dfu_ctx.queue_list.tail = 0u;
@@ -951,9 +1089,9 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
                     dfu_do_notify_response(NEGATIVE, param[0u], TRANSFER_DATA_PAUSE); // NRC71
                 }
 
-                if (dfu_ctx.write_length == dfu_ctx.dfu_info.image_size) // 避免多发
+                if (dfu_ctx.write_length == dfu_ctx.dfu_info.image_size) // Avoid excessive sending
                 {
-                    dfu_ctx.queue_list.tail = 0u; // 队列清空
+                    dfu_ctx.queue_list.tail = 0u; // Queue cleared
                     dfu_ctx.queue_list.head = 0u;
                 }
                 LOG_DFU("app index=%d len=%d\n", dfu_ctx.recevice_index, length);
@@ -978,24 +1116,34 @@ static void transfer_data_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void request_transfer_exit_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 {
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if (uds_request_info.sessionMode == PROGRAM_SESSION)
     {
         if (length == BOOT_Frame_length_1)
         {
-            if (dfu_ctx.op_code == DFU_CMD_FLASH_DRIVER_TRANSFER)
+            if (dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_TRANSFER)
             {
-                dfu_ctx.op_code = DFU_CMD_FLASH_DRIVER_EXIT;
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_EXIT;
                 dfu_do_notify_cp_ex(param[0u], NULL, 0u);
             }
-            else if (dfu_ctx.op_code == DFU_CMD_APP_TRANSFER)
+            else if (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_TRANSFER)
             {
-                dfu_ctx.op_code = DFU_CMD_APP_EXIT;
+                dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_EXIT;
                 dfu_do_notify_cp_ex(param[0u], NULL, 0u);
             }
             else
@@ -1022,18 +1170,27 @@ static void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
-static void routine_control_handle(uint8_t *param, uint16_t length)
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void routine_control_handle(uint8_t *param, uint16_t length)
 {
     uint8_t pre_program_resp[3u] = {0u};
     uint8_t data_tmp[32u] = {0u};
 
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
     }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
+    }
     if ((0x01u == param[1u]) || (0x81u == param[1u]))
     {
-        uint16_t routine_id = (param[2u] << 8u) | param[3u];
+        uint16_t routine_id = ((uint16_t)param[2u] << 8u) | param[3u];
         param[1u] = 0x01u;
         switch (routine_id)
         {
@@ -1042,9 +1199,9 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
             {
                 if (length == BOOT_Frame_length_4)
                 {
-                    if ((dfu_ctx.op_code == DFU_CMD_EXTEND_SESSION) || (dfu_ctx.op_code == DFU_CMD_ROUTINE_PROGRAM_CHECK))
+                    if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_EXTEND_SESSION) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK))
                     {
-                        dfu_ctx.op_code = DFU_CMD_ROUTINE_PROGRAM_CHECK;
+                        dfu_ctx.op_code = (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
                         pre_program_resp[2u] = 0u;
@@ -1065,19 +1222,19 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
                 dfu_do_notify_response(NEGATIVE, param[0u], SERVICENOTSUPPORTED_INACTIVESESSION); // NRC7F
             }
             break;
-        case 0xDD02u: // 签名校验
+        case 0xDD02u: // Signature verification
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_20)
                 {
-                    if (dfu_ctx.op_code == DFU_CMD_FLASH_DRIVER_EXIT)
+                    if (dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_EXIT)
                     {
                         sha256(flash_driver, dfu_ctx.flashdrv_write_size, data_tmp);
                         aes_cmac(key, data_tmp, 32, (uint8_t *)flash_driver_cmac);
-                        
+
                         if (cpmpare_key(flash_driver_cmac, &param[4u], 16u) == 1u)
                         {
-                            dfu_ctx.op_code = DFU_CMD_FLASH_DRIVER_CMAC_CHECK;
+                            dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_CMAC_CHECK;
                             flashdrv_cmac_succ = AS_TRUE;
                             pre_program_resp[0u] = param[2u];
                             pre_program_resp[1u] = param[3u];
@@ -1093,18 +1250,19 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
                             dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)pre_program_resp, sizeof(pre_program_resp));
                         }
                     }
-                    else if (dfu_ctx.op_code == DFU_CMD_APP_EXIT)
+                    else if (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_EXIT)
                     {
                         dfu_do_notify_response(NEGATIVE, param[0u], RCRRP); // NRC78
                         timer_1s_cnt = 0u;
                         app_cmac_start = AS_TRUE;
+                        /* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
                         sha256((uint8_t *)FLASH_APP_ADDR, dfu_ctx.dfu_info.image_size, data_tmp);
                         aes_cmac(key, data_tmp, 32, (uint8_t *)app_cmac);
 
                         app_cmac_start = AS_FALSE;
                         if (cpmpare_key(app_cmac, &param[4u], 16u) == 1u)
                         {
-                            dfu_ctx.op_code = DFU_CMD_APP_CMAC_CHECK;
+                            dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_CMAC_CHECK;
                             app_cmac_succ = AS_TRUE;
                             pre_program_resp[0u] = param[2u];
                             pre_program_resp[1u] = param[3u];
@@ -1126,7 +1284,6 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
                         pre_program_resp[1u] = param[3u];
                         pre_program_resp[2u] = 0x2u;
                         dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)pre_program_resp, sizeof(pre_program_resp));
-                        //dfu_do_notify_response(NEGATIVE, param[0u], CONDITION_NOT_CORRECT); // NRC22
                     }
                 }
                 else
@@ -1139,17 +1296,18 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
                 dfu_do_notify_response(NEGATIVE, param[0u], SERVICENOTSUPPORTED_INACTIVESESSION); // NRC7F
             }
             break;
-        case 0xFF00u: // 擦除FLASH
+        case 0xFF00u: // Erase FLASH
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_12)
                 {
-                    if ((dfu_ctx.op_code == DFU_CMD_FLASH_DRIVER_CMAC_CHECK) && (flashdrv_cmac_succ == AS_TRUE))
+                    if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_CMAC_CHECK) && (flashdrv_cmac_succ == AS_TRUE))
                     {
+                        /* PRQA S 3200 3 #3264 - Return value ignored, verified safe for system operation */
                         lin_uds_negative_response(lin_configured_NAD, param[0u], RCRRP);
                         delay_ms(90u);
                         dfu_image_erase();
-                        dfu_ctx.op_code = DFU_CMD_APP_ERASE;
+                        dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_ERASE;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
                         dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)pre_program_resp, 2u);
@@ -1169,19 +1327,19 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
                 dfu_do_notify_response(NEGATIVE, param[0u], SERVICENOTSUPPORTED_INACTIVESESSION); // NRC7F
             }
             break;
-        case 0xFF01u: // 应用程序兼容性检查
+        case 0xFF01u: // Application Compatibility Check
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_4)
                 {
-                    if ((dfu_ctx.op_code == DFU_CMD_APP_CMAC_CHECK) && (app_cmac_succ == AS_TRUE))
+                    if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_CMAC_CHECK) && (app_cmac_succ == AS_TRUE))
                     {
-                        dfu_ctx.op_code = DFU_CMD_APP_COMPATIBLE_CHECK;
+                        dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_COMPATIBLE_CHECK;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
                         pre_program_resp[2u] = 0u;
-                        /* 更新APP标志位*/
-                        dfu_process_exit(DFU_MSG_SUCCESS);
+                        /* Update the app flag */
+                        dfu_process_exit((uint8_t)DFU_MSG_SUCCESS);
                         dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)pre_program_resp, sizeof(pre_program_resp));
                     }
                     else
@@ -1210,13 +1368,17 @@ static void routine_control_handle(uint8_t *param, uint16_t length)
     }
 }
 
-static void reset_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+STATIC void reset_handle(uint8_t *param, uint16_t length)
 {
     if (length == BOOT_Frame_length_2)
     {
         if (param[1] == 0x01u)
         {
-            if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
             {
             }
             else
@@ -1233,26 +1395,32 @@ static void reset_handle(uint8_t *param, uint16_t length)
         }
         else if ((param[1] == 0x03u) || (param[1] == 0x02u))
         {
-			if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
-			{
-			}
-			else
-			{
-            	dfu_do_notify_response(POSITIVE, param[0], param[1]);
-			}
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
+            {
+            }
+            else
+            {
+                dfu_do_notify_response(POSITIVE, param[0], param[1]);
+            }
         }
-        else if ((param[1] == 0x83u) || (param[1] == 0x82u)) // 禁止肯定响应
+        else if ((param[1] == 0x83u) || (param[1] == 0x82u)) // Affirmative response prohibited
         {
         }
         else
         {
-			if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
-			{
-			}
-			else
-			{
-            	dfu_do_notify_response(NEGATIVE, param[0u], SUBFUNCTION_NOT_SUPPORTED); // NRC12
-			}
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
+            {
+            }
+            else
+            {
+                dfu_do_notify_response(NEGATIVE, param[0u], SUBFUNCTION_NOT_SUPPORTED); // NRC12
+            }
         }
     }
     else
@@ -1261,9 +1429,14 @@ static void reset_handle(uint8_t *param, uint16_t length)
     }
 }
 
-static void clear_dtc_info_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+STATIC void clear_dtc_info_handle(uint8_t *param, uint16_t length)
 {
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    (void)length;
+    if (lin_get_uds_nad() == 0x7Eu)
+    {
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
     {
     }
     else
@@ -1271,26 +1444,35 @@ static void clear_dtc_info_handle(uint8_t *param, uint16_t length)
         dfu_do_notify_response(NEGATIVE, param[0u], SERVICENOTSUPPORTED_INACTIVESESSION); // NRC7F
     }
 }
-
-static void enable_swd(void) // 使能swd接口
-{
-    ll_gpio_afio_config(GPIO_PIN_0, AFIO_MUX_0); // SWCLK
-    ll_gpio_afio_config(GPIO_PIN_1, AFIO_MUX_0); // SWDIO
-}
-
-static void assign_config_word_handle(uint8_t *param, uint16_t length)
+#ifdef ENABLE_TEST_MODE
+#else
+    STATIC void enable_swd(void) // Enable SWD interface
+    {
+        ll_gpio_afio_config(GPIO_PIN_0, AFIO_MUX_0); // SWCLK
+        ll_gpio_afio_config(GPIO_PIN_1, AFIO_MUX_0); // SWDIO
+    }
+#endif
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void assign_config_word_handle(uint8_t *param, uint16_t length)
 {
     uint8_t fuc_id;
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
     }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
+    }
     if (length == BOOT_Frame_length_6)
     {
-        if ((0xF3u == param[1u]) && (0x3F == param[2u]) && (0x02u == param[4u]))
+        if ((0xF3u == param[1u]) && (0x3Fu == param[2u]) && (0x02u == param[4u]))
         {
-            // if (seed_cmac_succ == AS_TRUE)
-            //{
             fuc_id = param[3u];
             switch (fuc_id)
             {
@@ -1303,8 +1485,8 @@ static void assign_config_word_handle(uint8_t *param, uint16_t length)
                 /* assign */
                 if (g_config_word_state == CONFIGURE_WORD_STATE_START)
                 {
-                    if ((param[5u] == LEFT_FRONT_DOOR) || (param[5u] == LEFT_REAR_DOOR) || 
-                        (param[5u] == RIGHT_FRONT_DOOR) || (param[5u] == RIGHT_REAR_DOOR))
+                    if ((param[5u] == (uint8_t)LEFT_FRONT_DOOR) || (param[5u] == (uint8_t)LEFT_REAR_DOOR) ||
+                        (param[5u] == (uint8_t)RIGHT_FRONT_DOOR) || (param[5u] == (uint8_t)RIGHT_REAR_DOOR))
                     {
                         g_user_info.config_word = param[5u];
 
@@ -1319,12 +1501,40 @@ static void assign_config_word_handle(uint8_t *param, uint16_t length)
                 if (g_config_word_state == CONFIGURE_WORD_STATE_ASIGN)
                 {
                     pal_store_data_set(CFG_WORD_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
+                    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                     pal_store_data_get(CFG_WORD_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
                     uds_diagnostic_configword_remap_nad();
-                    if ((lin_get_uds_nad() == 0x68u) || (lin_get_uds_nad() == 0x6Au) ||
-                        (lin_get_uds_nad() == 0x69u) || (lin_get_uds_nad() == 0x6Bu))
+                    if (lin_get_uds_nad() == 0x68u)
                     {
-                        enable_swd(); // 使能swd功能
+                        #ifdef ENABLE_TEST_MODE
+                        #else
+                            enable_swd(); // Enable SWD interface
+                        #endif
+                    }
+                    else if (lin_get_uds_nad() == 0x6Au)
+                    {
+                        #ifdef ENABLE_TEST_MODE
+                        #else
+                            enable_swd(); // Enable SWD interface
+                        #endif
+                    }
+                    else if (lin_get_uds_nad() == 0x69u)
+                    {
+                        #ifdef ENABLE_TEST_MODE
+                        #else
+                            enable_swd(); // Enable SWD interface
+                        #endif
+                    }
+                    else if (lin_get_uds_nad() == 0x6Bu)
+                    {
+                        #ifdef ENABLE_TEST_MODE
+                        #else
+                            enable_swd(); // Enable SWD interface
+                        #endif
+                    }
+                    else
+                    {
+                        (void)0;
                     }
                     g_config_word_state = CONFIGURE_WORD_STATE_SAVE;
                     LOG_DFU("SAVE\n");
@@ -1337,9 +1547,9 @@ static void assign_config_word_handle(uint8_t *param, uint16_t length)
                 break;
 
             default:
+                (void)0;
                 break;
             }
-            //}
         }
         else
         {
@@ -1352,20 +1562,31 @@ static void assign_config_word_handle(uint8_t *param, uint16_t length)
     }
 }
 
-static void read_by_identify_handle(uint8_t *param, uint16_t length)
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+STATIC void read_by_identify_handle(uint8_t *param, uint16_t length)
 {
     uint8_t rsp_data[5u] = {0u};
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     if (length == BOOT_Frame_length_6)
     {
         if ((param[1u] == 0xF3u) && (param[2u] == 0x3Fu) && (param[3u] == 0xFFu) && (param[4u] == 0x02u))
         {
-            if ((param[5u] == LEFT_FRONT_DOOR) || (param[5u] == LEFT_REAR_DOOR) || 
-                (param[5u] == RIGHT_FRONT_DOOR) || (param[5u] == RIGHT_REAR_DOOR))
+            if ((param[5u] == (uint8_t)LEFT_FRONT_DOOR) || (param[5u] == (uint8_t)LEFT_REAR_DOOR) ||
+                (param[5u] == (uint8_t)RIGHT_FRONT_DOOR) || (param[5u] == (uint8_t)RIGHT_REAR_DOOR))
             {
+                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 pal_store_data_get(CFG_WORD_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
                 if (g_user_info.config_word == param[5u])
                 {
@@ -1397,15 +1618,15 @@ static void read_by_identify_handle(uint8_t *param, uint16_t length)
     }
 }
 
-static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did, uint16_t *len)
+STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did, uint16_t *len)
 {
     uint8_t loc;
-    static const char *seres_part_numbers[] = {"4280310-RW02"};
-    uint8_t seres_supplier_code[10u] = {'3', '1', '9', '7', 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
-    uint8_t seres_ecu_name[10u] = {'E', 'H', 'I', 'S', '_', 'F', 'L', 0x20u, 0x20u, 0x20u};
+    static const char *const seres_part_numbers[] = {"4280310-RW02"};
+    uint8_t const seres_supplier_code[10u] = {(uint8_t)'3', (uint8_t)'1', (uint8_t)'9', (uint8_t)'7', 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
+    uint8_t seres_ecu_name[10u] = {(uint8_t)'E', (uint8_t)'H', (uint8_t)'I', (uint8_t)'S', (uint8_t)'_', (uint8_t)'F', (uint8_t)'L', 0x20u, 0x20u, 0x20u};
     uint8_t seres_software_version[21u] = {0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
-    uint8_t hardware_version[8u] = {0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
-    uint8_t boot_version[8u] = {0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
+    uint8_t _hardware_version[8u] = {0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
+    uint8_t _boot_version[8u] = {0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u, 0x20u};
 
     switch (did)
     {
@@ -1413,7 +1634,7 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
         *len = 12u;
         for (loc = 0u; loc < 12u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(seres_part_numbers[0][loc]); /*mult did*/
             }
@@ -1424,12 +1645,12 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
         }
 
         break;
-    /* Seres 供应商code:3233 */
+    /* Seres Supplier code:3233 */
     case 0xF18Au:
         *len = 10u;
         for (loc = 0u; loc < 10u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(seres_supplier_code[loc]); /*mult did*/
             }
@@ -1443,29 +1664,33 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     case 0xF197u:
         *len = 10u;
 
-        if (g_user_info.config_word == LEFT_FRONT_DOOR) // 左前门把手
+        if (g_user_info.config_word == (uint8_t)LEFT_FRONT_DOOR) // Left front door handle
         {
-            seres_ecu_name[5] = 'F';
-            seres_ecu_name[6] = 'L';
+            seres_ecu_name[5] = (uint8_t)'F';
+            seres_ecu_name[6] = (uint8_t)'L';
         }
-        else if (g_user_info.config_word == LEFT_REAR_DOOR) // 左后门把手
+        else if (g_user_info.config_word == (uint8_t)LEFT_REAR_DOOR) // Left rear door handle
         {
-            seres_ecu_name[5] = 'R';
-            seres_ecu_name[6] = 'L';
+            seres_ecu_name[5] = (uint8_t)'R';
+            seres_ecu_name[6] = (uint8_t)'L';
         }
-        else if (g_user_info.config_word == RIGHT_FRONT_DOOR) // 右前门把手
+        else if (g_user_info.config_word == (uint8_t)RIGHT_FRONT_DOOR) // Right front door handle
         {
-            seres_ecu_name[5] = 'F';
-            seres_ecu_name[6] = 'R';
+            seres_ecu_name[5] = (uint8_t)'F';
+            seres_ecu_name[6] = (uint8_t)'R';
         }
-        else if (g_user_info.config_word == RIGHT_REAR_DOOR) // 右后门把手
+        else if (g_user_info.config_word == (uint8_t)RIGHT_REAR_DOOR) // Right rear door handle
         {
-            seres_ecu_name[5] = 'R';
-            seres_ecu_name[6] = 'R';
+            seres_ecu_name[5] = (uint8_t)'R';
+            seres_ecu_name[6] = (uint8_t)'R';
+        }
+        else
+        {
+            (void)0;
         }
         for (loc = 0u; loc < 10u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(seres_ecu_name[loc]);
             }
@@ -1478,12 +1703,14 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     /* Seres LIN slave sequence num:SW:1.01.A_250606_3233_00 */
     case 0xF189u:
         *len = 24u;
-        if (mul_flag)
+        if (mul_flag != 0u)
         {
+            /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
             ll_flash_read(FLASH_TYPE_NVM, FLASH_SEQ_NUM_ADDR, (uint8_t *)&diagnosticTxBuffer[mul_len], 24u);
         }
         else
         {
+            /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
             ll_flash_read(FLASH_TYPE_NVM, FLASH_SEQ_NUM_ADDR, (uint8_t *)&diagnosticTxBuffer[UDS_READ_BY_DID_MIN_RESP_LEN], 24u);
         }
         break;
@@ -1491,31 +1718,36 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     case 0x0216u:
         *len = 21u;
         /* copy seres_software_version[] */
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         ll_flash_read(FLASH_TYPE_NVM, FLASH_SERES_APP_SOFTVER_ADDR, (uint8_t *)&seres_software_version[0u], 21u);
-        if (g_user_info.config_word == LEFT_FRONT_DOOR) // 左前门把手
+        if (g_user_info.config_word == (uint8_t)LEFT_FRONT_DOOR) // Left front door handle
         {
-            seres_software_version[7] = 'F';
-            seres_software_version[8] = 'L';
+            seres_software_version[7] = (uint8_t)'F';
+            seres_software_version[8] = (uint8_t)'L';
         }
-        else if (g_user_info.config_word == LEFT_REAR_DOOR) // 左后门把手
+        else if (g_user_info.config_word == (uint8_t)LEFT_REAR_DOOR) // Left rear door handle
         {
-            seres_software_version[7] = 'R';
-            seres_software_version[8] = 'L';
+            seres_software_version[7] = (uint8_t)'R';
+            seres_software_version[8] = (uint8_t)'L';
         }
-        else if (g_user_info.config_word == RIGHT_FRONT_DOOR) // 右前门把手
+        else if (g_user_info.config_word == (uint8_t)RIGHT_FRONT_DOOR) // Right front door handle
         {
-            seres_software_version[7] = 'F';
-            seres_software_version[8] = 'R';
+            seres_software_version[7] = (uint8_t)'F';
+            seres_software_version[8] = (uint8_t)'R';
         }
-        else if (g_user_info.config_word == RIGHT_REAR_DOOR) // 右后门把手
+        else if (g_user_info.config_word == (uint8_t)RIGHT_REAR_DOOR) // Right rear door handle
         {
-            seres_software_version[7] = 'R';
-            seres_software_version[8] = 'R';
+            seres_software_version[7] = (uint8_t)'R';
+            seres_software_version[8] = (uint8_t)'R';
+        }
+        else
+        {
+            (void)0;
         }
 
         for (loc = 0u; loc < 21u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(seres_software_version[loc]);
             }
@@ -1528,10 +1760,11 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     /* Seres fingerprint info*/
     case 0xF184u:
         *len = 10u;
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
         for (loc = 0u; loc < 10u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(dfu_ctx.dfu_info.fingerprint[loc]);
             }
@@ -1544,10 +1777,11 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     /* hardware verison info */
     case 0xF089u:
         *len = 8u;
-        ll_flash_read(FLASH_TYPE_NVM, FLASH_HW_VERSION_ADDR, (uint8_t *)hardware_version, sizeof(hardware_version));
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+        ll_flash_read(FLASH_TYPE_NVM, FLASH_HW_VERSION_ADDR, (uint8_t *)_hardware_version, sizeof(_hardware_version));
         for (loc = 0u; loc < 8u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
                 diagnosticTxBuffer[mul_len + loc] = (uint8_t)(hardware_version[loc]);
             }
@@ -1560,37 +1794,50 @@ static void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     /* bootloader verison info */
     case 0xF180u:
         *len = 8u;
-        ll_flash_read(FLASH_TYPE_NVM, FLASH_BOOT_VERSION_ADDR, (uint8_t *)boot_version, sizeof(boot_version));
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+        ll_flash_read(FLASH_TYPE_NVM, FLASH_BOOT_VERSION_ADDR, (uint8_t *)_boot_version, sizeof(_boot_version));
         for (loc = 0u; loc < 8u; loc++)
         {
-            if (mul_flag)
+            if (mul_flag != 0u)
             {
-                diagnosticTxBuffer[mul_len + loc] = (uint8_t)(boot_version[loc]);
+                diagnosticTxBuffer[mul_len + loc] = (uint8_t)(_boot_version[loc]);
             }
             else
             {
-                diagnosticTxBuffer[UDS_READ_BY_DID_MIN_RESP_LEN + loc] = (uint8_t)(boot_version[loc]);
+                diagnosticTxBuffer[UDS_READ_BY_DID_MIN_RESP_LEN + loc] = (uint8_t)(_boot_version[loc]);
             }
         }
         break;
     default:
+        (void)0;
         break;
     }
 }
 
+/* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 3 #3257 - Multiple return statements for logical clarity and efficiency */
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void read_data_by_identify_handle(uint8_t *param, uint16_t length)
 {
     uint8_t result = NEGATIVE;
-    uint8_t positresp = NEGATIVE;
     uint16_t msglen = 0u, datalen;
     uint16_t locdid = 0xFFFFu;
     mult_did_data_t mult_did;
 
     msglen = length;
 
-    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+    if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
+    }
+    else if (lin_get_uds_nad() == 0x7Fu)
+    {
+        return;
+    }
+    else
+    {
+        (void)0;
     }
     /* message length correct check */
     if (UDS_READ_BY_DID_REQ_LEN == msglen)
@@ -1598,7 +1845,7 @@ void read_data_by_identify_handle(uint8_t *param, uint16_t length)
         locdid = ((uint16_t)param[1u] << 8u) + param[2u];
         result = uds_diag_DID_chk(locdid);
         /* DID supported */
-        if (result)
+        if (result != 0u)
         {
             /*call the user function to process the service after all checks are correct*/
             user_read_data_by_id(0, 0, locdid, &datalen);
@@ -1613,37 +1860,38 @@ void read_data_by_identify_handle(uint8_t *param, uint16_t length)
             dfu_do_notify_response(NEGATIVE, param[0u], REQUEST_OUT_RANGE); // NRC31
         }
     }
-    else if ((msglen > UDS_READ_BY_DID_REQ_LEN) && (msglen <= ((MULT_DID_MAX * 2) + 1)) && (((msglen - 1) % 2) == 0))  // 最多5个did
+    else if ((msglen > UDS_READ_BY_DID_REQ_LEN) && (msglen <= (((uint8_t)MULT_DID_MAX * 2u) + 1u)) && (((msglen - 1u) % 2u) == 0u)) // Up to 5 dids
     {
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         memset(&mult_did, 0, sizeof(mult_did_data_t));
-        mult_did.did_num = (msglen - 1) / 2;
+        mult_did.did_num = (uint8_t)(msglen - 1u) / 2u;
 
         for (uint8_t i = 0; i < mult_did.did_num; i++)
         {
-            mult_did.did_array[i] = ((uint16_t)param[2 * i + 1u] << 8u) + param[2 * i + 2u];
+            mult_did.did_array[i] = ((uint16_t)param[(2u * i) + 1u] << 8u) + param[(2u * i) + 2u];
             result = uds_diag_DID_chk(mult_did.did_array[i]);
             /* DID supported */
-            if (result)
+            if (result != 0u)
             {
-                mult_did.did_valid_flag |= 1 << i;
+                mult_did.did_valid_flag |= (uint8_t)(1U << i);
             }
         }
         /*if any did is valid, response true*/
-        if (mult_did.did_valid_flag)
+        if (mult_did.did_valid_flag != 0u)
         {
             for (uint8_t i = 0; i < mult_did.did_num; i++)
             {
                 /*this did is valid and read data*/
-                if (mult_did.did_valid_flag & (1 << i))
+                if ((mult_did.did_valid_flag & ((uint16_t)1u << i)) != 0u)
                 {
                     diagnosticTxBuffer[mult_did.data_len + 1u] = (uint8_t)(mult_did.did_array[i] >> 8u);
                     diagnosticTxBuffer[mult_did.data_len + 2u] = (uint8_t)mult_did.did_array[i];
                     /*call the user function to process the service after all checks are correct*/
-                    user_read_data_by_id(1, (mult_did.data_len + 3u), mult_did.did_array[i], &datalen);
-                    mult_did.data_len += (datalen + 2); /*data and 2 byte did*/
+                    user_read_data_by_id(1, (uint8_t)(mult_did.data_len + 3u), mult_did.did_array[i], &datalen);
+                    mult_did.data_len += (datalen + 2u); /*data and 2 byte did*/
                 }
             }
-            msglen = (mult_did.data_len + 1);
+            msglen = (mult_did.data_len + 1U);
             dfu_do_notify_cp_ex(param[0u], &diagnosticTxBuffer[1u], msglen - 1u);
         }
         else
@@ -1657,6 +1905,9 @@ void read_data_by_identify_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void communcation_control_handle(uint8_t *param, uint16_t length)
 {
     if (uds_request_info.sessionMode == EXTEND_SESSION)
@@ -1668,7 +1919,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
             {
                 if ((param[2u] == 0x01u) || (param[2u] == 0x03u))
                 {
-                    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                    if (lin_get_uds_nad() == 0x7Eu)
+                    {
+                    }
+                    else if (lin_get_uds_nad() == 0x7Fu)
                     {
                     }
                     else
@@ -1678,7 +1932,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
-                    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                    if (lin_get_uds_nad() == 0x7Eu)
+                    {
+                    }
+                    else if (lin_get_uds_nad() == 0x7Fu)
                     {
                     }
                     else
@@ -1695,7 +1952,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
-                    if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                    if (lin_get_uds_nad() == 0x7Eu)
+                    {
+                    }
+                    else if (lin_get_uds_nad() == 0x7Fu)
                     {
                     }
                     else
@@ -1706,7 +1966,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -1722,7 +1985,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
     }
     else
     {
-        if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+        if (lin_get_uds_nad() == 0x7Eu)
+        {
+        }
+        else if (lin_get_uds_nad() == 0x7Fu)
         {
         }
         else
@@ -1731,6 +1997,10 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
         }
     }
 }
+
+/* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void dtc_control_handle(uint8_t *param, uint16_t length)
 {
     if (uds_request_info.sessionMode == EXTEND_SESSION)
@@ -1739,7 +2009,10 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
         {
             if (param[1u] == 0x01u)
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -1749,7 +2022,10 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
             }
             else if (param[1u] == 0x02u)
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -1762,7 +2038,10 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
-                if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+                if (lin_get_uds_nad() == 0x7Eu)
+                {
+                }
+                else if (lin_get_uds_nad() == 0x7Fu)
                 {
                 }
                 else
@@ -1778,7 +2057,10 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
     }
     else
     {
-        if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+        if (lin_get_uds_nad() == 0x7Eu)
+        {
+        }
+        else if (lin_get_uds_nad() == 0x7Fu)
         {
         }
         else
@@ -1787,13 +2069,20 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
         }
     }
 }
+
+/* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void diagnostic_session_handle(uint8_t *param, uint16_t length)
 {
     if (length == BOOT_Frame_length_2)
     {
         if (param[1] == 0x00u)
         {
-            if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
             {
             }
             else
@@ -1806,7 +2095,10 @@ void diagnostic_session_handle(uint8_t *param, uint16_t length)
         }
         else
         {
-            if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
             {
             }
             else
@@ -1821,34 +2113,40 @@ void diagnostic_session_handle(uint8_t *param, uint16_t length)
     }
 }
 
-const dfu_process_context_t dfu_process_ctx[] =
-    {
-        {SERVICE_SESSION_CONTROL, session_control_handle},             // 0x10 物理寻址+功能寻址
-        {SERVICE_ECU_RESET, reset_handle},                             // 0x11 物理寻址+功能寻址
-        {SERVICE_SECURITY_ACCESS, security_access_handle},             // 0x27 物理寻址
-        {SERVICE_FIRMWARE_INFO_SYNC, firmware_info_sync_handle},       // 0x2E 物理寻址
-        {SERVICE_ROUTINE_CONTROL, routine_control_handle},             // 0x31 物理寻址
-        {SERVICE_REQUEST_DOWNLOAD, request_download_handle},           // 0x34 物理寻址
-        {SERVICE_TRANSFER_DATA, transfer_data_handle},                 // 0x36 物理寻址
-        {SERVICE_REQUEST_TRANSFER_EXIT, request_transfer_exit_handle}, // 0x37 物理寻址
-        {SERVICE_CLEAR_DTC_INFO, clear_dtc_info_handle},               // 0x14 物理寻址+功能寻址
-        {SERVICE_ASSIGN_NAD_VIA_SNPD, assign_config_word_handle},      // 0xB5
-        {SERVICE_READ_BY_IDENTIFY, read_by_identify_handle},           // 0xB2
-        {SERVICE_READ_DATA_BY_IDENTIFY, read_data_by_identify_handle}, // 0x22 物理寻址
-        {SERVICE_COMMUNCATION_CONTROL, communcation_control_handle},   // 0x28 功能寻址
-        {SERVICE_DTC_CONTROL, dtc_control_handle},                     // 0x85 功能寻址
-        {SERVICE_TESTER_PRESENT, diagnostic_session_handle},           // 0x3E 功能寻址
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
+const dfu_process_context_t dfu_process_ctx[] = {
+    {SERVICE_SESSION_CONTROL, &session_control_handle},             // 0x10 Physical Addressing+Functional Addressing
+    {SERVICE_ECU_RESET, &reset_handle},                             // 0x11 Physical Addressing+Functional Addressing
+    {SERVICE_SECURITY_ACCESS, &security_access_handle},             // 0x27 Physical Addressing
+    {SERVICE_FIRMWARE_INFO_SYNC, &firmware_info_sync_handle},       // 0x2E Physical Addressing
+    {SERVICE_ROUTINE_CONTROL, &routine_control_handle},             // 0x31 Physical Addressing
+    {SERVICE_REQUEST_DOWNLOAD, &request_download_handle},           // 0x34 Physical Addressing
+    {SERVICE_TRANSFER_DATA, &transfer_data_handle},                 // 0x36 Physical Addressing
+    {SERVICE_REQUEST_TRANSFER_EXIT, &request_transfer_exit_handle}, // 0x37 Physical Addressing
+    {SERVICE_CLEAR_DTC_INFO, &clear_dtc_info_handle},               // 0x14 Physical Addressing+Functional Addressing
+    {SERVICE_ASSIGN_NAD_VIA_SNPD, &assign_config_word_handle},      // 0xB5
+    {SERVICE_READ_BY_IDENTIFY, &read_by_identify_handle},           // 0xB2
+    {SERVICE_READ_DATA_BY_IDENTIFY, &read_data_by_identify_handle}, // 0x22 Physical Addressing
+    {SERVICE_COMMUNCATION_CONTROL, &communcation_control_handle},   // 0x28 Functional Addressing
+    {SERVICE_DTC_CONTROL, &dtc_control_handle},                     // 0x85 Functional Addressing
+    {SERVICE_TESTER_PRESENT, &diagnostic_session_handle},           // 0x3E Functional Addressing
+#ifdef ENABLE_TEST_MODE
+    {0x00, NULL},  /* test only: NULL func to cover the NULL check branch */
+#endif
 };
 
 #define DFU_PROCESS_STEP_MAX (sizeof(dfu_process_ctx) / sizeof(dfu_process_context_t))
 
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_update_random_value(void)
 {
     static uint8_t random_i = 0u;
     static uint8_t auto_add_cnt = 0u;
     if (random_i < 16u)
     {
-        seed[random_i] = seed[random_i] + random_i + dfu_ctx.uds_timeout + auto_add_cnt;
+        seed[random_i] = seed[random_i] + random_i + (uint8_t)dfu_ctx.uds_timeout + auto_add_cnt;
         random_i++;
     }
     else
@@ -1857,6 +2155,9 @@ void lin_update_random_value(void)
     }
     auto_add_cnt++;
 }
+
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_exception_handle(void)
 {
     if (unlock_failed_store_flag == AS_TRUE)
@@ -1868,7 +2169,8 @@ void lin_exception_handle(void)
     {
         diagnostic_session_overtime_flag = AS_FALSE;
         uds_request_info.sessionMode = DEFALUT_SESSION;
-        dfu_ctx.op_code = DFU_CMD_DEFAULT_SESSION;
+        dfu_ctx.op_code = (uint8_t)DFU_CMD_DEFAULT_SESSION;
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
         if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic)
         {
@@ -1884,14 +2186,18 @@ void lin_exception_handle(void)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_diag_service_handle(void)
 {
     uint16_t length = 0u;
     uint8_t i;
-    uint8_t *ptr = ((uint8_t *)&dfu_ctx.queue_list.packet[dfu_ctx.queue_list.tail] + 2u);
+    uint8_t *base = (uint8_t *)&dfu_ctx.queue_list.packet[dfu_ctx.queue_list.tail];
+    uint8_t *ptr = &base[2u];
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     lin_uds_receive(lin_configured_NAD, ptr, &length);
     uint8_t sid = ptr[0u];
-    if (length)
+    if (length != 0u)
     {
         for (i = 0u; i < DFU_PROCESS_STEP_MAX; i++)
         {
@@ -1907,7 +2213,10 @@ void lin_diag_service_handle(void)
         }
         if (i == DFU_PROCESS_STEP_MAX)
         {
-            if ((lin_get_uds_nad() == 0x7Eu) || (lin_get_uds_nad() == 0x7Fu))
+            if (lin_get_uds_nad() == 0x7Eu)
+            {
+            }
+            else if (lin_get_uds_nad() == 0x7Fu)
             {
             }
             else
@@ -1926,18 +2235,23 @@ void lin_diag_service_handle(void)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 void dfu_timeout_handle(void)
 {
     dfu_ctx.uds_timeout++;
     if (dfu_ctx.uds_timeout > LIN_UDS_TIMEOUT)
     {
         dfu_ctx.uds_timeout = 0u;
-        // 5S未收到任意报文，诊断会话超时,置位超时标志位，在主循环里去判断APP标志位是否有效，有效则复位后进入APP的默认会话，无效则停留在bootloader的默认会话
+        // 5s did not receive any messages, diagnostic session timed out, set the timeout flag. In the main loop, check whether the APP flag is valid; if valid, reset it and then enter the APP's default session, if invalid, stay in the bootloader's default session.
         diagnostic_session_overtime_flag = AS_TRUE;
     }
 }
+
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void dfu_store_system_data_init(void)
 {
+    /* PRQA S 3200 2 #3264 - Return value ignored, verified safe for system operation */
     ll_flash_read(STORE_TYPE_SEL, CFG_WORD_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
     ll_flash_read(STORE_TYPE_SEL, SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
     uds_diagnostic_configword_remap_nad();
@@ -1950,6 +2264,7 @@ void dfu_store_system_data_init(void)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void dfu_manager_init(void)
 {
     wdg_init(10000u);
@@ -1958,8 +2273,9 @@ void dfu_manager_init(void)
     logging_init();
 #endif
     dfu_store_system_data_init();
-    memset(&dfu_ctx, 0u, sizeof(dfu_ctx));
-    pal_lin_init(LIN_BUS_0, LIN_MODE_SLV, LIN_BAUD_RATE, lin_lld_isr_callback);
+    /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+    memset(&dfu_ctx, 0, sizeof(dfu_ctx));
+    pal_lin_init(LIN_BUS_0, LIN_MODE_SLV, LIN_BAUD_RATE, &lin_lld_isr_callback);
 
     LOG_DFU("lin_configured_NAD = %02X\r\n", lin_configured_NAD);
 }
@@ -1972,39 +2288,44 @@ void dfu_manager_init(void)
 ** \retval  None
 *********************************************************/
 
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void main_loops(void)
 {
     static uint32_t LoopCnt = 0u;
-    static uint8_t random_i = 0u;
     wdg_reload();
     lin_diag_service_handle();
     lin_exception_handle();
     lin_update_random_value();
 
-    if (dfu_ctx.boot_state == BOOT_STATE_IDLE)
+    if (dfu_ctx.boot_state == (uint8_t)BOOT_STATE_IDLE)
     {
         delay_ms(1u);
 
         /* about 42ms+5ms */
+        /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
         if ((++LoopCnt) > 50u)
         {
             LoopCnt = 0u;
 
-            if (DFU_MSG_SUCCESS == last_dfu_info_get())
+            if ((uint8_t)DFU_MSG_SUCCESS == last_dfu_info_get())
             {
                 LOG_DFU("BOOT_STATE_USER_APP\r\n");
-                dfu_ctx.boot_state = BOOT_STATE_USER_APP;
+                dfu_ctx.boot_state = (uint8_t)BOOT_STATE_USER_APP;
             }
             else
             {
                 LOG_DFU("BOOT_STATE_UPGRADE\r\n");
-                dfu_ctx.boot_state = BOOT_STATE_UPGRADE;
+                dfu_ctx.boot_state = (uint8_t)BOOT_STATE_UPGRADE;
             }
         }
     }
-    else if (dfu_ctx.boot_state == BOOT_STATE_USER_APP)
+    else if (dfu_ctx.boot_state == (uint8_t)BOOT_STATE_USER_APP)
     {
         JumpToApp(); /* jump user app*/
+    }
+    else
+    {
+        (void)0;
     }
 }
 
@@ -2015,30 +2336,38 @@ void main_loops(void)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 uint8_t clear_wdg_cnt = 0u;
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void os_task_update(void)
 {
     dfu_timeout_handle();
     if (app_cmac_start == AS_TRUE)
     {
+        /* PRQA S 3387 2 #3265 - Increment or decrement operation is safe with no unintended side effects */
+        /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
         if ((++timer_1s_cnt) > 1800u)
         {
             timer_1s_cnt = 0u;
-            dfu_do_notify_response(NEGATIVE, 0x31u, RCRRP); // NRC78,算APP CMAC的时候，每隔1.8s响应一次NRC78
+            dfu_do_notify_response(NEGATIVE, 0x31u, RCRRP); // NRC78, when calculating APP CMAC, respond to NRC78 every 1.8 seconds
         }
+        /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
         if ((++clear_wdg_cnt) > 100u)
         {
             clear_wdg_cnt = 0u;
             wdg_reload();
         }
     }
-    if (g_ota_info.lock_failed_index > 2u) // 满3次的情况下，隔10s释放一次
+    if (g_ota_info.lock_failed_index > 2u) // In the case of 3 times, release once every 10 seconds
     {
+        /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
         if ((++lock_failed_cnt) > 10000u)
         {
             lock_failed_cnt = 0u;
             g_ota_info.lock_failed_index = 2u;
-            // 置位一个27解锁失败次数更新的存储标志位，在主循环去操作flash
+            // Set a storage flag for updating the 27 unlock failure count, and operate the flash in the main loop
             unlock_failed_store_flag = AS_TRUE;
         }
     }

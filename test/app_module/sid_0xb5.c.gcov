@@ -1,0 +1,107 @@
+        -:    0:Source:../../app/midware/lin_manager/diag_sid/sid_0xb5.c
+        -:    0:Graph:build/sid_0xb5.gcno
+        -:    0:Data:build/sid_0xb5.gcda
+        -:    0:Runs:16
+        -:    1:/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
+        -:    2:/**
+        -:    3: *****************************************************************************
+        -:    4: * @brief   lin dianosticiii source file.
+        -:    5: *
+        -:    6: * @file    diagnosticiii.c
+        -:    7: * @author  AE/FAE team
+        -:    8: * @date    2024.01.01
+        -:    9: *****************************************************************************
+        -:   10: *
+        -:   11: * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+        -:   12: * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+        -:   13: * TIME. AS A RESULT, TINYCHIP SHALL NOT BE HELD LIABLE FOR ANY
+        -:   14: * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+        -:   15: * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+        -:   16: * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+        -:   17: *
+        -:   18: * <b>&copy; Copyright (c) 2024 Tinychip Microelectronics Co.,Ltd.</b>
+        -:   19: *
+        -:   20: *****************************************************************************
+        -:   21: */
+        -:   22:
+        -:   23:#include "test_config.h"
+        -:   24:#ifdef ENABLE_TEST_MODE
+        -:   25:#include "fff_diagnosticIII.h"
+        -:   26:#else
+        -:   27:/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
+        -:   28:#include "diagnosticIII.h"
+        -:   29:#endif
+        -:   30:
+        -:   31:/* PRQA S 1534 1 #3261 - Unused macro defined for future extension and configuration compatibility */
+        -:   32:#define LOG_DIAG(...)  //do{log_debug("[DIAG_0xB5] " __VA_ARGS__);}while(0)
+        -:   33:
+        -:   34:#if LIN_PROTOCOL == PROTOCOL_J2602
+        -:   35:/********************************************************
+        -:   36:** \brief   lin_diag_target_reset
+        -:   37:** \param   uint8_t*                    ptr
+        -:   38:** \param   uint16_t                    length
+        -:   39:** \retval  None
+        -:   40:*********************************************************/
+        -:   41:void lin_diag_target_reset(uint8_t *ptr, uint16_t length)
+        -:   42:{
+        -:   43:    uint8_t nad;
+        -:   44:    uint16_t byte_offset_temp;
+        -:   45:    uint8_t bit_offset_temp, i;
+        -:   46:
+        -:   47:    /* Set the reset flag within the J2602 Status Byte */
+        -:   48:    /* Set error signal equal to error in response */
+        -:   49:    for (i = 0; i < num_frame_have_esignal; i++)
+        -:   50:    {
+        -:   51:        /* Get pointer to Byte and bit offset values in each frame that contains the error signal */
+        -:   52:        byte_offset_temp = lin_response_error_byte_offset[i];
+        -:   53:        bit_offset_temp = lin_response_error_bit_offset[i];
+        -:   54:        /* Set error signal to 0x01 means "Reset" */
+        -:   55:        lin_pFrameBuf[byte_offset_temp] = (uint8_t)((lin_pFrameBuf[byte_offset_temp] & (~(0x07U << bit_offset_temp))) |
+        -:   56:                                          (0x01U << bit_offset_temp));
+        -:   57:    }
+        -:   58:
+        -:   59:    /* Create positive response */
+        -:   60:
+        -:   61:    /* Get NAD of node */
+        -:   62:    nad = lin_lld_response_buffer[1];
+        -:   63:
+        -:   64:    if (LD_BROADCAST != nad)
+        -:   65:    {
+        -:   66:        lin_diag_positive_notify(ptr[0], NULL, 0);
+        -:   67:    }
+        -:   68:    else
+        -:   69:    {
+        -:   70:        tl_slaveresp_cnt = 0;
+        -:   71:    }
+        -:   72:}
+        -:   73:#else
+        -:   74:/********************************************************
+        -:   75:** \brief   lin_snpd_diag_handle
+        -:   76:**
+        -:   77:** \param   uint8_t*                    ptr
+        -:   78:** \param   uint16_t                    length
+        -:   79:**
+        -:   80:** \retval  None
+        -:   81:*********************************************************/
+        -:   82:/* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+        -:   83:/* PRQA S 1505 3 #3219 - Function used only in the defining translation unit, intentional design */
+        -:   84:/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+        -:   85:/* PRQA S 2071 1 #3269 - Language extension used for compiler and hardware optimization */
+        6:   86:__attribute__((weak))  void lin_snpd_diag_handle(uint8_t *ptr, uint16_t length)
+        -:   87:{
+        -:   88:    (void)ptr;
+        -:   89:    (void)length;
+        6:   90:}
+        -:   91:
+        -:   92:/********************************************************
+        -:   93:** \brief   lin_diag_snpd
+        -:   94:** \param   uint8_t*                    ptr
+        -:   95:** \param   uint16_t                    length
+        -:   96:** \retval  None
+        -:   97:*********************************************************/
+        -:   98:/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+        5:   99:void lin_diag_snpd(uint8_t *ptr, uint16_t length)
+        -:  100:{
+        5:  101:    lin_snpd_diag_handle(ptr, length);
+        5:  102:}
+        -:  103:#endif /* End (LIN_PROTOCOL = = PROTOCOL_J2602) */

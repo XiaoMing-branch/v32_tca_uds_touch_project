@@ -1,0 +1,11 @@
+#include "fff_tcpl03x_ll_sys.h"
+
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_info_get,uint8_t *,uint16_t *);
+DEFINE_FAKE_VOID_FUNC(ll_wakeup_init,wakeup_source_e,wakeup_time_e,wakeup_filter_e);
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_isr_enable,asyscfg_isr_type_e,bool);
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_otp_enable,bool);
+DEFINE_FAKE_VALUE_FUNC(bool,ll_syscfg_otp_status);
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_isr_clear,asyscfg_isr_type_e);
+DEFINE_FAKE_VALUE_FUNC(uint8_t,ll_syscfg_isr_get,asyscfg_isr_type_e);
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_backup_reg_write,sys_backup_zone_e,uint32_t);
+DEFINE_FAKE_VOID_FUNC(ll_syscfg_backup_reg_read,sys_backup_zone_e,uint32_t *);

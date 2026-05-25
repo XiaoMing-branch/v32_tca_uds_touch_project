@@ -1,0 +1,349 @@
+// paulfitz Thu Jun  3 09:39:18 IST 1999
+
+// BEGIN BLOCK prefix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+// Part of a simple implementation of the standard C++ library, as
+// described in ISO/IEC 14882:1998(E)
+
+#ifndef __QAC_INCLUDE_limits__
+#define __QAC_INCLUDE_limits__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+// END BLOCK prefix
+
+
+__QAC_BEGIN_NAMESPACE
+
+template<class T> class numeric_limits;
+
+template<> class numeric_limits<bool>;
+
+template<> class numeric_limits<char>;
+template<> class numeric_limits<signed char>;
+template<> class numeric_limits<unsigned char>;
+template<> class numeric_limits<wchar_t>;
+
+template<> class numeric_limits<short>;
+template<> class numeric_limits<int>;
+template<> class numeric_limits<long>;
+template<> class numeric_limits<unsigned short>;
+template<> class numeric_limits<unsigned int>;
+template<> class numeric_limits<unsigned long>;
+
+template<> class numeric_limits<float>;
+template<> class numeric_limits<double>;
+template<> class numeric_limits<long double>;
+
+enum float_round_style {
+  round_indeterminate       = -1,
+  round_toward_zero         =  0,
+  round_to_nearest          =  1,
+  round_toward_infinity     =  2,
+  round_toward_neg_infinity =  3
+};
+
+// HIT replaced ;;; with ,,space
+enum float_denorm_style {
+  denorm_indeterminate = -1,
+  denorm_absent = 0,
+  denorm_present = 1
+};
+
+
+template<class T> class numeric_limits {
+public:
+  static const bool is_specialized = false;
+  static T min() noexcept;
+  static T max() noexcept;
+
+  static const int  digits = 0;
+  static const int  digits10 = 0;
+  static const int  max_digits10 = 0;
+  static const bool is_signed = false;
+  static const bool is_integer = false;
+  static const bool is_exact = false;
+  static const int  radix = 0;
+  static T epsilon() noexcept;
+  static T round_error() noexcept;
+
+  static const int  min_exponent = 0;
+  static const int  min_exponent10 = 0;
+  static const int  max_exponent = 0;
+  static const int  max_exponent10 = 0;
+
+  static const bool has_infinity = false;
+  static const bool has_quiet_NaN = false;
+  static const bool has_signaling_NaN = false;
+  static const float_denorm_style has_denorm = denorm_absent;
+  static const bool has_denorm_loss = false;
+  static T infinity() noexcept;
+  static T quiet_NaN() noexcept;
+  static T signaling_NaN() noexcept;
+  static T denorm_min() noexcept;
+
+  static const bool is_iec559 = false;
+  static const bool is_bounded = false;
+  static const bool is_modulo = false;
+
+  static const bool traps = false;
+  static const bool tinyness_before = false;
+  static const float_round_style round_style = round_toward_zero;
+};
+
+template<> class numeric_limits<bool>
+{
+public:
+  static const bool is_specialized = true;
+  static bool min() noexcept;
+  static bool max() noexcept;
+
+  static const int  digits = 1;
+  static const int  digits10 = 1;
+  static const bool is_signed = false;
+  static const bool is_integer = true;
+  static const bool is_exact = true;
+  static const int  radix = 2;
+  static bool epsilon() noexcept;
+  static bool round_error() noexcept;
+
+  static const int  min_exponent = 0;
+  static const int  min_exponent10 = 0;
+  static const int  max_exponent = 0;
+  static const int  max_exponent10 = 0;
+
+  static const bool has_infinity = false;
+  static const bool has_quiet_NaN = false;
+  static const bool has_signaling_NaN = false;
+  static const float_denorm_style has_denorm = denorm_absent;
+  static const bool has_denorm_loss = false;
+  static bool infinity() noexcept;
+  static bool quiet_NaN() noexcept;
+  static bool signaling_NaN() noexcept;
+  static bool denorm_min() noexcept;
+
+  static const bool is_iec559 = false;
+  static const bool is_bounded = true;
+  static const bool is_modulo = true;
+
+  static const bool traps = false;
+  static const bool tinyness_before = false;
+  static const float_round_style round_style = round_toward_zero;
+};
+
+template<> class numeric_limits<char> : public numeric_limits<bool>
+{
+public:
+  static char min() noexcept;
+  static char max() noexcept;
+  static const int  digits = 7;
+  static const int  digits10 = 2;
+  static const bool is_signed = true;
+};
+
+template<> class numeric_limits<signed char> : public numeric_limits<char>
+{
+public:
+  static signed char min() noexcept;
+  static signed char max() noexcept;
+  static const bool is_signed = true;
+};
+
+template<> class numeric_limits<unsigned char> : public numeric_limits<char>
+{
+public:
+  static unsigned char min() noexcept;
+  static unsigned char max() noexcept;
+  static const int  digits = 8;
+  static const bool is_signed = false;
+};
+
+template<> class numeric_limits<wchar_t> : public numeric_limits<char>
+{
+public:
+  static wchar_t min() noexcept;
+  static wchar_t max() noexcept;
+};
+
+
+template<> class numeric_limits<short> : public numeric_limits<bool>
+{
+public:
+  static const int  digits = 15;
+  static const int  digits10 = 4;
+  static const bool is_signed = true;
+  static short min() noexcept;
+  static short max() noexcept;
+};
+
+template<> class numeric_limits<int> : public numeric_limits<bool>
+{
+public:
+  static const int  digits = 31;
+  static const int  digits10 = 9;
+  static const bool is_signed = true;
+  static int min() noexcept;
+  static int max() noexcept;
+};
+
+template<> class numeric_limits<long> : public numeric_limits<int>
+{
+public:
+  static const int  digits = 31;
+  static const int  digits10 = 9;
+  static const bool is_signed = true;
+  static long min() noexcept;
+  static long max() noexcept;
+};
+
+#ifndef QAC_NO_LONG_LONG
+template<> class numeric_limits<long long> : public numeric_limits<long>
+{
+public:
+  static const int  digits = 63;
+  static const int  digits10 = 18;
+  static const bool is_signed = true;
+  static long min() noexcept;
+  static long max() noexcept;
+};
+#endif
+
+template<> class numeric_limits<unsigned short> : public numeric_limits<short>
+{
+public:
+  static const int  digits = 16;
+  static const int  digits10 = 4;
+  static const bool is_signed = false;
+  static unsigned short min() noexcept;
+  static unsigned short max() noexcept;
+};
+
+template<> class numeric_limits<unsigned int> : public numeric_limits<int>
+{
+public:
+  static const int  digits = 32;
+  static const int  digits10 = 9;
+  static const bool is_signed = false;
+  static unsigned int min() noexcept;
+  static unsigned int max() noexcept;
+};
+
+template<> class numeric_limits<unsigned long> : public numeric_limits<long>
+{
+public:
+  static const int  digits = 32;
+  static const int  digits10 = 9;
+  static const bool is_signed = false;
+  static unsigned long min() noexcept;
+  static unsigned long max() noexcept;
+};
+
+#ifndef QAC_NO_LONG_LONG
+template<> class numeric_limits<unsigned long long> : public numeric_limits<unsigned long>
+{
+public:
+  static const int  digits = 64;
+  static const int  digits10 = 19;
+  static const bool is_signed = false;
+  static long min() noexcept;
+  static long max() noexcept;
+};
+#endif
+
+
+template<> class numeric_limits<float>
+{
+public:
+  static const bool is_specialized = true;
+  static float min() noexcept;
+  static float max() noexcept;
+
+  static const int  digits = 24;
+  static const int  digits10 = 7;
+  static const int  max_digits10 = 9;
+  static const bool is_signed = true;
+  static const bool is_integer = false;
+  static const bool is_exact = false;
+  static const int  radix = 2;
+  static float epsilon() noexcept;
+  static float round_error() noexcept;
+
+  static const int  min_exponent = -125;
+  static const int  min_exponent10 = -37;
+  static const int  max_exponent = 128;
+  static const int  max_exponent10 = 38;
+
+  static const bool has_infinity = false;
+  static const bool has_quiet_NaN = false;
+  static const bool has_signaling_NaN = false;
+  static const float_denorm_style has_denorm = denorm_absent;
+  static const bool has_denorm_loss = false;
+  static float infinity() noexcept;
+  static float quiet_NaN() noexcept;
+  static float signaling_NaN() noexcept;
+  static float denorm_min() noexcept;
+
+  static const bool is_iec559 = false;
+  static const bool is_bounded = true;
+  static const bool is_modulo = false;
+
+  static const bool traps = false;
+  static const bool tinyness_before = false;
+  static const float_round_style round_style = round_toward_zero;
+};
+
+template<> class numeric_limits<double> : public numeric_limits <float>
+{
+public:
+  static const int  digits = 53;
+  static const int  digits10 = 15;
+  static const int  max_digits10 = 17;
+
+  static const int  min_exponent = -1021;
+  static const int  min_exponent10 = -307;
+  static const int  max_exponent = 1024;
+  static const int  max_exponent10 = 308;
+
+  static double min() noexcept;
+  static double max() noexcept;
+  static double epsilon() noexcept;
+  static double round_error() noexcept;
+  static double infinity() noexcept;
+  static double quiet_NaN() noexcept;
+  static double signaling_NaN() noexcept;
+  static double denorm_min() noexcept;
+};
+
+template<> class numeric_limits<long double> : public numeric_limits <float>
+{
+public:
+  static const int  digits = 64;
+  static const int  digits10 = 19;
+  static const int  max_digits10 = 21;
+
+  static const int  min_exponent = -16381;
+  static const int  min_exponent10 = -4931;
+  static const int  max_exponent = 16384;
+  static const int  max_exponent10 = 4932;
+
+  static long double min() noexcept;
+  static long double max() noexcept;
+  static long double epsilon() noexcept;
+  static long double round_error() noexcept;
+  static long double infinity() noexcept;
+  static long double quiet_NaN() noexcept;
+  static long double signaling_NaN() noexcept;
+  static long double denorm_min() noexcept;
+};
+
+// if want to do specializations, maybe look at libstdc++-v3 mknumeric_limits
+
+
+__QAC_END_NAMESPACE
+
+// BEGIN BLOCK postfix
+// Updated by paul on Tue Jun  8 11:15:38 IST 1999
+#endif // ends __QAC_INCLUDE_limits__
+// END BLOCK postfix
+

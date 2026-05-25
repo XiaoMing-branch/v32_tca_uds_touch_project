@@ -1,0 +1,164 @@
+#ifndef __QAC_INCLUDE_chrono__
+#define __QAC_INCLUDE_chrono__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+#include <ratio>
+#include <ctime>
+
+__QAC_BEGIN_NAMESPACE
+
+namespace chrono
+{
+template <class Rep, class Period = ratio<1>>
+class duration {
+public:
+  typedef Rep    rep;
+  typedef Period period;
+private:
+  rep rep_;  // \expos
+public:
+  // construct/copy/destroy:
+  constexpr duration() = default;
+  template <class Rep2>
+  constexpr explicit duration(const Rep2& r);
+  template <class Rep2, class Period2>
+  constexpr duration(const duration<Rep2, Period2>& d);
+  ~duration() = default;
+  duration(const duration&) = default;
+  duration& operator=(const duration&) = default;
+
+  // observer:
+  constexpr rep count() const;
+
+  // arithmetic:
+  constexpr duration  operator+() const;
+  constexpr duration  operator-() const;
+  duration& operator++();
+  duration  operator++(int);
+  duration& operator--();
+  duration  operator--(int);
+
+  duration& operator+=(const duration& d);
+  duration& operator-=(const duration& d);
+
+  duration& operator*=(const rep& rhs);
+  duration& operator/=(const rep& rhs);
+  duration& operator%=(const rep& rhs);
+  duration& operator%=(const duration& rhs);
+
+  // special values:
+  static constexpr duration zero();
+  static constexpr duration min();
+  static constexpr duration max();
+};
+
+template <typename R, typename P, typename T>
+duration <R, P> operator + (duration <R, P> const &, T const &);
+template <typename R, typename P, typename T>
+duration <R, P> operator - (duration <R, P> const &, T const &);
+template <typename R, typename P, typename T>
+duration <R, P> operator * (duration <R, P> const &, T const &);
+template <typename R, typename P, typename T>
+duration <R, P> operator / (duration <R, P> const &, T const &);
+template <typename R, typename P, typename T>
+duration <R, P> operator % (duration <R, P> const &, T const &);
+
+template <class Clock, class Duration = typename Clock::duration>
+class time_point {
+public:
+  typedef Clock                     clock;
+  typedef Duration                  duration;
+  typedef typename duration::rep    rep;
+  typedef typename duration::period period;
+
+public:
+  // construct:
+  constexpr time_point();  // has value epoch
+  constexpr explicit time_point(const duration& d);  // same as time_point() + d
+
+  template <class Duration2>
+  constexpr time_point(const time_point<clock, Duration2>& t);
+
+  // observer:
+  constexpr duration time_since_epoch() const;
+
+  // arithmetic:
+  time_point& operator+=(const duration& d);
+  time_point& operator-=(const duration& d);
+
+  // special values:
+  static constexpr time_point min();
+  static constexpr time_point max();
+};
+
+  template <typename C, typename D>
+  time_point <C, D> operator + (time_point <C, D> const &, time_point <C, D> const &);
+  template <typename C, typename D>
+  D operator - (time_point <C, D> const &, time_point <C, D> const &);
+
+  // convenience typedefs
+  using nanoseconds = duration<signed long long, nano>;
+  using microseconds = duration<signed long long, micro>;
+  using milliseconds = duration<signed long long, milli>;
+  using seconds = duration<signed long long>;
+  using minutes = duration<signed int, ratio< 60> >;
+  using hours = duration<signed int, ratio<3600> >;
+
+  class system_clock {
+  public:
+    using duration = nanoseconds;
+    using rep = duration::rep;
+    using period = duration::period;
+    using time_point = chrono::time_point<system_clock>;
+    static constexpr bool is_steady = false;
+    static time_point now() noexcept;
+
+    // Map to C API
+    static time_t to_time_t (const time_point& t) noexcept;
+    static time_point from_time_t(time_t t) noexcept;
+  };
+
+  class steady_clock {
+  public:
+    using duration = nanoseconds;
+    using rep = duration::rep;
+    using period = duration::period;
+    using time_point = chrono::time_point<system_clock>;
+    static constexpr bool is_steady = true;
+    static time_point now() noexcept;
+
+    // Map to C API
+    static time_t to_time_t (const time_point& t) noexcept;
+    static time_point from_time_t(time_t t) noexcept;
+  };
+
+  using high_resolution_clock = system_clock;
+}
+
+inline namespace literals {
+inline namespace chrono_literals {
+// 23.17.5.8, suffixes for duration literals
+  constexpr chrono::hours operator""h(unsigned long long);
+  constexpr chrono::duration<signed int, ratio<3600,1>> operator""h(long double);
+  constexpr chrono::minutes operator""min(unsigned long long);
+  constexpr chrono::duration<signed int, ratio<60,1>> operator""min(long double);
+  constexpr chrono::seconds operator""s(unsigned long long);
+  constexpr chrono::duration<signed long long> operator""s(long double);
+  constexpr chrono::milliseconds operator""ms(unsigned long long);
+  constexpr chrono::duration<signed long long, milli> operator""ms(long double);
+  constexpr chrono::microseconds operator""us(unsigned long long);
+  constexpr chrono::duration<signed long long, micro> operator""us(long double);
+  constexpr chrono::nanoseconds operator""ns(unsigned long long);
+  constexpr chrono::duration<signed long long, nano> operator""ns(long double);
+}
+}
+
+namespace chrono
+{
+  using namespace literals::chrono_literals;
+}
+
+__QAC_END_NAMESPACE
+
+#endif

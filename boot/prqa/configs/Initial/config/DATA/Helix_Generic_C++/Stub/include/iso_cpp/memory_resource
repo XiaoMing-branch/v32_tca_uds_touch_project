@@ -1,0 +1,90 @@
+#ifndef __QAC_INCLUDE_memory_resource__
+#define __QAC_INCLUDE_memory_resource__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+#include <utility>
+
+// END BLOCK prefix
+
+__QAC_BEGIN_NAMESPACE
+
+namespace pmr
+{
+  // 23.12.2, class memory_resource
+  class memory_resource;
+
+  bool operator== ( const memory_resource & a, const memory_resource & b ) noexcept;
+  bool operator!= ( const memory_resource & a, const memory_resource & b ) noexcept;
+
+  // 23.12.3, class template polymorphic_allocator
+  template <class Tp> class polymorphic_allocator;
+  template <class T1, class T2>
+  bool operator== ( const polymorphic_allocator<T1> & a, const polymorphic_allocator<T2> & b ) noexcept;
+  template <class T1, class T2>
+  bool operator!= ( const polymorphic_allocator<T1> & a, const polymorphic_allocator<T2> & b ) noexcept;
+
+  // 23.12.4, global memory resources
+  memory_resource * new_delete_resource () noexcept;
+  memory_resource * null_memory_resource () noexcept;
+  memory_resource * set_default_resource ( memory_resource * r ) noexcept;
+  memory_resource * get_default_resource () noexcept;
+
+  // 23.12.5, pool resource classes
+  struct pool_options;
+  class synchronized_pool_resource;
+  class unsynchronized_pool_resource;
+  class monotonic_buffer_resource;
+
+  class memory_resource
+  {
+    static constexpr size_t max_align = alignof ( long double );
+  public:
+    virtual ~memory_resource ();
+    void * allocate ( size_t bytes, size_t alignment = max_align );
+    void deallocate ( void * p, size_t bytes, size_t alignment = max_align );
+
+    bool is_equal ( const memory_resource & other ) const noexcept;
+
+  private:
+    virtual void * do_allocate ( size_t bytes, size_t alignment ) = 0;
+    virtual void do_deallocate ( void * p, size_t bytes, size_t alignment ) = 0;
+    virtual bool do_is_equal ( const memory_resource & other ) const noexcept = 0;
+  };
+
+  template <class Tp>
+  class polymorphic_allocator
+  {
+    memory_resource * memory_rsrc;
+
+  public:
+    using value_type = Tp;
+
+    // 23.12.3.1, constructors
+    polymorphic_allocator () noexcept;
+    polymorphic_allocator ( memory_resource * r );
+    polymorphic_allocator ( const polymorphic_allocator & other ) = default;
+    template <class U> polymorphic_allocator ( const polymorphic_allocator<U> & other ) noexcept;
+    polymorphic_allocator & operator= ( const polymorphic_allocator & rhs ) = delete;
+
+    // 23.12.3.2, member functions
+    Tp * allocate ( size_t n );
+    void deallocate ( Tp * p, size_t n );
+    template <class T, class... Args> void construct ( T * p, Args &&... args );
+    template <class T1, class T2> void construct ( pair<T1, T2> * p );
+    template <class T1, class T2, class U, class V> void construct ( pair<T1, T2> * p, U && x, V && y );
+    template <class T1, class T2, class U, class V>
+    void construct ( pair<T1, T2> * p, const pair<U, V> & pr );
+    template <class T1, class T2, class U, class V> void construct ( pair<T1, T2> * p, pair<U, V> && pr );
+    template <class T> void destroy ( T * p );
+    polymorphic_allocator select_on_container_copy_construction () const;
+    memory_resource * resource () const;
+  };
+}
+
+__QAC_END_NAMESPACE
+
+
+// BEGIN BLOCK postfix
+#endif // ends __QAC_INCLUDE_memory_resource__
+// END BLOCK postfix

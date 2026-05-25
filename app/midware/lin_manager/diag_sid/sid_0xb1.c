@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,7 +20,13 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
+#endif
 
 #if ((LIN_PROTOCOL == PROTOCOL_20) || (LIN_PROTOCOL == PROTOCOL_J2602) || (LIN_PROTOCOL == PROTOCOL_21))
 
@@ -29,21 +36,24 @@
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 void lin_diag_assign_frame_identifier(uint8_t *ptr, uint16_t length)
 {
+    (void)length;
     uint8_t id, pid, i;
     uint16_t supid, messageid;
 
     /* Get supplier and function indentification in request */
-    supid = (uint16_t)(ptr[2] << 8) | ptr[1];
-    messageid = (uint16_t)(ptr[4] << 8) | ptr[3];
+    supid = ((uint16_t)ptr[2] << 8) | ptr[1];
+    messageid = ((uint16_t)ptr[4] << 8) | ptr[3];
 
     pid = ptr[5];
 
-    if (pid == 0x40)    //É¾³ýframeid
+    if (pid == 0x40u)    //Delete frameid
     {
-        i = 1;
-        while (lin_configuration_ROM[i] != 0xFFFF)
+        i = 1u;
+        while (lin_configuration_ROM[i] != 0xFFFFu)
         {
             if (lin_configuration_ROM[i] == messageid)
             {
@@ -61,7 +71,7 @@ void lin_diag_assign_frame_identifier(uint8_t *ptr, uint16_t length)
 
     /* Check if id is already assign for the other frame */
     i = 1;
-    while (lin_configuration_ROM[i] != 0xFFFF)
+    while (lin_configuration_ROM[i] != 0xFFFFu)
     {
         if ((id == lin_configuration_RAM[i]) && (lin_configuration_ROM[i] != messageid))
         {
@@ -73,25 +83,25 @@ void lin_diag_assign_frame_identifier(uint8_t *ptr, uint16_t length)
     }
 
     /* Check Supplier ID and Function ID */
-    if (((supid != product_id.supplier_id) && (supid != LD_ANY_SUPPLIER)) || (id == 0xFF))
+    if (((supid != product_id.supplier_id) && (supid != (uint16_t)LD_ANY_SUPPLIER)) || (id == 0xFFu))
     {
         tl_slaveresp_cnt = 0;
 #if (_TL_FRAME_SUPPORT_ == _TL_MULTI_FRAME_)
         tl_service_status = LD_SERVICE_IDLE;
-#endif /* End (_TL_FRAME_SUPPORT_ == _TL_MULTI_FRAME_) */
+#endif /* End (_TL_FRAME_SUPPORT_ = = _TL_MULTI_FRAME_) */
         return;
     }
 
     /* Check if exist message id */
     i = 1;
-    while (lin_configuration_ROM[i] != 0xFFFF)
+    while (lin_configuration_ROM[i] != 0xFFFFu)
     {
         if (lin_configuration_ROM[i] == messageid)
         {
             lin_configuration_RAM[i] = id;
             /* Send positive response */
             lin_diag_positive_notify(ptr[0], NULL, 0);
-            if (id == 0x00)
+            if (id == 0x00u)
             {
                 lin_pFrameBuf[8] = 0xaa;
                 lin_pFrameBuf[9] = 0xbb;

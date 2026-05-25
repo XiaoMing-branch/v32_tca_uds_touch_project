@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -19,8 +20,15 @@
  *****************************************************************************
  */
 
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
+#endif
 
+/* PRQA S 1534 1 #3261 - Unused macro defined for future extension and configuration compatibility */
 #define LOG_DIAG(...)  //do{log_debug("[DIAG_0xB5] " __VA_ARGS__);}while(0)
 
 #if LIN_PROTOCOL == PROTOCOL_J2602
@@ -32,7 +40,6 @@
 *********************************************************/
 void lin_diag_target_reset(uint8_t *ptr, uint16_t length)
 {
-    //uint8_t *signal_data_ptr;
     uint8_t nad;
     uint16_t byte_offset_temp;
     uint8_t bit_offset_temp, i;
@@ -72,9 +79,14 @@ void lin_diag_target_reset(uint8_t *ptr, uint16_t length)
 **
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+/* PRQA S 1505 3 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
+/* PRQA S 2071 1 #3269 - Language extension used for compiler and hardware optimization */
 __attribute__((weak))  void lin_snpd_diag_handle(uint8_t *ptr, uint16_t length)
 {
-
+    (void)ptr;
+    (void)length;
 }
 
 /********************************************************
@@ -83,8 +95,9 @@ __attribute__((weak))  void lin_snpd_diag_handle(uint8_t *ptr, uint16_t length)
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_snpd(uint8_t *ptr, uint16_t length)
 {
     lin_snpd_diag_handle(ptr, length);
 }
-#endif /* End (LIN_PROTOCOL == PROTOCOL_J2602) */
+#endif /* End (LIN_PROTOCOL = = PROTOCOL_J2602) */

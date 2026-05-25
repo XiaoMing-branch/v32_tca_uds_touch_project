@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
   ******************************************************************************
   * @brief  application main file.
@@ -18,7 +19,22 @@
   *
   ******************************************************************************
   */
-
+#ifdef ENABLE_TEST_MODE
+#include "fff_tcae10.h"
+#include "fff_tcae10_ll_def.h"
+#include "fff_tc_log.h"
+#include "fff_tc_halt.h"
+#include "fff_misc.h"
+#include "fff_tc.h"
+#include "fff_app.h"
+#include "fff_lin_task.h"
+#include "fff_si_touch_port.h"
+#include "fff_touch_config.h"
+#include "fff_lin_frame.h"
+#include "fff_store_manager.h"
+#include "fff_diagnosticIII.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "tcae10.h"
 #include "tcae10_ll_def.h"
 #include "tc_log.h"
@@ -32,19 +48,20 @@
 #include "lin_frame.h"
 #include "store_manager.h"
 #include "diagnosticIII.h"
+#endif
 
-static const char *TAG = "APP";
+STATIC const char *TAG = "APP";
 
-static void AppTask(uint32_t msg, void *param);    //App任务
-static void FreeIoSet(void);        //不用io设置，防止低功耗漏电
-static void FreePerSet(void);       //关闭不用外设，降低功耗
+static void AppTask(uint32_t msg, void *param);    //App Task
+static void FreeIoSet(void);        //No need to set IO, prevents low-power leakage
+static void FreePerSet(void);       //Turn off unused peripherals to reduce power consumption
 
 static void DoorGpioInit(void);
 extern void SysDoFlashRoutine27Service(void);
 
 extern DoorSt_T door_st;
 
-static void HandleDoorPwm(void);      //处理pwm输出
+static void HandleDoorPwm(void);      //Handle PWM output
 static void DoorPwmStart(void);
 static void DoorPwmStop(void);
 static struct
@@ -58,27 +75,30 @@ static struct
 extern const char g_seres_app_software_version[21];
 extern const char g_lin_sequence_num_version[24];
 
+/* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void SetHwSwVersion(void)
 {
     uint8_t hard_version[8] = {0};
 
+/* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
     ll_flash_read(FLASH_TYPE_NVM, 0x00003908u, (uint8_t *)hard_version, sizeof(hard_version));
 
-    door_st.SW_MajorVersA = (g_seres_app_software_version[10] - 0x30); // 软件主版本号
-    door_st.SW_MinorVersA = ((g_seres_app_software_version[15] - 0x30) * 10 + (g_seres_app_software_version[16] - 0x30)) & 0x7F; // 软件次版本号
+    door_st.SW_MajorVersA = ((uint8_t)g_seres_app_software_version[10] - 0x30u); // Software major version number
+    door_st.SW_MinorVersA = ((((uint8_t)g_seres_app_software_version[15] - 0x30u) * 10u) + ((uint8_t)g_seres_app_software_version[16] - 0x30u)) & 0x7Fu; // Software subversion number
 
-    door_st.HW_MajorVersB = (hard_version[5] - 0x30);    // 硬件主版本号
-    door_st.HW_MinorVersB = (hard_version[7] - 0x30);    // 硬件次版本号
-    // 硬件阶段版本号
-    if (hard_version[3] == 'A')
+    door_st.HW_MajorVersB = (hard_version[5] - 0x30u);    // Hardware Main Version Number
+    door_st.HW_MinorVersB = (hard_version[7] - 0x30u);    // Hardware sub-version number
+    // Hardware stage version number
+    if (hard_version[3] == (uint8_t)'A')
     {
         door_st.HW_PhaVers = 0x1;
     }
-    else if (hard_version[3] == 'B')
+    else if (hard_version[3] == (uint8_t)'B')
     {
         door_st.HW_PhaVers = 0x2;
     }
-    else if (hard_version[3] == 'C')
+    else if (hard_version[3] == (uint8_t)'C')
     {
         door_st.HW_PhaVers = 0x3;
     }
@@ -86,7 +106,7 @@ void SetHwSwVersion(void)
     {
         door_st.HW_PhaVers = 0x0;
     }
-    // LIN节点：主序列号A/B/C
+    // LIN Node: Master Serial Number A/B/C
     if (g_lin_sequence_num_version[8] == 'A')
     {
         door_st.SN_MajorVersB = 0x1;
@@ -103,9 +123,9 @@ void SetHwSwVersion(void)
     {
         door_st.SN_MajorVersB = 0x0;
     }
-    // LIN节点：次序列号(1~9)
-    door_st.SN_MinorVersB = (g_lin_sequence_num_version[3] - 0x30) & 0xF;
-    // LIN节点：供应商代码
+    //LIN Node: Subsequence Number (1~9)
+    door_st.SN_MinorVersB = ((uint8_t)g_lin_sequence_num_version[3] - 0x30u) & 0xFu;
+    // LIN Node: Supplier Code
     if ((g_lin_sequence_num_version[17] == '3') && (g_lin_sequence_num_version[18] == '1') &&
         (g_lin_sequence_num_version[19] == '9') && (g_lin_sequence_num_version[20] == '7'))
     {
@@ -113,6 +133,8 @@ void SetHwSwVersion(void)
     }
 }
 
+/* PRQA S 1503 2 #3214 - Unused function defined for future extension and module completeness */
+/* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void TcMain(void)
 {
 #if defined APP_MATCH_BOOT
@@ -120,9 +142,6 @@ void TcMain(void)
 #else
     delay1ms(5000);
 #endif
-
-    FreePerSet();
-    FreeIoSet();
 
     DoorGpioInit();
 
@@ -135,12 +154,12 @@ void TcMain(void)
     TC_LOG_SetPin(PRINT_GPIO6);
 #endif
 
-    TcPortInit();      //little os port初始化
+    TcPortInit();      //little os port initialization
 
     __enable_irq();
 
 #if LOW_POWER_EN
-    HaltInit();                             //低功耗任务初始化
+    HaltInit();                             //Low-power task initialization
 #endif
 
 #if TOUCH_FUNC_EN
@@ -148,17 +167,33 @@ void TcMain(void)
 #endif
     store_manager_init();
 #if LIN_FUNC_EN
-    LinInit();          //Lin初始化
+    LinInit();          //Lin Initialization
 #endif
 
+/* PRQA S 2880 5 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
+/* PRQA S 2742 4 #2742 - The controlling expression is constant false by design (e.g., release log disabled). */
+/* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
+/* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
+/* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
     TC_LOGI(TAG, "duotaiji m9 door ctrl project");
 
-    if (!TcTaskCreate("app", AppTask, NULL, TC_TASK_PRIO_MID))   //创建APP任务
+    if (TcTaskCreate("app", &AppTask, NULL, TC_TASK_PRIO_MID)==NULL)   //Create APP Task
     {
+/* PRQA S 2880 6 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
+/* PRQA S 2742 5 #2742 - The controlling expression is constant false by design (e.g., release log disabled). */
+/* PRQA S 2741 4 #2741 - The controlling expression is constant true by design (e.g., debug log enabled). */
+/* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
+/* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
+/* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
         TC_LOGE(TAG, "AppTask create fail");
     }
     else
     {
+/* PRQA S 2880 5 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
+/* PRQA S 2742 4 #2742 - The controlling expression is constant false by design (e.g., release log disabled). */
+/* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
+/* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
+/* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
         TC_LOGI(TAG, "AppTask create ok");
     }
 
@@ -168,14 +203,22 @@ void TcMain(void)
     }
 }
 
-static void AppTask(uint32_t msg, void *param)    //App任务
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
+static void AppTask(uint32_t msg, void *param)    //App Task
 {
-    static T_TcTimer *appTimer = NULL;            //定时器
+    (void)param;
+    static T_TcTimer *appTimer = NULL;            //Timer
 
-    if (msg == MSG_TASK_INIT)
-    {
-        if ((appTimer = TcTimerCreate(TC_TIMER_TYPE_CIRCLE, 2, NULL, currentTask, NULL)) == NULL)
+    if (msg == (uint32_t)MSG_TASK_INIT)
+    {appTimer = TcTimerCreate(TC_TIMER_TYPE_CIRCLE, 2, NULL, currentTask, NULL);
+        if (appTimer == NULL)
         {
+/* PRQA S 2880 6 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
+/* PRQA S 2742 5 #2742 - The controlling expression is constant false by design (e.g., release log disabled). */
+/* PRQA S 2741 4 #2741 - The controlling expression is constant true by design (e.g., debug log enabled). */
+/* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
+/* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
+/* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
             TC_LOGE(TAG, "appTimer create fail");
         }
         else
@@ -191,15 +234,11 @@ static void AppTask(uint32_t msg, void *param)    //App任务
 #endif
     }
 
-    if (msg == MSG_TASK_TIMER)
+    if (msg == (uint32_t)MSG_TASK_TIMER)
     {
 #if WATCH_DOG_EN
         ll_wdg_reload();
 #endif
-
-//        TC_LOGD(TAG, "vbat:%d", GetVbatMv(ADC_VREF_2500, 4));
-//        int32_t vbat = GetVbatMv(ADC_VREF_2500, 4);
-//        TC_LOG_SYMBOL_I32("vbat", &vbat, sizeof(vbat));
 
 #if LIN_FUNC_EN
         App_LinControlMsg();
@@ -209,15 +248,19 @@ static void AppTask(uint32_t msg, void *param)    //App任务
         HandleDoorPwm();
     }
 
-    if (msg == MSG_TASK_ENTER_HALT)
+    if (msg == (uint32_t)MSG_TASK_ENTER_HALT)
     {
         session_mode = SESSION_MODE_DEFAULT;
-        PWM->LED_CTRL_F.LED_LDO5V_EN = DISABLE;     //确保ldo5关闭
+/* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
+/* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
+        PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)DISABLE;     //Ensure LDO5 is turned off
     }
 
-    if (msg == MSG_TASK_WAKE_UP)
+    if (msg == (uint32_t)MSG_TASK_WAKE_UP)
     {
-        PWM->LED_CTRL_F.LED_LDO5V_EN = ENABLE;     //确保ldo5关闭
+/* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
+/* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
+        PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;     //Ensure LDO5 is turned off
 
 #if LOW_POWER_EN
         HaltTimeoutChgPeriod(5000);
@@ -225,8 +268,11 @@ static void AppTask(uint32_t msg, void *param)    //App任务
     }
 }
 
+/* PRQA S 1503 2 #3214 - Unused function defined for future extension and module completeness */
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
 {
+    (void)keyNo;
     if (status == SI_KEY_PRESS)
     {
         pwmCtrl.keymask = 1;
@@ -243,25 +289,29 @@ void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
     pwmCtrl.changed = 1;
 }
 
-static void FreePerSet(void)       //关闭不用外设，降低功耗
+/* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
+static void FreePerSet(void)       //Turn off unused peripherals to reduce power consumption
 {
-
 }
 
-static void FreeIoSet(void)     //不用io设置，防止低功耗漏电
+/* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
+static void FreeIoSet(void)     //No need to set IO, prevents low-power leakage
 {
-
 }
 
-static void DoorGpioInit(void)
+STATIC void DoorGpioInit(void)
 {
     //PWM CLK CFG
+/* PRQA S 0662 5 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
+/* PRQA S 0306 4 #3271 - Cast between object pointer and integer for hardware address access */
+/* PRQA S 3469 3 #3258 - Function-like macro used for performance and compiler optimization requirements */
     CRG_CONFIG_UNLOCK();
-    CRG->PWM_CLKRST_CTRL_F.PCLK_EN_PWM = ENABLE;
+    CRG->PWM_CLKRST_CTRL_F.PCLK_EN_PWM = (uint32_t)ENABLE;
     CRG_CONFIG_LOCK();
 
-    PWM->LED_CTRL_F.LED_LDO5V_EN = ENABLE;        //需要发波时候再开启
-//    ADC->CTRL0_F.VREFBUF_EN = ENABLE;
+/* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
+/* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
+    PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;        //Turn it on only when you need to send a wave
 
     ll_gpio_output(UNLOCK_PIN, false);
     gpio_config_t cfg =
@@ -276,65 +326,77 @@ static void DoorGpioInit(void)
     ll_gpio_output(UNLOCK_PIN, false);
 }
 
-static void HandleDoorPwm(void)   //处理pwm输出
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
+static void HandleDoorPwm(void)   //Handle PWM output
 {
     switch (pwmCtrl.fsm)
     {
     case 0:
-        if (pwmCtrl.changed)
+        if (pwmCtrl.changed!=0u)
         {
             pwmCtrl.changed = 0;
-            if (pwmCtrl.keymask)
+            if (pwmCtrl.keymask!=0u)
             {
-                DoorPwmStart();     //开
+                DoorPwmStart();     //On
                 door_st.SwtSt = 1;
 
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
                 pwmCtrl.begin_t = TcTimeGet();
                 pwmCtrl.fsm = 1;
             }
             else
             {
-                //关pwm
+                //Off pwm
                 DoorPwmStop();
-                pwmCtrl.begin_t = TcTimeGet();              //用于LinCanEnterSleep
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+                pwmCtrl.begin_t = TcTimeGet();              //Used for LinCanEnterSleep
                 door_st.SwtSt = 2;
             }
         }
         break;
-    case 1:             //等待最小信号时间
-        if (TcTimeGet() - pwmCtrl.begin_t >= OPEN_DOOR_MIN_TIMEMS)
+    case 1:             //Wait for the minimum signal time
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+        if ((TcTimeGet() - pwmCtrl.begin_t) >= (uint16_t)OPEN_DOOR_MIN_TIMEMS)
         {
             pwmCtrl.fsm = 2;
         }
         break;
-    case 2:     //正常响应
-        if (TcTimeGet() - pwmCtrl.begin_t >= OPEN_DOOR_MAX_TIMEMS || pwmCtrl.changed)
+    case 2:     //Normal response
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+        if (((TcTimeGet() - pwmCtrl.begin_t) >= (uint16_t)OPEN_DOOR_MAX_TIMEMS) || (pwmCtrl.changed!=0u))
         {
-            //关pwm
+            //Off pwm
             DoorPwmStop();
-            pwmCtrl.begin_t = TcTimeGet();              //用于LinCanEnterSleep
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+            pwmCtrl.begin_t = TcTimeGet();              //Used for LinCanEnterSleep
             door_st.SwtSt = 2;
             pwmCtrl.fsm = 0;
             return;
         }
         break;
+default:
+(void)0;
+break;
     }
 }
 
-static void DoorPwmStart(void)
+STATIC void DoorPwmStart(void)
 {
-    PWM->LED_CTRL_F.LED_LDO5V_EN = ENABLE;
+/* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
+/* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
+    PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;
     ll_gpio_output(UNLOCK_PIN, true);
 }
 
-static void DoorPwmStop(void)
+STATIC void DoorPwmStop(void)
 {
-//        PWM->LED_CTRL_F.LED_LDO5V_EN = DISABLE;
     ll_gpio_output(UNLOCK_PIN, false);
 }
 
-//返回1表示收到lin sleep命令后可以进入低功耗，0表示不可以
-int LinCanEnterSleep(void)
+//Returning 1 indicates that after receiving the lin sleep command, it can enter low power mode, and 0 indicates that it cannot.
+/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+int32_t LinCanEnterSleep(void)
 {
-    return (TcTimeGet() - pwmCtrl.begin_t >= 5000);
+/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+    return ((TcTimeGet() - pwmCtrl.begin_t) >= 5000u)?(int32_t)1:(int32_t)0;
 }

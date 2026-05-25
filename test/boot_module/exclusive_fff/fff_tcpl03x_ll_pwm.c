@@ -1,0 +1,23 @@
+#include "fff_tcpl03x_ll_pwm.h"
+
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_isr_flag_enable,ll_pwm_bus_e,uint32_t,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_isr_enable,ll_pwm_bus_e,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_isr_clear,ll_pwm_bus_e,uint32_t);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_isr_flag_get,ll_pwm_bus_e,uint32_t *);
+DEFINE_FAKE_VOID_FUNC(ll_pwm_enable,pwm_hvio_mode_e,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_channel_threshold_config,pwm_channel_e,uint16_t,uint16_t);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_channel_period_config,pwm_channel_e,uint16_t);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_high_threshold_get,pwm_channel_e,uint16_t *);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_channel_counter_get,pwm_channel_e,uint16_t *);
+DEFINE_FAKE_VOID_FUNC(ll_pwm_break_set,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_status_get,pwm_channel_e,uint8_t *);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_driver_current_config,pwm_channel_e,led_driver_current_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_driver_current_get,pwm_channel_e,led_driver_current_e *);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_diag_current_config,pwm_channel_e,led_diag_current_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_diagnose_enable,pwm_channel_e,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_exchannel_enable,ll_pwm_bus_e,bool);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_exchannel_init,ll_pwm_bus_e,uint16_t,pwm_polarity_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_switch_init,ll_pwm_bus_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_led_fall_rise_time_set,pwm_channel_e,led_rise_sr_time_e,led_fall_sr_time_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_deinit,ll_pwm_bus_e);
+DEFINE_FAKE_VALUE_FUNC(ll_status_e,ll_pwm_init,ll_pwm_bus_e,pwm_config_t *,ISR_FUNC_CALLBACK);

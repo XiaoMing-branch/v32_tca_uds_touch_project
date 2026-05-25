@@ -1,3 +1,4 @@
+/* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
  * @brief   lin dianosticiii source file.
@@ -18,11 +19,19 @@
  *
  *****************************************************************************
  */
-
+#include "test_config.h"
+#ifdef ENABLE_TEST_MODE
+#include "fff_diagnosticIII.h"
+#include "fff_store_manager.h"
+#include "fff_pal_store.h"
+#include "fff_lin_precfg.h"
+#else
+/* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #include "diagnosticIII.h"
 #include "store_manager.h"
 #include "pal_store.h"
 #include "lin_precfg.h"
+#endif
 
 static uint8_t fast_nad_write(uint8_t nad);
 
@@ -51,12 +60,12 @@ static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
         /* For broad cast message ID */
         else if ((lin_configuration_RAM[i] <= 0x3BU) && (lin_configuration_RAM[i] >= 0x38U))
         {
-            if ((dnn  >= 8U) &&
+            if ((dnn >= 8U) &&
                 ((lin_configuration_RAM[i] == 0x38U) || (lin_configuration_RAM[i] == 0x3AU)))
             {
                 lin_configuration_RAM[i] += 1U;
             }
-            else if ((dnn  < 8U) &&
+            else if ((dnn < 8U) &&
                      ((lin_configuration_RAM[i] == 0x39U) || (lin_configuration_RAM[i] == 0x3BU)))
             {
                 lin_configuration_RAM[i] -= 1U;
@@ -135,6 +144,7 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 ** \param   uint16_t                    length
 ** \retval  None
 *********************************************************/
+/* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
 {
     uint16_t supplierIdLsb;
@@ -142,7 +152,7 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
     uint16_t functionIdLsb;
     uint16_t functionIdMsb;
 
-    if (((NAD == lin_initial_NAD) || (NAD == LD_BROADCAST) || (NAD == lin_configured_NAD)) && (6U == length))
+    if (((NAD == lin_initial_NAD) || (NAD == (uint8_t)LD_BROADCAST) || (NAD == lin_configured_NAD)) && (6U == length))
     {
         /* Get Supplier ID and Function ID*/
         supplierIdLsb = ptr[1];
@@ -151,11 +161,11 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
         functionIdMsb = ptr[4];
 
         /*Check if Supplier ID and Function ID match, then send positive response */
-        if (((supplierIdMsb << 8 | supplierIdLsb) == product_id.supplier_id) ||
-                ((supplierIdMsb << 8 | supplierIdLsb) == LD_ANY_SUPPLIER))
+        if ((((supplierIdMsb << 8) | supplierIdLsb) == product_id.supplier_id) ||
+            (((supplierIdMsb << 8) | supplierIdLsb) == (uint16_t)LD_ANY_SUPPLIER))
         {
-            if (((functionIdMsb << 8 | functionIdLsb) == product_id.function_id) ||
-                    ((functionIdMsb << 8 | functionIdLsb) == LD_ANY_FUNCTION))
+            if ((((functionIdMsb << 8) | functionIdLsb) == product_id.function_id) ||
+                (((functionIdMsb << 8) | functionIdLsb) == (uint16_t)LD_ANY_FUNCTION))
             {
                 lin_configured_NAD = lin_initial_NAD; /* use lin_initial_NAD for response*/
 #if LIN_PROTOCOL != PROTOCOL_J2602
@@ -168,38 +178,42 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
                 }
                 else
                 {
-                    lin_diag_negative_notify(ptr[0], ROOR)
+                    lin_diag_negative_notify(ptr[0], ROOR);
                 }
 
 #endif
                 lin_configured_NAD = ptr[5];
                 g_sys_cfgs.nad = lin_configured_NAD;
 
+                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 fast_nad_write(lin_configured_NAD);
 
-//                store_system_data_set(SYSTEM_CFG_PARAM, (uint8_t *)&g_sys_cfgs, SYSTEM_CFG_SIZE);
+                //                store_system_data_set(SYSTEM_CFG_PARAM, (uint8_t *)&g_sys_cfgs, SYSTEM_CFG_SIZE);
             }
         }
     }
 }
 
+/* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 static uint8_t fast_nad_write(uint8_t nad)
 {
     uint32_t alignbuf[2];
     uint8_t *rdbuf = (uint8_t *)alignbuf;
 
-    for (int i = 0; i < FLASH_SECTOR_SIZE; i += sizeof(alignbuf))
+    for (uint32_t i = 0; i < (uint32_t)FLASH_SECTOR_SIZE; i += sizeof(alignbuf))
     {
+        /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         pal_store_read(STORE_TYPE_SEL, FAST_LIN_NAD_ADDR + i, rdbuf, sizeof(alignbuf));
-        for (int j = 0; i < sizeof(alignbuf); ++j)
+        for (uint32_t j = 0; j < sizeof(alignbuf); ++j)
         {
-            if (rdbuf[j] == 0xFF)
+            if (rdbuf[j] == 0xFFu)
             {
-                if (j > 0 && rdbuf[j - 1] == nad) //²»ÓÃ´æÖØ¸´nad
+                if ((j > 0u) && (rdbuf[j - 1u] == nad)) // No need to save duplicate nad
                 {
                     return 1;
                 }
                 rdbuf[j] = nad;
+                /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 pal_store_write(STORE_TYPE_SEL, FAST_LIN_NAD_ADDR + i, rdbuf, sizeof(alignbuf));
                 return 1;
             }

@@ -1,0 +1,170 @@
+/* "cmath"
+ * Modified from math.h (original module comments below)
+ * paulfitz, Tue Jun  8 11:15:26 IST 1999
+ */
+
+#ifndef __QAC_INCLUDE_cmath__
+#define __QAC_INCLUDE_cmath__
+
+
+// Include the original C code
+#include <math.h>
+
+// BEGIN BLOCK cprefix
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+#include <type_traits>
+
+// Deal with entities required by spec to be std namespace
+__QAC_BEGIN_NAMESPACE
+// END BLOCK cprefix
+
+	using ::acos;
+
+	using ::asin;
+	using ::atan;
+	using ::atan2;
+	using ::ceil;
+	using ::cos;
+	using ::cosh;
+	using ::exp;
+	using ::fabs;
+	using ::floor;
+	using ::fmod;
+	using ::frexp;
+	using ::ldexp;
+	using ::log;
+	using ::log10;
+	using ::modf;
+	using ::pow;
+	using ::sin;
+	using ::sinh;
+	using ::sqrt;
+	using ::tan;
+	using ::tanh;
+
+// additional signatures (26.4.4/6):
+
+// float signatures
+  float abs (float);
+  float acos(float);
+  float asin(float);
+  float atan(float);
+  float atan2(float, float);
+  float cos(float);
+  float sin(float);
+  float tan(float);
+  float cosh(float);
+  float sinh(float);
+  float tanh(float);
+  float exp(float);
+  float frexp(float, int *);
+  float ldexp(float, int);
+  float log(float);
+  float log10(float);
+  float modf(float, float *);
+  float pow(float, float);
+  float pow(float, int);
+  float sqrt(float);
+  float ceil(float);
+  float fabs(float);
+  float floor(float);
+  float fmod(float, float);
+
+// (long) double of abs
+  double abs (double);
+  double pow (double, int);
+
+// long double versions
+  long double abs (long double);
+  long double acos(long double);
+  long double asin(long double);
+  long double atan(long double);
+  long double atan2(long double, long double);
+  long double cos(long double);
+  long double sin(long double);
+  long double tan(long double);
+  long double cosh(long double);
+  long double sinh(long double);
+  long double tanh(long double);
+  long double exp(long double);
+  long double frexp(long double, int *);
+  long double ldexp(long double, int);
+  long double log(long double);
+  long double log10(long double);
+  long double modf(long double, long double *);
+  long double pow(long double, long double);
+  long double pow(long double, int);
+  long double sqrt(long double);
+  long double ceil(long double);
+  long double fabs(long double);
+  long double floor(long double);
+  long double fmod(long double, long double);
+
+// additional overloads for integral types
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type abs (T x)
+  { return abs(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type acos(T x)
+  { return acos(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type asin(T x)
+  { return asin(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type atan(T x)
+  { return atan(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type cos(T x)
+  { return cos(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type sin(T x)
+  { return sin(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type tan(T x)
+  { return tan(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type cosh(T x)
+  { return cosh(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type sinh(T x)
+  { return sinh(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type tanh(T x)
+  { return tanh(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type exp(T x)
+  { return exp(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type frexp(T x, int *y)
+  { return frexp(static_cast<double>(x), y); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type ldexp(T x, int y)
+  { return ldexp(static_cast<double>(x), y); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type log(T x)
+  { return log(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type log10(T x)
+  { return log10(static_cast<double>(x)); }
+  template<typename T, typename U>
+  typename enable_if<is_integral<T>::value, double>::type pow(T x, U y)
+  { return pow(static_cast<double>(x), static_cast<double>(y)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type sqrt(T x)
+  { return sqrt(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type ceil(T x)
+  { return ceil(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type fabs(T x)
+  { return fabs(static_cast<double>(x)); }
+  template<typename T>
+  typename enable_if<is_integral<T>::value, double>::type floor(T x)
+  { return floor(static_cast<double>(x)); }
+
+// BEGIN BLOCK cpostfix
+__QAC_END_NAMESPACE
+// END BLOCK cpostfix
+
+#endif // __QAC_INCLUDE_cmath__

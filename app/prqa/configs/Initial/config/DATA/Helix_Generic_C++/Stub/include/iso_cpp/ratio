@@ -1,0 +1,45 @@
+#ifndef __QAC_INCLUDE_ratio__
+#define __QAC_INCLUDE_ratio__
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+#include <cstdint>
+
+__QAC_BEGIN_NAMESPACE
+
+// 20.11.3, class template ratio
+template <intmax_t N, intmax_t D = 1>
+class ratio {
+public:
+  static constexpr intmax_t num;
+  static constexpr intmax_t den;
+  typedef ratio<N, D> type;
+};
+
+
+// 23.16.6, convenience SI typedefs
+// using yocto = ratio<1, 1'000'000'000'000'000'000'000'000>;
+// using zepto = ratio<1, 1'000'000'000'000'000'000'000>;
+using atto = ratio<1, 1'000'000'000'000'000'000>;
+using femto = ratio<1, 1'000'000'000'000'000>;
+using pico = ratio<1, 1'000'000'000'000>;
+using nano = ratio<1, 1'000'000'000>;
+using micro = ratio<1, 1'000'000>;
+using milli = ratio<1, 1'000>;
+using centi = ratio<1, 100>;
+using deci = ratio<1, 10>;
+using deca = ratio< 10, 1>;
+using hecto = ratio< 100, 1>;
+using kilo = ratio< 1'000, 1>;
+using mega = ratio< 1'000'000, 1>;
+using giga = ratio< 1'000'000'000, 1>;
+using tera = ratio< 1'000'000'000'000, 1>;
+using peta = ratio< 1'000'000'000'000'000, 1>;
+using exa = ratio< 1'000'000'000'000'000'000, 1>;
+// using zetta = ratio< 1'000'000'000'000'000'000'000, 1>;
+// using yotta = ratio<1'000'000'000'000'000'000'000'000, 1>;
+
+__QAC_END_NAMESPACE
+
+#endif

@@ -1,0 +1,93 @@
+#ifndef _QAC_INCLUDE_condition_variable
+#define _QAC_INCLUDE_condition_variable
+
+// Some flags to control how closely the standard is followed
+#include <qac_config.h>
+
+#include <chrono>
+#include <mutex>
+
+__QAC_BEGIN_NAMESPACE
+
+/// cv_status
+enum class cv_status { no_timeout, timeout };
+
+/// condition_variable
+class condition_variable
+{
+public:
+
+  condition_variable() noexcept;
+  ~condition_variable() noexcept;
+
+  condition_variable(const condition_variable&) = delete;
+  condition_variable& operator=(const condition_variable&) = delete;
+
+  void notify_one() noexcept;
+  void notify_all() noexcept;
+
+  void wait(unique_lock<mutex>&);
+
+  template<typename Predicate>
+  void wait(unique_lock<mutex>&, Predicate);
+
+  template <class Clock, class Duration>
+  cv_status wait_until (unique_lock<mutex>&,
+      const chrono::time_point<Clock,Duration>&);
+
+  template <class Clock, class Duration, class Predicate>
+  bool wait_until (unique_lock<mutex>&,
+      const chrono::time_point<Clock,Duration>&,
+      Predicate pred);
+
+  template <class Rep, class Period>
+  cv_status wait_for (unique_lock<mutex>&,
+      const chrono::duration<Rep,Period>&);
+
+  template <class Rep, class Period, class Predicate>
+  bool wait_for (unique_lock<mutex>&,
+      const chrono::duration<Rep,Period>&, Predicate);
+};
+
+/// condition_variable_any
+// Like above, but mutex is not required to have try_lock.
+class condition_variable_any
+{
+public:
+  condition_variable_any();
+  ~condition_variable_any() = default;
+
+  condition_variable_any(const condition_variable_any&) = delete;
+  condition_variable_any& operator=(const condition_variable_any&) = delete;
+
+  void notify_one() noexcept;
+
+  void notify_all() noexcept;
+
+  template <class Lock>
+  void wait (Lock&);
+
+  template <class Lock, class Predicate>
+  void wait (Lock&, Predicate);
+
+  template <class Lock, class Clock, class Duration>
+  cv_status wait_until (Lock&,
+      const chrono::time_point<Clock,Duration>&);
+
+  template <class Lock, class Clock, class Duration, class Predicate>
+  bool wait_until (Lock&,
+      const chrono::time_point<Clock,Duration>&,
+      Predicate);
+
+  template <class Lock, class Rep, class Period>
+  cv_status wait_for (Lock&,
+      const chrono::duration<Rep,Period>&);
+
+  template <class Lock, class Rep, class Period, class Predicate>
+  bool wait_for (Lock&,
+      const chrono::duration<Rep,Period>&, Predicate);
+};
+  
+__QAC_END_NAMESPACE
+
+#endif
