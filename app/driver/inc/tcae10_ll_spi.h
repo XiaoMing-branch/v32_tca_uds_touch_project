@@ -310,19 +310,79 @@ typedef struct
 
 
 
+/**
+ * @brief  去初始化SPI模块
+ */
 void ll_spi_deinit(void);
+/**
+ * @brief  初始化SPI模块
+ * @param config - SPI配置结构体指针 @ref SPI_COnfig_t
+ */
 void ll_spi_init( SPI_COnfig_t* config );
+/**
+ * @brief  配置SPI FIFO阈值
+ * @param fifo - FIFO选择（发送或接收）@ref SPI_FifoSelect_t
+ * @param threshold - 阈值配置 @ref SPI_FifoThreshold_t
+ */
 void ll_spi_fifoconfig( SPI_FifoSelect_t fifo, SPI_FifoThreshold_t threshold );
+/**
+ * @brief  使能/禁能SPI命令模式
+ * @param state - ENABLE: 使能，DISABLE: 禁能
+ */
 void ll_spi_cmd( FunctionalState state );
+/**
+ * @brief  SPI发送数据
+ * @param data - 发送数据缓冲区
+ * @param length - 发送数据长度（字）
+ */
 void ll_spi_senddata( const uint32_t* data, uint16_t length );
+/**
+ * @brief  SPI接收数据
+ * @param buffer - 接收数据缓冲区
+ * @param length - 接收数据长度（字）
+ */
 void ll_spi_receivedata( uint32_t* buffer, uint16_t length );
+/**
+ * @brief  获取SPI状态
+ * @param status_flag - 状态标志 @ref SPI_Status_t
+ * @retval true: 状态有效，false: 状态无效
+ */
 bool ll_spi_statusget( SPI_Status_t status_flag );
+/**
+ * @brief  使能SPI中断
+ * @param spi_int - 中断标志位
+ */
 void ll_spi_interruptenable ( uint16_t spi_int );
+/**
+ * @brief  禁能SPI中断
+ * @param spi_int - 中断标志位
+ */
 void ll_spi_interruptdisable ( uint16_t spi_int );
+/**
+ * @brief  获取SPI中断状态
+ * @param spi_int - 中断标志位
+ * @retval true: 中断已触发，false: 中断未触发
+ */
 bool ll_spi_interruptstatusget ( uint16_t spi_int );
+/**
+ * @brief  清除SPI中断标志
+ * @param spi_int - 中断标志位
+ */
 void ll_spi_interruptclear ( uint16_t spi_int );
+/**
+ * @brief  使能/禁能SPI从机输出
+ * @param state - ENABLE: 使能输出，DISABLE: 禁能输出
+ */
 void ll_spi_slaveoutenable(FunctionalState state);
+/**
+ * @brief  使能/禁能SPI主机输入
+ * @param state - ENABLE: 使能输入，DISABLE: 禁能输入
+ */
 void ll_spi_masterinenable(FunctionalState state);
+/**
+ * @brief  配置SPI IO引脚模式
+ * @param w_mode - 接线模式（3线或4线）@ref SPI_WireMode_t
+ */
 void ll_spi_ioconfig(SPI_WireMode_t w_mode);
 
 #ifdef __cplusplus

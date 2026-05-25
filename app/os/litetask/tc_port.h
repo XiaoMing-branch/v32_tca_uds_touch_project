@@ -24,59 +24,112 @@
 #include "tcae10.h"
 #include "tc_conf.h"
 
-/*系统时钟初始值*/
+/**
+ * @brief  系统时钟初始值
+ * @note   设置初始值为0xFFFFD8EF，使系统运行约10秒后产生溢出
+ *         用于在调试阶段排查由于systick溢出导致的逻辑bug
+ */
 #define TC_SYSTICK_INIT_VALUE       (0xFFFFD8EF)
 
+/**
+ * @brief  SysTick定时器频率
+ */
 #ifndef SYSTICK_FREQ_HZ
     #define SYSTICK_FREQ_HZ     1000       //1K 频率
 #endif
+
+/**
+ * @brief  SysTick计数值
+ */
 #define SYSTICK_COUNTS      (SYSTICK_FREQ_HZ / TC_SYSTICK_HZ)
 
+/**
+ * @brief  CPU状态寄存器类型
+ */
 typedef uint32_t TC_CPU_SR;
+
+/**
+ * @brief  临界区保护宏
+ * @note   根据TC_NOTUSED_IN_ISR配置选择是否实际关中断
+ */
 #if TC_NOTUSED_IN_ISR
 #define  TC_ENTER_CRITICAL()  do{   \
-                                          cpu_sr = cpu_sr;  \
-                                        }while(0)
+                                           cpu_sr = cpu_sr;  \
+                                         }while(0)
 #define  TC_EXIT_CRITICAL()   {}
 #else                              //ISR中可以使用tctask
 #define  TC_ENTER_CRITICAL()  {cpu_sr = TC_CPU_SR_Save();}
 #define  TC_EXIT_CRITICAL()   {TC_CPU_SR_Restore(cpu_sr);}
 #endif
 
+/**
+ * @brief  保存PRIMASK（关中断）
+ */
 TC_CPU_SR  TC_CPU_SR_Save(void);
+
+/**
+ * @brief  恢复PRIMASK
+ * @param  cpu_sr - 保存的PRIMASK值
+ */
 void       TC_CPU_SR_Restore(TC_CPU_SR cpu_sr);
 
-/*任务系统时钟*/
+/**< 系统滴答时钟，每tick递增1 */
 extern volatile uint32_t TcSystick;
 
-/*硬件相关初始化*/
+/**
+ * @brief  硬件相关初始化
+ */
 void TcPortInit(void);
 
-/*注册Systick中断回调函数,1表示成功，-1表示失败*/
+/**
+ * @brief  注册SysTick中断回调
+ * @param  callback - 回调指针
+ * @param  nPeriod  - 执行周期
+ * @retval >0 - 成功，-1 - 失败
+ */
 int TcSystickCallbackRegister(void (*callback)(void), uint8_t nPeriod);
 
+/**
+ * @brief  SysTick使能/禁能
+ * @param  bEn - 使能标志
+ */
 void SysTick_Switch(boolean_t bEn);
 
+/**
+ * @brief  SysTick回调管理结构体
+ */
 typedef struct
 {
-    uint8_t num;
-    uint8_t nPeriod[MAX_SYSTICK_ISR_CALLBACK_NUM];
-    uint8_t nPastTime[MAX_SYSTICK_ISR_CALLBACK_NUM];
-    void (*callback[MAX_SYSTICK_ISR_CALLBACK_NUM])(void);
+    uint8_t num;                                            /**< 注册的回调数量 */
+    uint8_t nPeriod[MAX_SYSTICK_ISR_CALLBACK_NUM];          /**< 各回调执行周期 */
+    uint8_t nPastTime[MAX_SYSTICK_ISR_CALLBACK_NUM];        /**< 当前累计时间 */
+    void (*callback[MAX_SYSTICK_ISR_CALLBACK_NUM])(void);   /**< 回调函数数组 */
 } systickCallback_t;
 
-/*获取系统时钟，单位为tick*/
+/**
+ * @brief  获取系统当前tick值
+ */
 #define TcTimeGet()     TcSystick
 
+/**< SysTick中断计数器 */
 extern volatile uint32_t g_TcSystickIntCnt;
 
-/*延迟函数，忙等待延迟，单位为tick*/
+/**
+ * @brief  忙等待延迟
+ * @param  dly - 延迟的tick数
+ */
 void TcTimeDly(uint32_t dly);
 
-/*获取当前时间，单位为us*/
+/**
+ * @brief  获取当前时间（微秒）
+ * @retval 当前时间，单位us
+ */
 uint64_t TcGetTimeUS(void);
 
-/*获取当前时间，单位为ms*/
+/**
+ * @brief  获取当前时间（毫秒）
+ * @retval 当前时间，单位ms
+ */
 uint32_t TcGetTimeMS(void);
 
 #endif

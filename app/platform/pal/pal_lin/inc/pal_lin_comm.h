@@ -69,7 +69,7 @@ extern "C"
 #endif
 
 /**
-  * @brief  lin abort type enumeration
+  * @brief  LIN总线编号枚举
   */
 typedef enum
 {
@@ -81,7 +81,7 @@ typedef enum
 } lin_bus_e;
 
 /**
-  * @brief  lin mode enumeration
+  * @brief  LIN工作模式枚举（从机/主机）
   */
 typedef enum
 {
@@ -91,16 +91,16 @@ typedef enum
 } lin_mode_e;
 
 /**
-  * @brief  lin parity enumeration
+  * @brief  LIN奇偶校验类型枚举
   */
 typedef enum
 {
-    LIN_PARITY_MAKE,    /**< make parity bits */
-    LIN_PARITY_CHECK,   /**< check parity bits */
+    LIN_PARITY_MAKE,    /**< 生成奇偶校验位 */
+    LIN_PARITY_CHECK,   /**< 校验奇偶位 */
 } lin_parity_type_e;
 
 /**
-  * @brief  lin abort type enumeration
+  * @brief  LIN中止类型枚举（位标志，支持组合）
   */
 typedef enum
 {
@@ -110,7 +110,7 @@ typedef enum
 } lin_abort_type_e;
 
 /**
-  * @brief  lin read type enumeration
+  * @brief  LIN读取类型枚举
   */
 typedef enum
 {
@@ -118,20 +118,101 @@ typedef enum
     LIN_READ_TYPE_FIFO,
 } lin_read_type_e;
 
+/**
+ * @brief  LIN通信初始化
+ * @param  bus      - LIN总线编号
+ * @param  mode     - 工作模式（主/从）
+ * @param  baudrate - 波特率
+ * @param  callback - ISR回调函数
+ */
 void pal_lin_init(lin_bus_e bus, lin_mode_e mode, uint32_t baudrate, ISR_FUNC_CALLBACK callback);
+/**
+ * @brief  LIN通信去初始化
+ * @param  bus - LIN总线编号
+ */
 void pal_lin_deinit(lin_bus_e bus);
+/**
+ * @brief  接收LIN从机响应
+ * @param  bus        - LIN总线编号
+ * @param  pid        - 报文ID
+ * @param  buffer     - 接收缓冲区
+ * @param  msg_length - 数据长度
+ */
 void pal_lin_rx_response(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t msg_length);
+/**
+ * @brief  发送LIN从机响应
+ * @param  bus        - LIN总线编号
+ * @param  pid        - 报文ID
+ * @param  buffer     - 发送缓冲区
+ * @param  msg_length - 数据长度
+ * @retval true  - 成功
+ * @retval false - 失败
+ */
 bool pal_lin_tx_response(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t msg_length);
+/**
+ * @brief  发送4字节短报文
+ * @param  bus        - LIN总线编号
+ * @param  buffer     - 发送缓冲区
+ * @param  msg_length - 数据长度
+ */
 void pal_lin_tx_4byte(lin_bus_e bus, uint8_t *buffer, uint8_t msg_length);
+/**
+ * @brief  发送LIN报文头（同步间隔+同步场+PID）
+ * @param  bus - LIN总线编号
+ * @param  pid - 报文ID
+ */
 void pal_lin_tx_header(lin_bus_e bus, uint8_t pid);
+/**
+ * @brief  进入LIN自动寻址模式
+ * @param  aa_cur_th - 电流阈值数组
+ */
 void pal_lin_aa_enter(uint16_t *aa_cur_th);
+/**
+ * @brief  退出LIN自动寻址模式
+ */
 void pal_lin_aa_exit(void);
+/**
+ * @brief  标记自动寻址完成
+ */
 void pal_lin_aa_ready(void);
+/**
+ * @brief  计算/校验LIN PID奇偶位
+ * @param  type - 奇偶类型（生成/校验）
+ * @param  pid  - PID字节
+ * @retval 处理后的PID值
+ */
 uint8_t pal_lin_parity_calib(lin_parity_type_e type, uint8_t pid);
+/**
+ * @brief  计算LIN报文校验和
+ * @param  pid    - 报文ID
+ * @param  buffer - 数据缓冲区
+ * @retval 校验和值
+ */
 uint8_t pal_lin_checksum_calib(uint8_t pid, uint8_t *buffer);
+/**
+ * @brief  读取自动寻址ADC原始码
+ * @param  bufffer - 原始码缓冲区
+ * @param  length  - 缓冲区长度
+ * @retval 读取的原始码数量
+ */
 uint16_t pal_lin_aa_raw_code_get(uint16_t *bufffer, uint16_t length);
+/**
+ * @brief  中止LIN收发操作
+ * @param  bus  - LIN总线编号
+ * @param  type - 中止类型
+ */
 void pal_lin_abort_handle(lin_bus_e bus, lin_abort_type_e type);
+/**
+ * @brief  读取LIN接收字节
+ * @param  bus  - LIN总线编号
+ * @param  type - 读取类型
+ * @param  byte - 输出字节
+ */
 void pal_lin_read_byte(lin_bus_e bus, lin_read_type_e type, uint8_t *byte);
+/**
+ * @brief  自动波特率检测与纠偏
+ * @param  bus - LIN总线编号
+ */
 void pal_lin_autobaudrate_check(lin_bus_e bus);
 
 #ifdef __cplusplus

@@ -31,16 +31,13 @@
 /* PRQA S 0380 1 #3256 - Macro count exceeds C99 limit, supported by compiler extension */
 #define CRC32_POLY 0x04C11DB7U
 #define CRC16_POLY 0x1021U
-/********************************************************
-** \brief   averge_calculate_utils
-**
-** \param   uint16_t*           data
-** \param   uint16_t            length
-**
-** \retval  uint16_t            averge
-*********************************************************/
-/* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
-/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief  计算平均值(去除最大值和最小值)
+ * @param  data - 输入数据数组
+ * @param  length - 数据个数
+ * @note   当length≥3时去除最大最小值后取平均，避免异常值影响
+ * @retval 计算得到的平均值
+ */
 uint16_t averge_calculate_utils(uint16_t *data, uint16_t length)
 {
     uint16_t avg, min, max;
@@ -156,16 +153,14 @@ const uint16_t crc16_tab[] = {
     0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78};
 #endif
 
-/********************************************************
-** \brief   crc32_calculate_func
-**
-** \param   uint32_t            init_crc
-** \param   const uint8_t*      data
-** \param   uint32_t            length
-**
-** \retval  uint32_t            crc32
-*********************************************************/
-/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief  CRC32校验计算
+ * @param  init_crc - CRC初始值
+ * @param  data - 输入数据
+ * @param  length - 数据长度
+ * @note   支持硬件CRC(多項式0x04C11DB7)、查表法和软件计算三种模式
+ * @retval 计算得到的CRC32值
+ */
 uint32_t crc32_calculate_func(uint32_t init_crc, const uint8_t *data, uint32_t length)
 {
     uint32_t crc = init_crc;
@@ -207,16 +202,15 @@ uint32_t crc32_calculate_func(uint32_t init_crc, const uint8_t *data, uint32_t l
     return crc;
 }
 
-/********************************************************
-** \brief   crc16_calculate_func
-**
-** \param   uint16_t            init_crc
-** \param   const uint8_t*      data
-** \param   uint16_t            length
-**
-** \retval  uint16_t            crc16
-*********************************************************/
-/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief  CRC16校验计算
+ * @param  init_crc - CRC初始值
+ * @param  data - 输入数据
+ * @param  length - 数据长度
+ * @note   支持硬件CRC(多項式0x1021)、查表法和软件计算三种模式
+ *         查表法和软件计算模式输出结果按位取反
+ * @retval 计算得到的CRC16值
+ */
 uint16_t crc16_calculate_func(uint16_t init_crc, const uint8_t *data, uint16_t length)
 {
     uint16_t crc = init_crc;
@@ -262,16 +256,15 @@ uint16_t crc16_calculate_func(uint16_t init_crc, const uint8_t *data, uint16_t l
     return crc;
 }
 
-/********************************************************
-** \brief   checksum_calculate_func
-**
-** \param   uint8_t             init_crc
-** \param   const uint8_t*      data
-** \param   uint16_t            length
-**
-** \retval  uint8_t             checksum
-*********************************************************/
-/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief  经典LIN校验和计算
+ * @param  init_sum - 初始和值(PID相关,0x3C/0x7D除外)
+ * @param  data - 8字节数据缓冲区
+ * @param  length - 数据长度(固定8)
+ * @note   采用带进位的累加和法,最后按位取反
+ *         诊断帧和非诊断帧的校验方式不同
+ * @retval 计算得到的校验和值
+ */
 uint8_t checksum_calculate_func(uint8_t init_sum, const uint8_t *data, uint16_t length)
 {
     uint16_t check_sum;
@@ -298,15 +291,12 @@ uint8_t checksum_calculate_func(uint8_t init_sum, const uint8_t *data, uint16_t 
     return (uint8_t)(~check_sum);
 }
 
-/********************************************************
-** \brief   endian_swap_func
-**
-** \param   uint8_t*            data
-** \param   uint16_t            length
-**
-** \retval  uint32_t            result
-*********************************************************/
-/* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief  字节序翻转(大端<->小端)
+ * @param  data - 输入/输出数据缓冲区(翻转后覆盖原数据)
+ * @param  length - 数据长度
+ * @retval 翻转后的结果(uint32_t)
+ */
 uint32_t endian_swap_func(uint8_t *data, uint16_t length)
 {
     uint16_t cnt = length >> 1;
@@ -326,16 +316,13 @@ uint32_t endian_swap_func(uint8_t *data, uint16_t length)
     return (result);
 }
 
-/********************************************************
-** \brief   bit_invert_swap_func
-**
-** \param   void*               bit_data
-** \param   uint8_t             bit_length
-**
-** \retval  None
-*********************************************************/
-/* PRQA S 2889 2 #3257 - Multiple return statements for logical clarity and efficiency */
-/* PRQA S 1505 1 #3219 - Function used only in the defining translation unit, intentional design */
+/**
+ * @brief  位序翻转(MSB<->LSB)
+ * @param  bit_data - 输入/输出数据(翻转后覆盖)
+ * @param  bit_length - 位长度(仅支持8/16/32位)
+ * @note   用于CRC计算中的位序调整
+ * @retval 无
+ */
 void bit_invert_swap_func(void *bit_data, uint8_t bit_length)
 {
     uint32_t in_bit = 0;

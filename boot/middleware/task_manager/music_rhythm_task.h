@@ -37,20 +37,17 @@ extern "C"
 #endif
 
     /**
-     * @brief: app init
-     * @param[in]: s_default_rgb_cali_param: default rgb calibration param
-     * @retval: STD_E_OK
-     * @author: yan.chen
-     * @date: 2024/01/26
+     * @brief  音乐律动应用任务初始化
+     * @retval STD_E_OK    - 初始化成功
+     * @retval STD_E_NOT_OK - 初始化失败
      */
     std_rtn_type music_rhythm_app_task_init(void);
 
     /**
-     * @brief: app task
-     * @param[in]: s_led_status: the flag of led status
-     * @retval: none
-     * @author: yan.chen
-     * @date: 2024/01/26
+     * @brief  音乐律动应用主任务
+     *         从LIN总线获取频率数据，解析音乐频谱并生成灯光效果
+     * @param  无
+     * @retval 无
      */
     void music_rhythm_app_task(void);    
     

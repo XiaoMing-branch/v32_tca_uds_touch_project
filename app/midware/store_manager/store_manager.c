@@ -22,6 +22,10 @@
 #include "store_manager.h"
 #include "pal_store.h"
 
+/**
+ * @brief  全局系统配置实例，运行时保存在 RAM 中
+ * @note   默认值：NAD=0x6F，触摸阈值使用典型值，原始 NAD=0x01
+ */
 sys_cfg_t g_sys_cfgs =
 {
     .nad = 0x6F,
@@ -44,12 +48,19 @@ sys_cfg_t g_sys_cfgs =
 //    LED_SERIES_NUM_OFFSET,
 //};
 
+/** @brief  系统参数 Flash 地址映射表，索引与 system_param_type_e 对应 */
 const uint32_t sys_param_addr_map[] =
 {
     SYSTEM_CFG_OFFSET,
     SYSTEM_ID_CFG_OFFSET,
 };
 
+/**
+ * @brief  从快速存储区读取 LIN NAD 地址
+ * @note   遍历 FAST_LIN_NAD_ADDR 区域，搜索第一个非 0xFF 的值作为 NAD，
+ *         用于产线校准后快速获取 NAD 而不需要从完整系统配置中读取
+ * @retval NAD 值（若未找到则返回 0xFF）
+ */
 static uint8_t fast_nad_read(void)
 {
     uint8_t nad = 0xFF;
@@ -73,13 +84,12 @@ static uint8_t fast_nad_read(void)
     return nad;
 }
 
-/********************************************************
-** \brief   store_system_data_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  系统数据初始化，从 Flash 加载配置参数到内存
+ * @note   优先从快速 NAD 区读取 NAD，若有效则写入系统配置区；
+ *         然后分别初始化系统配置参数和 LIN 配置参数的 Flash 存储区域
+ * @retval 无
+ */
 __WEAK void store_system_data_init(void)
 {
     uint32_t addr = 0;
@@ -101,54 +111,50 @@ __WEAK void store_system_data_init(void)
     pal_store_data_init(addr, lin_configuration_RAM, SYSTEM_ID_CFG_SIZE);
 }
 
-/********************************************************
-** \brief   store_manager_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  存储管理器初始化入口
+ * @note   调用 store_system_data_init 从 Flash 加载系统配置到 g_sys_cfgs
+ * @retval 无
+ */
 void store_manager_init(void)
 {
     store_system_data_init();
 }
 
-/********************************************************
-** \brief   store_manager_clear
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  清除所有存储的系统参数，擦除系统参数区 Flash
+ * @retval 无
+ */
 void store_manager_clear(void)
 {
     pal_store_data_clear(SYSTEM_PARAM_BASE_ADDR, STORE_SECTOR_SIZE);
 }
 
-/********************************************************
-** \brief   store_system_data_set
-**
-** \param   system_param_type_e type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  将系统参数写入 Flash 存储
+ * @param  type  - 参数类型（SYSTEM_CFG_PARAM / SYSTEM_ID_CFG_PARAM）
+ * @param  param - 参数数据指针
+ * @param  len   - 数据长度（字节）
+ * @note   根据 type 从 sys_param_addr_map 查找对应的 Flash 偏移地址，
+ *         调用 pal_store_data_set 写入
+ * @retval 无
+ */
 void store_system_data_set(system_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = SYSTEM_PARAM_BASE_ADDR + sys_param_addr_map[type];
     pal_store_data_set(addr, param, len);
 }
 
-/********************************************************
-** \brief   store_system_data_get
-**
-** \param   system_param_type_e type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从 Flash 读取系统参数
+ * @param  type   - 参数类型（SYSTEM_CFG_PARAM / SYSTEM_ID_CFG_PARAM）
+ * @param  param  - 存放读取数据的缓冲区指针
+ * @param  len    - 期望读取的数据长度
+ * @note   根据 type 从 sys_param_addr_map 查找对应的 Flash 偏移地址，
+ *         调用 pal_store_data_get 读取
+ * @retval true   - 读取成功
+ * @retval false  - 读取失败
+ */
 bool store_system_data_get(system_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = SYSTEM_PARAM_BASE_ADDR + sys_param_addr_map[type];
@@ -156,15 +162,16 @@ bool store_system_data_get(system_param_type_e type, uint8_t *param, uint16_t le
 }
 
 
-/********************************************************
-** \brief   store_chip_info_get
-**
-** \param   chip_info_type_e    type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  读取芯片硬件信息
+ * @param  type   - 芯片信息类型
+ *         - CHIP_INFO_VER_ID: 版本号和 ID
+ *         - CHIP_INFO_UUID:   唯一标识 UUID
+ *         - CHIP_INFO_BOOT_VER: Bootloader 版本
+ * @param  param  - 存放读取数据的缓冲区指针
+ * @param  len    - 缓冲区长度（当前未使用）
+ * @retval true   - 读取成功
+ */
 bool store_chip_info_get(chip_info_type_e type, uint8_t *param, uint16_t len)
 {
     chip_ver_id_t *chip_ver_id = (chip_ver_id_t *)param;
@@ -187,15 +194,15 @@ bool store_chip_info_get(chip_info_type_e type, uint8_t *param, uint16_t len)
     return true;
 }
 
-/********************************************************
-** \brief   store_customer_data_set
-**
-** \param   uint32_t            addr_offset
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  写入客户自定义参数到 Flash 客户区（CUSTOMER_PARAM_BASE_ADDR + offset）
+ * @param  addr_offset - 客户参数区内的偏移地址
+ * @param  param       - 参数数据指针
+ * @param  len         - 数据长度（字节）
+ * @note   检查 addr_offset + len 是否超出 FLASH_SOCK_SIZE 范围
+ * @retval true        - 写入成功
+ * @retval false       - 地址越界
+ */
 bool store_customer_data_set(uint32_t addr_offset, uint8_t *param, uint16_t len)
 {
     if (addr_offset >= FLASH_SECTOR_SIZE || (addr_offset + len) > FLASH_SECTOR_SIZE)
@@ -209,15 +216,15 @@ bool store_customer_data_set(uint32_t addr_offset, uint8_t *param, uint16_t len)
     return true;
 }
 
-/********************************************************
-** \brief   store_customer_data_get
-**
-** \param   uint32_t            addr_offset
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  从 Flash 客户区读取客户自定义参数
+ * @param  addr_offset - 客户参数区内的偏移地址
+ * @param  param       - 存放读取数据的缓冲区指针
+ * @param  len         - 读取长度
+ * @note   检查 addr_offset + len 是否超出 FLASH_SECTOR_SIZE 范围
+ * @retval true        - 读取成功
+ * @retval false       - 地址越界
+ */
 bool store_customer_data_get(uint32_t addr_offset, uint8_t *param, uint16_t len)
 {
     if (addr_offset >= FLASH_SECTOR_SIZE || (addr_offset + len) > FLASH_SECTOR_SIZE)
@@ -229,11 +236,31 @@ bool store_customer_data_get(uint32_t addr_offset, uint8_t *param, uint16_t len)
     return (pal_store_data_get(addr, param, len));
 }
 
+/**
+ * @brief  慢速读取 Flash（地址需 4 字节对齐）
+ * @param  addr   - 读取地址（需 4 字节对齐）
+ * @param  value  - 存放读取数据的缓冲区指针
+ * @param  length - 读取长度（字节）
+ * @retval true   - 读取成功
+ * @retval false  - 读取失败
+ */
 bool store_slow_read(uint32_t addr, uint8_t *value, uint16_t length)
 {
     return pal_store_read(STORE_TYPE_SEL, addr, value, length);
 }
 
+/**
+ * @brief  智能慢速读取 Flash（无地址对齐限制）
+ * @param  addr   - 读取地址（任意对齐）
+ * @param  value  - 存放读取数据的缓冲区指针
+ * @param  length - 读取长度（字节）
+ * @note   自动处理非对齐地址，分三段读取：
+ *         - 开头：读取对齐边界前的不完整部分
+ *         - 中间：以 8 字节对齐批量读取
+ *         - 结尾：末尾不足 8 字节的部分
+ * @retval true   - 读取成功
+ * @retval false  - 读取失败
+ */
 bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length)
 {
     uint32_t rdbuf[2];
@@ -285,6 +312,20 @@ bool store_slow_smart_read(uint32_t addr, uint8_t *value, uint16_t length)
     return true;
 }
 
+/**
+ * @brief  慢速写入 Flash（扇区擦除-交换-合并-回写流程）
+ * @param  addr   - 写入地址
+ * @param  value  - 待写入数据指针
+ * @param  length - 写入长度（字节）
+ * @note   写入流程：
+ *         1. 将目标扇区数据备份到交换区（FLASH_SWAP_BASE_ADDR）
+ *         2. 擦除目标扇区
+ *         3. 从交换区读取回原始数据，将新数据合并到对应位置
+ *         4. 将合并后的数据写回目标扇区
+ *         此方式保证在写入过程中即使掉电也不会丢失原始数据
+ * @retval true   - 写入成功
+ * @retval false  - 写入失败（擦除/读取/写入任一环节失败）
+ */
 bool store_slow_write(uint32_t addr, uint8_t *value, uint16_t length)
 {
     uint32_t sector_addr = ((addr / FLASH_SECTOR_SIZE) * FLASH_SECTOR_SIZE);

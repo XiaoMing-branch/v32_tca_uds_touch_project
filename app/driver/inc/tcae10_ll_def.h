@@ -91,6 +91,9 @@ void assert_failed(uint8_t *file, uint32_t line);
 /*!
    \brief Performes a software reset
 */
+/**
+ * @brief  执行软件复位
+ */
 #define LL_SOFTWARE_RESET()                             \
         do {                                            \
             CRG_CONFIG_UNLOCK();                        \
@@ -102,6 +105,9 @@ void assert_failed(uint8_t *file, uint32_t line);
 /*!
    \brief Performes a software reset
 */
+/**
+ * @brief  清除软件复位标志
+ */
 #define LL_SOFTWARE_RESET_FLAG_CLEAR()                  \
         do {                                            \
             CRG_CONFIG_UNLOCK();                        \

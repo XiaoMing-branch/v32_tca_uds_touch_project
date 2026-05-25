@@ -40,13 +40,46 @@ typedef struct
     bool trigger_mode;
 } timer_config_t;
 
+/**
+ * @brief  去初始化定时器模块
+ */
 void ll_timer_deinit(void);
+/**
+ * @brief  初始化定时器模块
+ * @param config - 定时器配置结构体指针
+ * @param callback - 中断回调函数指针
+ */
 void ll_timer_init(timer_config_t *config, ISR_FUNC_CALLBACK callback);
+/**
+ * @brief  使能/禁能定时器中断
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_timer_isr_enable(bool enable);
+/**
+ * @brief  获取定时器中断标志
+ * @retval true: 中断已触发，false: 未触发
+ */
 bool ll_timer_isr_get(void);
+/**
+ * @brief  使能/禁能定时器触发模式
+ * @param enable - true: 使能触发，false: 禁能
+ */
 void ll_timer_trig_enable(bool enable);
+/**
+ * @brief  使能/禁能定时器计数
+ * @param enable - true: 启动计数，false: 停止计数
+ */
 void ll_timer_enable(bool enable);
+/**
+ * @brief  设置定时器计数值
+ * @param value - 初始计数值
+ */
 void ll_timer_counter_set(uint16_t value);
+/**
+ * @brief  获取定时器当前计数值
+ * @retval 当前计数值
+ */
 uint16_t ll_timer_counter_get(void);
 
 #if defined(__cplusplus)

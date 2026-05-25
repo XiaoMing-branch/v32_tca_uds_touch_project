@@ -22,80 +22,70 @@
 #include "tcae10_ll_lpm.h"
 #include "tcae10_ll_cortex.h"
 
-/********************************************************
-** \brief   Enter Deep Sleep mode
-**
-** \param   bool    on_exit：When set to 1, enter sleep mode (Wait-for-Interrupt)
-**                            automatically when exiting an exception handler and
-**                            returning to thread level.
-**                            When set to 0, this feature is disabled.
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   进入深度睡眠模式
+ * @param   on_exit - 当设置为true时，从异常处理返回线程模式时自动进入睡眠（SLEEPONEXIT）
+ *                    当设置为false时，立即执行WFI进入睡眠
+ * @note    设置SLEEPDEEP位选择深度睡眠，通过SCR寄存器控制SLEEPONEXIT行为
+ * @retval  None
+ */
 static void ll_lpm_deep_sleep_enter(bool on_exit)
 {
-    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;          /* 设置SLEEPDEEP位，选择深度睡眠模式 */
 
     if (on_exit)
     {
-        SCB->SCR |= (0x01 << 1);
+        SCB->SCR |= (0x01 << 1);                /* 设置SLEEPONEXIT，异常退出后自动睡眠 */
     }
     else
     {
-        SCB->SCR &= ~(0x01 << 1);
+        SCB->SCR &= ~(0x01 << 1);               /* 清除SLEEPONEXIT */
     }
 
-    __WFI();
+    __WFI();                                    /* 等待中断唤醒 */
 }
 
-/********************************************************
-** \brief   Enter Normal Sleep mode
-**
-** \param   bool    on_exit：When set to 1, enter sleep mode (Wait-for-Interrupt)
-**                            automatically when exiting an exception handler and
-**                            returning to thread level.
-**                            When set to 0, this feature is disabled.
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   进入普通睡眠模式
+ * @param   on_exit - 当设置为true时，从异常处理返回线程模式时自动进入睡眠（SLEEPONEXIT）
+ *                    当设置为false时，立即执行WFI进入睡眠
+ * @note    清除SLEEPDEEP位选择普通睡眠模式，通过SCR寄存器控制
+ * @retval  None
+ */
 static void ll_lpm_normal_sleep_enter(bool on_exit)
 {
-    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+    SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;         /* 清除SLEEPDEEP位，选择普通睡眠模式 */
 
     if (on_exit)
     {
-        SCB->SCR |= (0x01 << 1);
+        SCB->SCR |= (0x01 << 1);                /* 设置SLEEPONEXIT */
     }
     else
     {
-        SCB->SCR &= ~(0x01 << 1);
+        SCB->SCR &= ~(0x01 << 1);               /* 清除SLEEPONEXIT */
     }
 
-    __WFI();
+    __WFI();                                    /* 等待中断唤醒 */
 }
 
-/********************************************************
-** \brief   ll_sleep_mode_get
-**
-** \param   None
-**
-** \retval  uint8_t
-*********************************************************/
+/**
+ * @brief   获取当前睡眠模式
+ * @param   None
+ * @note    从ASYSCFG的SLEEP_MODE寄存器读取当前睡眠模式（低2位）
+ * @retval  当前睡眠模式：0-IDLE, 1-SLEEP, 2-SLEEPWALK, 3-DEEPSLEEP
+ */
 uint8_t ll_sleep_mode_get(void)
 {
-    return (ASYSCFG->SLEEP_MODE & 0x3);
+    return (ASYSCFG->SLEEP_MODE & 0x3);          /* 读取睡眠模式，仅取低2位 */
 }
 
-/********************************************************
-** \brief   Enter Sleep mode
-**
-** \param   bool    on_exit：When set to 1, enter sleep mode (Wait-for-Interrupt)
-**                            automatically when exiting an exception handler and
-**                            returning to thread level.
-**                            When set to 0, this feature is disabled.
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   MCU进入低功耗模式（顶层入口）
+ * @param   state   - 低功耗模式选择：IDLE_MODE/SLEEP_MODE/SLEEPWALK_MODE/DEEPSLEEP_MODE
+ * @param   on_exit - 是否在异常退出后自动进入睡眠（SLEEPONEXIT）
+ * @note    根据选择的模式配置ASYSCFG睡眠模式寄存器，并调用对应睡眠进入函数
+ * @retval  None
+ */
 void ll_lpm_mcu_enter(sleep_mode_e state, bool on_exit)
 {
     ASYSCFG_CONFIG_UNLOCK();
@@ -132,24 +122,22 @@ void ll_lpm_mcu_enter(sleep_mode_e state, bool on_exit)
     ASYSCFG_CONFIG_LOCK();
 }
 
-/********************************************************
-** \brief   ll_lpm_afe_enter
-**
-** \param   sleep_mode_e    mode
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   模拟前端（AFE）进入低功耗模式
+ * @param   mode - 低功耗模式选择
+ * @note    当前为空函数，预留AFE低功耗控制接口
+ * @retval  None
+ */
 void ll_lpm_afe_enter(sleep_mode_e mode)
 {
 }
 
-/********************************************************
-** \brief   ll_pmu_gpio_lowpower
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   配置GPIO进入低功耗状态
+ * @param   None
+ * @note    将LED引脚切换为GPIO模式，降低低功耗模式下引脚漏电
+ * @retval  None
+ */
 void ll_pmu_gpio_lowpower(void)
 {
     // /* config LED as led */
@@ -161,13 +149,12 @@ void ll_pmu_gpio_lowpower(void)
     // PINMUX->IO2_CFG_F.IO2_SRC_SEL = 0;
 }
 
-/********************************************************
-** \brief   ll_pmu_ldo_dummy_enable
-**
-** \param   bool    enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   使能或禁能LDO Dummy负载
+ * @param   enable - true启用dummy负载，false关闭
+ * @note    控制LDO15和LDO33的dummy负载开关和偏置电流选择
+ * @retval  None
+ */
 void ll_pmu_ldo_dummy_enable(bool enable)
 {
     ASYSCFG->LDO15_CTRL_F.LDO15_DL_SW_ENB = !enable;

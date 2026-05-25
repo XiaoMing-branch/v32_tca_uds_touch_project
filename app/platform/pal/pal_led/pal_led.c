@@ -33,16 +33,25 @@
 
 extern void  pwm_callback_handle(uint32_t isr);
 
+/**
+ * @brief LED控制实例指针数组（按通道索引）
+ */
 led_control_instance_t *led_ctrl_instance[LED_CHANNLE_MAX];
 
+/**
+ * @brief PWM中断回调弱函数（用户可重写）
+ * @param  isr - PWM中断状态标志
+ * @retval None
+ */
 __attribute__((weak)) void pwm_callback_handle(uint32_t isr)
 {
     //do noting
 }
 
 /**
-* @brief led0 ctrl instance
-*/
+ * @brief LED0控制实例，定义RGB通道映射、驱动电流及回调函数
+ * @note  RGB通道对应LED_CH_R/G/B，驱动电流30mA，诊断电流1000uA（TCPL01X）
+ */
 led_control_instance_t led0_ctrl_instance =
 {
     .channel.rgb = { LED_CH_R, LED_CH_G, LED_CH_B },
@@ -57,8 +66,9 @@ led_control_instance_t led0_ctrl_instance =
 };
 
 /**
-* @brief led pwm config
-*/
+ * @brief LED PWM全局配置实例
+ * @note  时钟源48MHz，独立输出模式，高电平有效，HVIO模式LED，周期0xFFFF
+ */
 pwm_config_t config =
 {
     .clk_cfg = {
@@ -75,14 +85,12 @@ pwm_config_t config =
     .period = LED_DRIVER_PWM_FREQ,
 };
 
-/********************************************************
-** \brief   pal_led_init
-**
-** \param   led_channel_e               channel
-** \param   led_control_instance_t*     instance
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED初始化，配置PWM、驱动电流和诊断电流
+ * @param  channel  - LED通道编号
+ * @param  instance - LED控制实例指针
+ * @retval None
+ */
 void pal_led_init(led_channel_e channel, led_control_instance_t *instance)
 {
 
@@ -104,14 +112,12 @@ void pal_led_init(led_channel_e channel, led_control_instance_t *instance)
     led_ctrl_instance[channel] = instance;
 }
 
-/********************************************************
-** \brief   pal_led_current_set
-**
-** \param   led_channel_e               channel
-** \param   uint8_t                     current
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LED驱动电流
+ * @param  channel - LED通道编号
+ * @param  current - 驱动电流值
+ * @retval None
+ */
 void pal_led_current_set(led_channel_e channel, uint8_t current)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -129,14 +135,12 @@ void pal_led_current_set(led_channel_e channel, uint8_t current)
     instance->current.driver = current;
 }
 
-/********************************************************
-** \brief   pal_led_current_get
-**
-** \param   led_channel_e               channel
-** \param   uint8_t*                    current
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED当前驱动电流
+ * @param  channel - LED通道编号
+ * @param  current - 输出电流值指针
+ * @retval None
+ */
 void pal_led_current_get(led_channel_e channel, uint8_t *current)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -149,14 +153,13 @@ void pal_led_current_get(led_channel_e channel, uint8_t *current)
     *current = instance->current.driver;
 }
 
-/********************************************************
-** \brief   pal_led_dutcycle_set
-**
-** \param   led_channel_e               channel
-** \param   uint16_t*                   duty_cycle
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  开启/关闭LED静态PN结电压采样模式
+ * @note   开启时将PWM频率切换为低频采样频率，关闭时恢复驱动频率
+ * @param  channel - LED通道编号
+ * @param  enable  - true:开启静态采样 false:关闭
+ * @retval None
+ */
 void pal_led_dutcycle_set(led_channel_e channel, uint16_t *duty_cycle)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -172,14 +175,12 @@ void pal_led_dutcycle_set(led_channel_e channel, uint16_t *duty_cycle)
     }
 }
 
-/********************************************************
-** \brief   pal_led_dutcycle_set
-**
-** \param   led_channel_e               channel
-** \param   uint16_t*                   duty_cycle
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED RGB各通道当前PWM占空比
+ * @param  channel    - LED通道编号
+ * @param  duty_cycle - 输出RGB三通道占空比数组指针
+ * @retval None
+ */
 void pal_led_dutcycle_get(led_channel_e channel, uint16_t *duty_cycle)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -195,14 +196,12 @@ void pal_led_dutcycle_get(led_channel_e channel, uint16_t *duty_cycle)
     }
 }
 
-/********************************************************
-** \brief   pal_led_enable
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LED RGB各通道PWM占空比
+ * @param  channel    - LED通道编号
+ * @param  duty_cycle - RGB三通道占空比数组指针
+ * @retval None
+ */
 void pal_led_enable(led_channel_e channel, bool enable)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -216,14 +215,12 @@ void pal_led_enable(led_channel_e channel, bool enable)
     instance->is_open = enable;
 }
 
-/********************************************************
-** \brief   pal_led_break
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  使能/禁能LED输出
+ * @param  channel - LED通道编号
+ * @param  enable  - true:使能 false:禁能
+ * @retval None
+ */
 void pal_led_break(led_channel_e channel, bool enable)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -236,14 +233,12 @@ void pal_led_break(led_channel_e channel, bool enable)
     ll_pwm_break_set(enable);
 }
 
-/********************************************************
-** \brief   pal_led_static_pnvolt_set
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LED刹车/断路功能
+ * @param  channel - LED通道编号
+ * @param  enable  - true:使能刹车 false:禁能
+ * @retval None
+ */
 void pal_led_static_pnvolt_set(led_channel_e channel, bool enable)
 {
     led_control_instance_t *instance = led_ctrl_instance[channel];
@@ -295,14 +290,12 @@ void pal_led_static_pnvolt_set(led_channel_e channel, bool enable)
     }
 }
 
-/********************************************************
-** \brief   pal_led_channel_mux_get
-**
-** \param   led_channel_e               channel
-** \param   uint8_t**                   channel_mux
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED通道的RGB多路复用映射表
+ * @param  channel      - LED通道编号
+ * @param  channel_mux  - 输出RGB通道映射数组指针的指针
+ * @retval None
+ */
 void pal_led_channel_mux_get(led_channel_e channel, uint8_t **channel_mux)
 {
 

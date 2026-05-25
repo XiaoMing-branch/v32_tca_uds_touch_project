@@ -26,13 +26,13 @@
 void (*log_func)(unsigned char);
 static char *outptr;
 
-/********************************************************
-** \brief   Put a character
-**
-** \param   char    c
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  输出单个字符到日志设备或内存缓冲区
+ * @param  c - 待输出的字符
+ * @note   若 CONVERT_CR_2_CRLF 使能，'\n' 自动转换为 "\r\n"；
+ *         若 outptr 非空则写入内存缓冲区，否则通过 log_func 回调输出
+ * @retval 无
+ */
 void tc_putc(char c)
 {
     if (CONVERT_CR_2_CRLF && c == '\n')
@@ -52,13 +52,11 @@ void tc_putc(char c)
     }
 }
 
-/********************************************************
-** \brief   Put a null-terminated string
-**
-** \param   const char *    fmt      Pointer to the string
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  输出以 null 结尾的字符串到日志设备
+ * @param  str - 待输出的字符串指针
+ * @retval 无
+ */
 void tc_puts(const char *str)
 {
     while (*str)
@@ -67,14 +65,13 @@ void tc_puts(const char *str)
     }
 }
 
-/********************************************************
-** \brief   tc_fputs
-**
-** \param   void(*func)(unsigned char)  Pointer to the output function
-** \param   const char *          str   Pointer to the string
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  输出字符串到指定设备
+ * @param  func - 目标设备的输出回调函数指针
+ * @param  str  - 待输出的字符串指针
+ * @note   临时切换 log_func 到指定设备，输出完成后恢复原设备
+ * @retval 无
+ */
 void tc_fputs(void(*func)(unsigned char), const char *str)
 {
     void (*pf)(unsigned char);
@@ -107,14 +104,15 @@ void tc_fputs(void(*func)(unsigned char), const char *str)
     tc_printf("%f", 10.0);            <tc_printf lacks floating point support>
 */
 
-/********************************************************
-** \brief   tc_vprintf
-**
-** \param   const char *    fmt      Pointer to the format string
-** \param   va_list          arp      Pointer to arguments
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  核心格式化输出函数（内部调用）
+ * @param  fmt - 格式化字符串指针
+ * @param  arp - 可变参数列表
+ * @note   支持格式：%d/%u（十进制）、%x/%X（十六进制）、%s（字符串）、
+ *         %c（字符）、%b（二进制）、%o（八进制）；
+ *         支持宽度指定（如 %6d）、左对齐（%-）和零填充（%0）
+ * @retval 无
+ */
 static void tc_vprintf(const char *fmt, va_list arp)
 {
     unsigned int r, i, j, w, f;
@@ -274,13 +272,12 @@ static void tc_vprintf(const char *fmt, va_list arp)
     }
 }
 
-/********************************************************
-** \brief   Put a formatted string to the default device
-**
-** \param   const char *    fmt      Pointer to the format string
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  向默认设备输出格式化字符串
+ * @param  fmt - 格式化字符串指针
+ * @note   默认设备即 log_func 指定的输出回调
+ * @retval 无
+ */
 void tc_printf(const char *fmt,  ...)
 {
     va_list arp;
@@ -290,14 +287,13 @@ void tc_printf(const char *fmt,  ...)
     va_end(arp);
 }
 
-/********************************************************
-** \brief  Put a formatted string to the memory
-**
-** \param   char*            buff    Pointer to the output buffer
-** \param   const char *     fmt     Pointer to the format string
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  向内存缓冲区输出格式化字符串
+ * @param  buff - 目标缓冲区指针
+ * @param  fmt  - 格式化字符串指针
+ * @note   临时切换 outptr 指向 buff，输出完成后追加 '\0' 并恢复
+ * @retval 无
+ */
 void tc_sprintf(char *buff, const char *fmt, ...)
 {
     va_list arp;
@@ -312,14 +308,13 @@ void tc_sprintf(char *buff, const char *fmt, ...)
     outptr = 0;         /* Switch destination for device */
 }
 
-/********************************************************
-** \brief  Put a formatted string to the specified device
-**
-** \param   void(*func)(unsigned char)      Pointer to the output function
-** \param   const char *        fmt         Pointer to the format string
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  向指定设备输出格式化字符串
+ * @param  func - 目标设备的输出回调函数指针
+ * @param  fmt  - 格式化字符串指针
+ * @note   临时切换 log_func 到指定设备，输出完成后恢复原设备
+ * @retval 无
+ */
 void tc_fprintf(void(*func)(unsigned char), const char *fmt,  ...)
 {
     va_list arp;

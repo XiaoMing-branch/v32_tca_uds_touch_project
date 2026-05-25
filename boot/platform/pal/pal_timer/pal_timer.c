@@ -22,26 +22,22 @@
 #include "pal_timer.h"
 
 extern void timer_callback_handle(uint32_t isr);
-/********************************************************
-** \brief   timer_callback_handle
-**
-** \param   isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  定时器中断回调函数(弱符号，可重写)
+ * @param  isr - 中断状态
+ * @retval 无
+ */
 __attribute__((weak)) void timer_callback_handle(uint32_t isr)
 {
 
 }
 
-/********************************************************
-** \brief  struct timer_control_instance_t
-**
-** timer frequency = src / clk_div / count
-** timer period = 1/frequency
-** ex: frequency = 48M/10/480 =10 000HZ
-**     period =1/10000s = 0.1ms =100us
-*********************************************************/
+/**
+ * @brief  定时器控制实例默认配置
+ * @note   定时器频率 = src / clk_div / count
+ *         定时器周期 = 1/频率
+ *         示例: 频率 = 48M/10/480 = 10000Hz, 周期 = 1/10000s = 0.1ms = 100us
+ */
 timer_control_instance_t timer_ctrl_instance =
 {
     .src = FCLK_SRC_48M,
@@ -51,13 +47,12 @@ timer_control_instance_t timer_ctrl_instance =
     .callback = timer_callback_handle,
 };
 
-/********************************************************
-** \brief   pal_timer_init
-**
-** \param   timer_control_instance_t    instance
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  硬件定时器初始化
+ * @param  instance - 定时器控制实例(包含时钟源、分频、计数周期等配置)
+ * @note   初始化后自动使能中断和定时器
+ * @retval 无
+ */
 void pal_timer_init(timer_control_instance_t *instance)
 {
     timer_config_t config =
@@ -79,13 +74,11 @@ void pal_timer_init(timer_control_instance_t *instance)
     ll_timer_enable(true);
 }
 
-/********************************************************
-** \brief   pal_timer_deinit
-**
-** \param   timer_control_instance_t
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  硬件定时器去初始化
+ * @param  instance - 定时器控制实例(去初始化后清零)
+ * @retval 无
+ */
 void pal_timer_deinit(timer_control_instance_t *instance)
 {
     ll_timer_deinit();

@@ -67,27 +67,29 @@ extern "C"
 
 /*-------------enum and struct---------------------------*/
 /**
-  * @brief  lin event type enumeration
-  */
+ * @brief  LIN事件类型枚举
+ * @note   定义LIN传输层内部事件类型
+ */
 typedef enum
 {
-    LIN_EVENT_PID_OK,               /**< LIN_EVENT_PID_OK */
-    LIN_EVENT_TX_COMPLETED,         /**< LIN_EVENT_TX_COMPLETED */
-    LIN_EVENT_RX_COMPLETED,         /**< LIN_EVENT_RX_COMPLETED */
-    LIN_EVENT_PID_ERR,              /**< LIN_EVENT_PID_ERR */
-    LIN_EVENT_CHECKSUM_ERR,         /**< LIN_EVENT_CHECKSUM_ERR */
+    LIN_EVENT_PID_OK,               /**< PID校验正确 */
+    LIN_EVENT_TX_COMPLETED,         /**< 发送完成 */
+    LIN_EVENT_RX_COMPLETED,         /**< 接收完成 */
+    LIN_EVENT_PID_ERR,              /**< PID校验错误 */
+    LIN_EVENT_CHECKSUM_ERR,         /**< 校验和错误 */
 
-    LIN_EVENT_SYNC_VALUE_ERR,       /**< LIN_EVENT_SYNC_VALUE_ERR */
-    LIN_EVENT_RX_PTY_CHK_ERR,       /**< LIN_EVENT_RX_PTY_CHK_ERR */
-    LIN_EVENT_RX_TIMEOUT,           /**< LIN_EVENT_RX_TIMEOUT */
-    LIN_EVENT_TX_RX_CONF,           /**< LIN_EVENT_TX_RX_CONF */
-    LIN_EVENT_TX_PID_DONE,          /**< LIN_EVENT_TX_PID_DONE */
-    LIN_EVENT_RX_BYTE,          /**< LIN_EVENT_RX_BYTE */
+    LIN_EVENT_SYNC_VALUE_ERR,       /**< 同步场值错误 */
+    LIN_EVENT_RX_PTY_CHK_ERR,       /**< 接收奇偶校验错误 */
+    LIN_EVENT_RX_TIMEOUT,           /**< 接收超时 */
+    LIN_EVENT_TX_RX_CONF,           /**< 发送接收冲突 */
+    LIN_EVENT_TX_PID_DONE,          /**< PID发送完成 */
+    LIN_EVENT_RX_BYTE,              /**< 接收到一个字节 */
 } lin_event_type_e;
 
 /**
-  * @brief  lin bus state enumeration
-  */
+ * @brief  LIN总线状态枚举
+ * @note   定义传输层总线状态机
+ */
 typedef enum
 {
     LIN_BUS_IDLE           = 0,
@@ -97,13 +99,14 @@ typedef enum
 } lin_bus_state_e;
 
 /**
-  * @brief  lin transport layer data
-  */
+ * @brief  LIN传输层数据(8字节)
+ */
 typedef uint8_t lin_tl_data[8];
 
 /**
-  * @brief  lin packet struct
-  */
+ * @brief  LIN数据包结构体
+ * @note   包含帧ID、长度和8字节数据
+ */
 typedef struct
 {
     uint8_t id;
@@ -112,22 +115,24 @@ typedef struct
 } lin_packet_t;
 
 /**
-  * @brief  lin  transport layer queue struct
-  */
+ * @brief  LIN传输层队列结构体
+ * @note   用于管理LIN数据帧的发送/接收环形队列
+ */
 typedef struct
 {
     bool            ready;
-    uint8_t         header;           /* the first element of queue */
-    uint8_t         tail;             /* the last element of queue */
-    uint16_t        frame_index;      /* the length of data */
-    uint8_t         frame_byte;       /* the byte cnt of a frame */
-    uint8_t         pid;              /* the pid of a frame */
-    lin_tl_data     *tl_data;         /* the ptr of lin data */
+    uint8_t         header;           /**< 队列头指针 */
+    uint8_t         tail;             /**< 队列尾指针 */
+    uint16_t        frame_index;      /**< 帧序号 */
+    uint8_t         frame_byte;       /**< 帧内字节计数 */
+    uint8_t         pid;              /**< 当前帧PID */
+    lin_tl_data     *tl_data;         /**< LIN传输层数据指针 */
 } lin_tl_queue_t;
 
 /**
-  * @brief  lin  recv context struct
-  */
+ * @brief  LIN接收上下文结构体
+ * @note   用于UDS多帧接收的状态管理
+ */
 typedef struct
 {
     uint8_t         nad;
@@ -139,10 +144,46 @@ typedef struct
 } lin_recv_context_t;
 
 /*-------------Function port--------------------------*/
+/**
+ * @brief  LIN传输层初始化
+ * @note   清空发送和接收队列
+ */
 void lin_tl_init(void);
+
+/**
+ * @brief  UDS诊断消息发送
+ * @param  nad - 节点地址
+ * @param  data - 待发送数据
+ * @param  length - 数据长度
+ * @retval true - 入队成功, false - 失败
+ */
 bool lin_uds_send(uint8_t nad, uint8_t *data, uint16_t length);
+
+/**
+ * @brief  UDS否定响应发送
+ * @param  nad - 节点地址
+ * @param  sid - 服务ID
+ * @param  error_code - 错误码
+ * @retval true - 入队成功, false - 失败
+ */
 bool lin_uds_negative_response(uint8_t nad, uint8_t sid, uint8_t error_code);
+
+/**
+ * @brief  UDS诊断消息接收
+ * @param  nad - 节点地址
+ * @param  data - 接收数据缓冲区
+ * @param  length - 输出接收长度
+ * @retval true - 接收完成, false - 无数据或未完成
+ */
 bool lin_uds_receive(uint8_t nad, uint8_t *data, uint16_t *length);
+
+/**
+ * @brief  获取无条件帧数据
+ * @param  bus - LIN总线号
+ * @param  pid - 输出帧PID
+ * @param  buffer - 输出帧数据缓冲区
+ * @retval true - 有数据, false - 无数据
+ */
 bool lin_tl_uncd_frame_get(lin_bus_e bus, uint8_t *pid, uint8_t *buffer);
 #ifdef __cplusplus
 }

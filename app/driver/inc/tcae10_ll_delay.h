@@ -38,14 +38,36 @@ extern "C"
 
 
 
+/**
+ * @brief  SysTick时钟源选择：HCLK
+ */
 #define SysTick_CLKSource_HCLK   0
+/**
+ * @brief  SysTick时钟源选择：STCLK
+ */
 #define SysTick_CLKSource_STCLK  1 
 
 
 
+/**
+ * @brief  毫秒级延时
+ * @param u32Cnt - 延时毫秒数
+ */
 void delay1ms(uint32_t u32Cnt);
+/**
+ * @brief  100微秒级延时
+ * @param u32Cnt - 延时100微秒的个数
+ */
 void delay100us(uint32_t u32Cnt);
+/**
+ * @brief  微秒级延时
+ * @param u32Cnt - 延时微秒数
+ */
 void delay1us(uint32_t u32Cnt);
+/**
+ * @brief  配置SysTick时钟源
+ * @param source - 时钟源选择（SysTick_CLKSource_HCLK 或 SysTick_CLKSource_STCLK）
+ */
 void ll_systick_clkconfig(uint32_t source);
 
 #ifdef __cplusplus

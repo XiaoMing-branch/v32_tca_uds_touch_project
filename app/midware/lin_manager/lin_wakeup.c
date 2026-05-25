@@ -1,6 +1,7 @@
 /**
  *****************************************************************************
- * @brief  lin wakeup source file.
+ * @brief  LIN休眠/唤醒管理模块源文件。
+ *         处理低功耗模式切换(DEEPSLEEP_MODE)、弱函数定义（测量值清除和LED颜色恢复）。
  * @file   lin_wakeup.c
  * @author AE/FAE team
  * @date   09/Jan/2024
@@ -25,66 +26,61 @@ extern uint8_t g_lighting_init;
 extern void meas_manager_value_clear(void);
 extern void led_color_wakeup_recovery_handle(void);
 
-/********************************************************
-** \brief   meas_manager_value_clear
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  清除测量管理器的采样值（弱函数，可被用户重写）
+ * @note   默认空实现，在唤醒后调用，用于清除休眠前的测量数据
+ * @retval 无
+ */
 __attribute__((weak)) void meas_manager_value_clear(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   led_color_wakeup_recovery_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  唤醒后恢复LED颜色状态（弱函数，可被用户重写）
+ * @note   默认空实现，在唤醒后调用，用于恢复休眠前的LED显示效果
+ * @retval 无
+ */
 __attribute__((weak)) void led_color_wakeup_recovery_handle(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   system_low_power_init
-**
-** \param   None
-**
-** \retval  None
-** \note    EEPSLEEP_MODE=580ua, SLEEPWALK_MODE=23ua
-*********************************************************/
+/**
+ * @brief  设置LIN休眠模式并执行低功耗进入/退出流程
+ * @param  mode - 休眠模式选择
+ * @note   支持模式：
+ *         - DEEPSLEEP_MODE: 深度睡眠，约580uA
+ *         - SLEEPWALK_MODE: 浅睡眠，约23uA
+ * @retval 无
+ */
 static void lin_sleep_mode_set(sleep_mode_e mode)
 {
     /* low power enter */
-    pmu_lpm_enter(mode);
+    pmu_lpm_enter(mode);  /* 进入低功耗模式，MCU停止运行直到唤醒事件 */
 
     /* low power exit */
-    pmu_lpm_exit();
+    pmu_lpm_exit();  /* 唤醒后退出低功耗模式，恢复系统时钟 */
 }
 
-/********************************************************
-** \brief   system_low_power_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  初始化系统低功耗管理模块
+ * @note   调用PMU底层初始化，配置低功耗相关寄存器
+ * @retval 无
+ */
 void system_low_power_init(void)
 {
     pmu_lpm_init();
 }
 
-/********************************************************
-** \brief   sleep_mode_enter
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  进入休眠模式的主入口函数
+ * @note   当lin_goto_sleep_flg置位时触发：
+ *         1. 清零休眠标志和一致性测试唤醒计数
+ *         2. 调用lin_sleep_mode_set进入DEEPSLEEP_MODE
+ *         3. 唤醒后清除测量值并恢复LED颜色
+ * @retval 无
+ */
 #ifdef CFG_LIN_CONFORM_TEST
     extern volatile uint8_t bus_wake_flag;
     extern uint32_t bus_wake_cnts;
@@ -100,11 +96,11 @@ void sleep_mode_enter(void)
         bus_wake_cnts = 0;
 #endif
 
-        lin_sleep_mode_set(DEEPSLEEP_MODE);
+        lin_sleep_mode_set(DEEPSLEEP_MODE);  /* 进入深度睡眠（包含唤醒后的退出） */
 
         /* meas_manager_value_clear */
-        meas_manager_value_clear();
+        meas_manager_value_clear();  /* 唤醒后清除测量采样值 */
         /* led color restore */
-        led_color_wakeup_recovery_handle();
+        led_color_wakeup_recovery_handle();  /* 唤醒后恢复LED颜色状态 */
     }
 }

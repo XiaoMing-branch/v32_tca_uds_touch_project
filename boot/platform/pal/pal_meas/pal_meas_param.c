@@ -22,6 +22,11 @@
 #include "pal_func_def.h"
 #include "pal_meas_def.h"
 
+/**
+ * @brief  ADC默认电压/温度参数表
+ * @note   索引0:温度传感器, 索引1:电池电压
+ *         TCPL03X使用ratio/buf/pag/vcr/gain/vcm/vref参数
+ */
 #if defined (__TCPL03X__)
 adc_cfg_t default_vbvt_param_table[2] =
 {

@@ -21,6 +21,12 @@
 #include "pal_log.h"
 #include "tc_printf.h"
 
+/**
+ * @brief  初始化日志模块，配置UART日志输出
+ * @note   通过 pal_log_init 初始化串口(115200bps)，
+ *         并通过 log_out_func 注册 PAL 层输出函数
+ * @retval 无
+ */
 void logging_init(void)
 {
 #if 1 == CFG_SUPPORT_LOG
@@ -30,6 +36,11 @@ void logging_init(void)
 #endif
 }
 
+/**
+ * @brief  反初始化日志模块，关闭UART日志输出
+ * @note   调用 pal_log_deinit 关闭串口，并将输出函数指针置空
+ * @retval 无
+ */
 void logging_deinit(void)
 {
 #if 1 == CFG_SUPPORT_LOG

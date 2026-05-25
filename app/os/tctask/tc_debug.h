@@ -21,27 +21,59 @@
 #ifndef TC_DEBUG_H__
 #define TC_DEBUG_H__
 
+/**
+ * @brief  调试打印模块
+ * @note   仅在TC_DEBUG_PRINT使能时编译
+ */
 #if TC_DEBUG_PRINT
 
-/*打印任务结构体*/
+/**
+ * @brief  打印任务结构体内容
+ * @param  task - 目标任务指针
+ * @param  desp - 描述字符串（可NULL）
+ */
 void TcPrintTask(T_TcTask * task,const char *desp);
 
-/*打印消息结构体*/
+/**
+ * @brief  打印消息结构体内容
+ * @param  msg  - 目标消息指针
+ * @param  desp - 描述字符串（可NULL）
+ */
 void TcPrintMsg(T_TcMsg * msg,const char *desp);
 
-/*打印链表结构体*/
+/**
+ * @brief  打印链表头结构体内容
+ * @param  list - 目标链表头指针
+ * @param  desp - 描述字符串（可NULL）
+ */
 void TcPrintListHead(struct T_TcListHead * list,const char *desp);
 
-/*打印内存结构体*/
+/**
+ * @brief  打印内存池结构体内容
+ * @param  mem  - 目标内存池指针
+ * @param  desp - 描述字符串（可NULL）
+ */
 void TcPrintMem(T_TcMem * mem,const char *desp);
 
-/*打印定时器结构体*/
+/**
+ * @brief  打印定时器结构体内容
+ * @param  timer - 目标定时器指针
+ * @param  desp  - 描述字符串（可NULL）
+ */
 void TcPrintTimer(T_TcTimer * timer,const char *desp);
 
 #endif
 
+/**
+ * @brief  CPU利用率打印模块
+ * @note   仅在TC_GENERATE_RUN_TIME_STATS使能时编译
+ */
 #if TC_GENERATE_RUN_TIME_STATS
-/*打印CPU利用率*/
+
+/**
+ * @brief  打印所有任务CPU利用率
+ * @note   遍历所有任务，调用TcGetTaskRunStats获取CPU占用率并打印
+ */
 void TcPrintCpuUsage(void);
 #endif
 

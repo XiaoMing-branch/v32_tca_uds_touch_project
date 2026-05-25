@@ -29,10 +29,25 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief  默认中断优先级等级
+ */
 #define TCAE10_DEFAULT_IRQ_LEVEL        3
 
+/**
+ * @brief  使能/禁能NVIC中断
+ * @param irq - 中断号
+ * @param level - 中断优先级
+ * @param en - true: 使能，false: 禁能
+ */
 void EnableNvic(uint32_t irq, uint8_t level, bool en);
+/**
+ * @brief  全局使能中断
+ */
 void interrupt_enable(void);
+/**
+ * @brief  全局禁能中断
+ */
 void interrupt_disable(void);
 
 #ifdef __cplusplus

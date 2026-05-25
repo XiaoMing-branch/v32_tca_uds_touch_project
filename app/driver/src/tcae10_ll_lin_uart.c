@@ -44,85 +44,58 @@ uint8_t  uartTxEmpty = 1;
 * Code:
 ******************************************************************************/
 
+/**
+ * @brief   反初始化LIN SCI1 UART外设
+ * @note    复位LIN_SCI1外设寄存器
+ * @retval  None
+ */
 void ll_lin_sci_uart_deinit(void)
 {
     CRG_CONFIG_UNLOCK();
-    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 1;
+    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 1;              /* 复位LIN SCI1 */
     __NOP();
     __NOP();
-    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 0;
+    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 0;              /* 释放复位 */
     __NOP();
     __NOP();
     CRG_CONFIG_LOCK();
 }
 
-/********************************************************
- @brief  SCI
- @param  uart:uart
-         option:
- @retval void
- *********************************************************/
+/**
+ * @brief   设置LIN SCI工作模式（LIN模式或UART模式）
+ * @param   mode - sci_mode_LIN（LIN模式）或sci_mode_UART（UART模式）
+ * @note    配置CTRL_UART寄存器中的MODE位，同时配置停止位和多处理器模式
+ * @retval  None
+ */
 void ll_lin_sci_uart_mode(sci_mode_t mode)
 {
-//    uint32_t reg_val = 0;
-//    uint8_t status = 0;
-//    ( void ) ( &status );
-//    afe_reg_read(&LIN_SCI->CTRL_UART, &reg_val, &status);
-//    if (mode == LIN)
-//    {
-//        reg_val &= LIN_SCI_CTRL_UART_MODE_CLR;
-//    }
-//    else
-//    {
-//        reg_val |= LIN_SCI_CTRL_UART_MODE_SET(1);
-//    }
-    LIN_SCI->CTRL_UART_F.MODE = mode;
+    LIN_SCI->CTRL_UART_F.MODE = mode;                           /* 设置模式：0-LIN，1-UART */
     /* set uart communication crc bit mode */
-    //    reg_val &= LIN_SCI_CTRL_UART_PTY_CHK_EN_CLR;
-    //    reg_val |= LIN_SCI_CTRL_UART_PTY_CHK_EN_SET(0x00);
-    //    reg_val &= LIN_SCI_CTRL_UART_PTY_MODE_CLR;
-    //    reg_val |= LIN_SCI_CTRL_UART_PTY_MODE_SET(0x00);
     /* set uart stop bit*/
-    //reg_val &= LIN_SCI_CTRL_UART_STP_BIT_SEL_CLR;
-    LIN_SCI->CTRL_UART_F.STP_BIT_SEL = 0;
+    LIN_SCI->CTRL_UART_F.STP_BIT_SEL = 0;                       /* 设置停止位为1位 */
     /* set uart MP mode */
-    //reg_val |= LIN_SCI_CTRL_UART_MP_MODE_EN_SET(1);
-    LIN_SCI->CTRL_UART_F.MP_MODE_EN = 1;
-    //reg_val |= LIN_SCI_CTRL_UART_MP_RX_ADDR_WR_EN_SET(1);
-    LIN_SCI->CTRL_UART_F.MP_RX_ADDR_WR_EN = 1;
-    //reg_val |= LIN_SCI_CTRL_UART_MP_TX_ADDR_DATA_SEL_SET(1);
-    LIN_SCI->CTRL_UART_F.MP_TX_ADDR_DATA_SEL = 1;
-    //afe_reg_write(&LIN_SCI->CTRL_UART, reg_val, &status);
+    LIN_SCI->CTRL_UART_F.MP_MODE_EN = 1;                        /* 使能多处理器模式 */
+    LIN_SCI->CTRL_UART_F.MP_RX_ADDR_WR_EN = 1;                  /* 使能接收地址写入 */
+    LIN_SCI->CTRL_UART_F.MP_TX_ADDR_DATA_SEL = 1;               /* 发送地址/数据选择 */
     /* set uart MP address */
-    //afe_reg_read(&LIN_SCI->RX_CFG, &reg_val, &status);
-    //reg_val &= LIN_SCI_RX_CFG_MP_SLAVE_ADDR_CLR;
-    LIN_SCI->RX_CFG_F.MP_SLAVE_ADDR = 0;
-    //reg_val |= LIN_SCI_RX_CFG_MP_SLAVE_ADDR_SET(0xaa);
-    LIN_SCI->RX_CFG_F.MP_SLAVE_ADDR = 0xAA;
-    //reg_val |= LIN_SCI_RX_CFG_MP_SLAVE_ADDR_MSK_SET(1);
-    LIN_SCI->RX_CFG_F.MP_SLAVE_ADDR_MSK = 1;
-    //afe_reg_write(&LIN_SCI->RX_CFG, reg_val, &status);
+    LIN_SCI->RX_CFG_F.MP_SLAVE_ADDR = 0xAA;                     /* 设置从机地址 */
+    LIN_SCI->RX_CFG_F.MP_SLAVE_ADDR_MSK = 1;                    /* 使能地址掩码 */
 }
 
-/********************************************************
- @brief  UART??????
- @retval void
- *********************************************************/
+/**
+ * @brief   配置LIN SCI UART的IO引脚
+ * @note    当前为空实现，使用默认引脚映射
+ * @retval  None
+ */
 void ll_lin_sci_uart_io_config(void)
 {
-#if 0
-    CRG_FclkCmd(CRG_FCLK_GATED_GPIO, ENABLE);
-    LED_IO_SoftwarInputSet(LED_IO_Pin_1, LED_IO1_SOFTWARE_INPUT_FUNCTION_LIN_RXD);
-    LED_IO_SoftwarInputSet(LED_IO_Pin_2, LED_IO2_SOFTWARE_INPUT_FUNCTION_LIN_TXD);
-
-#else
-
-    /*Use a2d_lin_rx pin on J1004 */
-    /*Use a2d_lin_tx pin on J1009 */
-
-#endif
 }
 
+/**
+ * @brief   获取LIN SCI UART外设时钟频率
+ * @return  LIN SCI模块的实际工作时钟频率（Hz）
+ * @note    根据CRG分频配置计算：fclk = hclk / (div + 1)
+ */
 static uint32_t lin_sci_uart_clock_get(void)
 {
     uint32_t reg_val = 0;
@@ -130,17 +103,20 @@ static uint32_t lin_sci_uart_clock_get(void)
     (void)(&status);
 
     reg_val = CRG->LIN_SCI1_CLKRST_CTRL;
-    reg_val &= CRG_LIN_SCI1_CLKRST_CTRL_FCLK_DIV_LIN_SCI1_MASK;
+    reg_val &= CRG_LIN_SCI1_CLKRST_CTRL_FCLK_DIV_LIN_SCI1_MASK; /* 读取分频值 */
     reg_val >>= CRG_LIN_SCI1_CLKRST_CTRL_FCLK_DIV_LIN_SCI1_SHIFT;
 
-    return ((SystemGetHClkFreq()) / (reg_val + 1));
+    return ((SystemGetHClkFreq()) / (reg_val + 1));             /* 计算实际时钟频率 */
 }
 
 /**
-  * @brief  Sets sci Baudrate
-  * @param  badreate Bardrate
-  * @retval None
-  */
+ * @brief   设置SCI波特率分频寄存器
+ * @param   dlh  - 分频系数高4位
+ * @param   dll  - 分频系数低8位
+ * @param   frac - 小数分频系数（4位）
+ * @note    波特率 = fclk / (16 * (DLH:DLL + frac/16))
+ * @retval  None
+ */
 static void sci_uart_divided(unsigned int dlh, unsigned int dll, unsigned int frac)
 {
     uint32_t reg_val = 0;
@@ -150,171 +126,148 @@ static void sci_uart_divided(unsigned int dlh, unsigned int dll, unsigned int fr
     dlh &= 0x0f;
     dll &= 0xff;
     frac &= 0x0f;
-    reg_val |= (frac << 12 | dlh << 8 | dll);
-    LIN_SCI1->BAUD_CFG = reg_val;
+    reg_val |= (frac << 12 | dlh << 8 | dll);                   /* 组合波特率配置值 */
+    LIN_SCI1->BAUD_CFG = reg_val;                               /* 写入波特率配置寄存器 */
 }
 
+/**
+ * @brief   设置LIN SCI UART波特率
+ * @param   baudrate - 目标波特率值
+ * @note    根据外设时钟频率自动计算分频系数，支持小数分频以实现精确波特率
+ * @retval  None
+ */
 void ll_lin_sci_uart_setbaudrate(uint32_t baudrate)
 {
     uint32_t  clk;
 
     uint32_t div;
     uint8_t frac = 0;
-    clk = lin_sci_uart_clock_get();
+    clk = lin_sci_uart_clock_get();                             /* 获取外设时钟频率 */
     /* Fck/(16*Baud_Rate) */
-    div = clk >> 4;
-    frac = div % baudrate;
-    frac = (frac << 4) / baudrate;
-    div  = div / baudrate;
-    sci_uart_divided(((div >> 8) & 0xff), ((div >> 0) & 0xff), frac);
+    div = clk >> 4;                                             /* 除以16 */
+    frac = div % baudrate;                                      /* 计算余数 */
+    frac = (frac << 4) / baudrate;                              /* 计算小数分频 */
+    div  = div / baudrate;                                      /* 整数分频 */
+    sci_uart_divided(((div >> 8) & 0xff), ((div >> 0) & 0xff), frac);  /* 写分频寄存器 */
 }
 
 /**
-  * @brief  Sets sci Baudrate
-  * @param  badreate Bardrate
-  * @retval None
-  */
+ * @brief   配置LIN RX接收滤波器时间
+ * @param   filter - 滤波器时间常数
+ * @note    用于滤除LIN总线上的噪声毛刺，同时配置RX延迟
+ * @retval  None
+ */
 void ll_lin_sci_uart_rxfilter_cfg(uint16_t filter)
 {
-    LIN_SCI->RX_FILTER_CFG_F.RX_FILTER_TIM = filter;
-    TEST->TEST_LIN_CTRL_F.LIN_RX_DELAY = 0;
+    LIN_SCI->RX_FILTER_CFG_F.RX_FILTER_TIM = filter;            /* 设置接收滤波时间 */
+    TEST->TEST_LIN_CTRL_F.LIN_RX_DELAY = 0;                    /* 配置LIN RX延迟 */
 }
-
-#if 0
-uint8_t GetRxFifoTrigNum(uint8_t triggerLevel)
-{
-    uint8_t value = 0;
-
-    if (triggerLevel == 0)
-    {
-        value = 1;
-    }
-    else if (triggerLevel == 1)
-    {
-        value = 8;
-    }
-    else if (triggerLevel == 2)
-    {
-        value = 16;
-    }
-    else if (triggerLevel == 3)
-    {
-        value = 30;
-    }
-
-    return value;
-}
-#endif
 
 /**
-  * @brief  Init UART peripheral
-  * @param  uartConfig a pointer to uart configuration struct where teh configuration information are exist
-  * @retval None
-  */
-
+ * @brief   初始化LIN SCI UART（设置为UART模式）
+ * @note    写入CTRL_UART寄存器MODE位为1（UART模式）
+ * @retval  None
+ */
 void ll_lin_sci_uart_init(void)
 {
-    LIN_SCI->CTRL_UART_F.MODE = 1;
+    LIN_SCI->CTRL_UART_F.MODE = 1;                              /* 设置为UART模式 */
 }
 
 /**
-  * @brief  Enables or disables sci
-  * @param  en TRUE for enable, FASLE for disable
-  * @retval None
-  */
-
+ * @brief   使能或禁能LIN SCI外设
+ * @param   en - TRUE使能，FALSE禁能
+ * @note    清除TX/RX FIFO，配置TX/RX使能，设置全局使能
+ * @retval  None
+ */
 void ll_lin_sci_uart_enable(boolean_t en)
 {
-    /* Config Master Tx related settings*/
-    /*First clear Tx FIFO ,trig,clr,abort first high then low*/
+    /* 清除TX FIFO和RX FIFO */
     LIN_SCI->CTRL_F.TX_FIFO_CLR = 1;
     LIN_SCI->CTRL_F.RX_FIFO_CLR = 1;
     LIN_SCI->CTRL_F.TX_NUM_MODE = 0;
     LIN_SCI->CTRL_F.RX_NUM_MODE = 0;
-    LIN_SCI->CTRL_F.TX_EN = 1;
-    LIN_SCI->CTRL_F.RX_EN = 1;
-    LIN_SCI->CTRL_F.GLB_EN = 1;
+    LIN_SCI->CTRL_F.TX_EN = 1;                                   /* 使能发送 */
+    LIN_SCI->CTRL_F.RX_EN = 1;                                   /* 使能接收 */
+    LIN_SCI->CTRL_F.GLB_EN = 1;                                  /* 全局使能 */
     LIN_SCI->CTRL_F.TX_NUM = 0;
     LIN_SCI->CTRL_F.RX_NUM = 0;
 }
 
-
-
 /**
-  * @brief  Send one byte over UART
-  * @param  data The byte to be sent over UART
-  * @retval None
-  */
-//#if defined   ( __ICCARM__   ) /* iar */
-//    #pragma location = "RAMUSERCODE"
-//#elif defined ( __CC_ARM )     /* keil */
-//    __attribute__((section("RAMCODE")))
-//#endif
+ * @brief   通过LIN SCI UART发送一个字节
+ * @param   data - 待发送的字节数据
+ * @note    阻塞等待TX FIFO非满后写入数据
+ * @retval  None
+ */
 void ll_lin_sci_uart_send_byte(uint8_t data)
 {
-    LIN_SCI->TX_DATA_F.TX_DATA = data;
-    while (LIN_SCI->STATUS_F.TX_FIFO_FULL);
-
+    LIN_SCI->TX_DATA_F.TX_DATA = data;                           /* 写入发送数据 */
+    while (LIN_SCI->STATUS_F.TX_FIFO_FULL);                     /* 等待TX FIFO非满 */
 }
 
-
 /**
-  * @brief  Send data over UART
-  * @param  pu8Buffer The data to be sent over UART
-  * @param  u32Len  Data length
-  * @retval None
-  */
-
+ * @brief   通过LIN SCI UART发送多个字节
+ * @param   pu8Buffer - 指向待发送数据的指针
+ * @param   u32Len    - 数据长度
+ * @retval  None
+ */
 void ll_lin_sci_uart_send_bytes(uint8_t *pu8Buffer, uint32_t u32Len)
 {
     while (u32Len != 0)
     {
-        /* Send one character to UART */
-        ll_lin_sci_uart_send_byte(*pu8Buffer);
+        ll_lin_sci_uart_send_byte(*pu8Buffer);                  /* 逐字节发送 */
         pu8Buffer++;
         u32Len--;
     }
 }
 
-//#if defined   ( __ICCARM__   ) /* iar */
-//    #pragma location = "RAMUSERCODE"
-//#elif defined ( __CC_ARM )     /* keil */
-//    __attribute__((section("RAMCODE")))
-//#endif
-//uint8_t UART_ReceiveByte(void)
-//{
-//    return (LIN_SCI->RX_DATA_F.RX_DATA);
-//}
-
 /**
-  * @brief  Selects the check point position for Tx
-  * @param  sel: the position of the check poin
-            0 at the middle of tx bit
-            1 at the last fclk of tx bit
-  * @retval None
-  */
-
+ * @brief   选择LIN SCI TX检测点位置
+ * @param   sel - 0：在TX位中间检测；1：在TX位最后一个FCLK检测
+ * @retval  None
+ */
 void ll_lin_sci_tx_check_point_select(uint8_t sel)
 {
-    LIN_SCI->TX_CFG_F.CHK_PT_SEL = sel;
+    LIN_SCI->TX_CFG_F.CHK_PT_SEL = sel;                         /* 设置检测点位置 */
 }
 
+/**
+ * @brief   使能LIN SCI中断
+ * @param   lin_sci_int - 要使能的中断标志位
+ * @note    写IMR清除对应位使能中断
+ * @retval  None
+ */
 void ll_lin_sci_interrupt_enable(uint32_t lin_sci_int)
 {
-    LIN_SCI->IMR &= ~(lin_sci_int);
+    LIN_SCI->IMR &= ~(lin_sci_int);                              /* 清除IMR对应位，使能中断 */
 }
 
+/**
+ * @brief   禁能LIN SCI中断
+ * @param   lin_sci_int - 要禁能的中断标志位
+ * @retval  None
+ */
 void ll_lin_sci_interrupt_disable(uint32_t lin_sci_int)
 {
-    LIN_SCI->IMR |= lin_sci_int;
+    LIN_SCI->IMR |= lin_sci_int;                                 /* 设置IMR对应位，禁能中断 */
 }
 
+/**
+ * @brief   获取LIN SCI中断状态
+ * @param   lin_sci_int - 要查询的中断标志位
+ * @retval  true - 中断已发生，false - 无中断
+ */
 bool ll_lin_sci_interrupt_status_get(uint32_t lin_sci_int)
 {
-    return ((LIN_SCI->ISR & lin_sci_int));
+    return ((LIN_SCI->ISR & lin_sci_int));                      /* 读取ISR寄存器 */
 }
 
+/**
+ * @brief   清除LIN SCI中断标志
+ * @param   lin_sci_int - 要清除的中断标志位
+ * @retval  None
+ */
 void ll_lin_sci_interrupt_clear(uint32_t lin_sci_int)
 {
-    LIN_SCI->ICR |= lin_sci_int;
+    LIN_SCI->ICR |= lin_sci_int;                                 /* 写ICR清除中断标志 */
 }

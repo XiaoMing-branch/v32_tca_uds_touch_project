@@ -71,10 +71,41 @@ typedef struct
     LIN_FUNC_CALLBACK exit_func;
 } lin_snpd_context_t;
 
+/**
+ * @brief  获取SNPD状态值
+ * @param  type - 状态类型（@ref lin_aa_status_e）
+ * @retval 返回对应状态值，类型无效时返回0
+ */
 uint8_t lin_snpd_status_get(lin_aa_status_e type);
+
+/**
+ * @brief  设置SNPD状态值
+ * @param  type - 状态类型（@ref lin_aa_status_e）
+ * @param  value - 要设置的状态值
+ * @retval 无
+ */
 void lin_snpd_status_set(lin_aa_status_e type, uint8_t value);
+
+/**
+ * @brief  初始化SNPD模块
+ * @param  ctx - SNPD上下文结构体指针
+ * @retval 无
+ */
 void lin_snpd_init(lin_snpd_context_t *ctx);
+
+/**
+ * @brief  SNPD流程处理（主循环周期调用）
+ * @param  无
+ * @retval 无
+ */
 void lin_snpd_process_handle(void);
+
+/**
+ * @brief  SNPD诊断命令处理
+ * @param  ptr - 诊断数据缓冲区指针
+ * @param  length - 数据长度
+ * @retval 无
+ */
 void lin_snpd_diag_handle(uint8_t *ptr, uint16_t length);
 
 #ifdef __cplusplus

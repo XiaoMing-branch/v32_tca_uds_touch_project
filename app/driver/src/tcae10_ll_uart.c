@@ -28,14 +28,15 @@
 #include "system_tcae10.h"
 
 /**
-  * @brief  This function configures UART
-  * @param  uint32_t baud uart baudrate
-  * @retval None
-  */
+ * @brief   反初始化调试UART（Print UART）
+ * @param   None
+ * @note    复位Print UART外设寄存器，兼容Keil和GCC编译器
+ * @retval  None
+ */
 void ll_uart_deinit(void)
 {
     CRG_CONFIG_UNLOCK();
-    CRG->PRINT_UART_CLKRST_CTRL_F.RST_PRINT_UART = 1;
+    CRG->PRINT_UART_CLKRST_CTRL_F.RST_PRINT_UART = 1;  /* 复位Print UART */
 #if defined (__ARMCC_VERSION)      /* Keil uVision */
     __NOP();
     __NOP();
@@ -45,46 +46,49 @@ void ll_uart_deinit(void)
     __NOP();
     __NOP();
 #endif
-    CRG->PRINT_UART_CLKRST_CTRL_F.RST_PRINT_UART = 0;
+    CRG->PRINT_UART_CLKRST_CTRL_F.RST_PRINT_UART = 0;  /* 释放复位 */
 }
 
 
 
 /**
-  * @brief  This function configures UART
-  * @param  uint32_t baud uart baudrate
-  * @retval None
-  */
+ * @brief   初始化调试UART（Print UART）
+ * @param   baud - UART波特率
+ * @note    使能Print UART时钟，根据系统时钟计算分频系数设置波特率
+ * @retval  None
+ */
 void ll_uart_init(uint32_t baud)
 {
     uint16_t prescale;
 
     CRG_CONFIG_UNLOCK();
-    CRG->PRINT_UART_CLKRST_CTRL_F.PCLK_EN_PRINT_UART = 1;
+    CRG->PRINT_UART_CLKRST_CTRL_F.PCLK_EN_PRINT_UART = 1;  /* 使能Print UART PCLK */
     CRG_CONFIG_LOCK();
 
-    prescale = (SystemGetHClkFreq() / baud) - 1;
-    PRINT_UART->PRESCALE_F.PRESCALE = prescale ;
+    prescale = (SystemGetHClkFreq() / baud) - 1;            /* 计算波特率分频系数 */
+    PRINT_UART->PRESCALE_F.PRESCALE = prescale ;            /* 设置分频寄存器 */
 }
 
 /**
-  * @brief  This function sends a byte over UARt
-  * @param  uint8_t data the data byte
-  * @retval None
-  */
+ * @brief   通过UART发送一个字节（调试输出）
+ * @param   data - 待发送的字节数据
+ * @note    阻塞等待发送完成
+ * @retval  None
+ */
 void ll_uart_sendbyte(uint8_t data)
 {
-    PRINT_UART->TX_DATA_F.TX_DATA = data;
+    PRINT_UART->TX_DATA_F.TX_DATA = data;           /* 写入发送数据寄存器 */
 
-    while (PRINT_UART->STATUS_F.TX_BUSY == 1);
+    while (PRINT_UART->STATUS_F.TX_BUSY == 1);       /* 等待发送完成 */
 }
 
 /**
-  * @brief  This function sends a data packet over UARt
-  * @param  data point to the data packet
-  * @param  data packet length
-  * @retval None
-  */
+ * @brief   通过UART发送数据包（调试输出）
+ * @param   data   - 指向待发送数据的指针
+ * @param   length - 数据包长度
+ * @note    循环调用ll_uart_sendbyte逐字节发送
+ * @retval  None
+ */
 void ll_uart_senddata(uint8_t *data, uint16_t length)
 {
     while (length-- > 0)
@@ -94,6 +98,12 @@ void ll_uart_senddata(uint8_t *data, uint16_t length)
     }
 }
 
+/**
+ * @brief   设置调试UART的TX输出引脚
+ * @param   pin - UART打印引脚选择，可取GPIO2/3/5/6
+ * @note    选择GPIO6时需额外使能PWM和ADC相关外设
+ * @retval  None
+ */
 void ll_uart_set_printpin(UART_PrintPin_t pin)
 {
     switch (pin)

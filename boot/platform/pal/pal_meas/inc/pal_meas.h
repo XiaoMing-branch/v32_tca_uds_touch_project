@@ -50,7 +50,8 @@ extern "C" {
 #define MEAS_MULTIPLEX_NUM            1
 #endif
 /**
- * @brief meas volt type enumeration
+ * @brief  测量电压类型枚举
+ * @note   定义温度/电池/PN结电压测量类型
  */
 typedef enum
 {
@@ -64,7 +65,8 @@ typedef enum
 } meas_volt_type_e;
 
 /**
- * @brief meas trig src enumeration
+ * @brief  测量触发源枚举
+ * @note   定义PWM通道的清除/计数最大值触发源
  */
 typedef enum
 {
@@ -78,27 +80,29 @@ typedef enum
 } trig_src_e;
 
 /**
- * @brief meas vf status enumeration
+ * @brief  LED VF状态标志枚举
+ * @note   定义PN结电压采样的数据就绪/暂停/采集/静态采样状态
  */
 typedef enum
 {
-    LED_VF_DATA_STATUS = (0x01U << 1),          /* RGB PN volt data ready */
-    LED_VF_SUSPEND_STATUS = (0x01U << 2),       /* PN volt sample flag */
-    LED_VF_ACQUIRE_STATUS = (0x01U << 3),       /* PN volt acquire flag */
-    LED_VF_STATIC_SAMP_STATUS = (0x01U << 4),   /* PN volt statci sample flag */
+    LED_VF_DATA_STATUS = (0x01U << 1),          /**< RGB PN结电压数据就绪 */
+    LED_VF_SUSPEND_STATUS = (0x01U << 2),       /**< PN结电压采样暂停标志 */
+    LED_VF_ACQUIRE_STATUS = (0x01U << 3),       /**< PN结电压采集标志 */
+    LED_VF_STATIC_SAMP_STATUS = (0x01U << 4),   /**< PN结电压静态采样标志 */
 } led_vf_status_type_e;
 
 /**
- * @brief meas vf channel status struct
+ * @brief  VF通道状态结构体
+ * @note   表示每个PWM通道的数据就绪状态
  */
 typedef struct
 {
-    // uint16_t duty;
     bool data_ready;
 } vf_channel_status_t;
 
 /**
- * @brief meas vf status struct
+ * @brief  VF采样状态位域结构体
+ * @note   位域方式表示采样状态
  */
 typedef struct
 {
@@ -109,14 +113,16 @@ typedef struct
 } vf_sample_status_t;
 
 /**
- * @brief meas vf sample context struct
+ * @brief  VF采样上下文结构体
+ * @note   保存PWM通道、触发源、通道状态、VF码值及采样状态
+ *         TCPL03X: vf_code[][0]=VF, [1]=AON_T温度, [2]=AON
  */
 typedef struct
 {
     uint8_t channel;
     trig_src_e trig_src;
     vf_channel_status_t ch_status[LED_TYPE_MAX];
-    uint16_t vf_code[LED_TYPE_MAX][LED_VF_SAMP_CALC_NUM]; /* TCPL03X 0-VF 1-AON_T 2-AON*/
+    uint16_t vf_code[LED_TYPE_MAX][LED_VF_SAMP_CALC_NUM];
     union
     {
         uint16_t vf_status;
@@ -126,18 +132,21 @@ typedef struct
 } vf_sample_ctx_t;
 
 /**
- * @brief led meas context struct
+ * @brief  LED测量上下文结构体
+ * @note   保存采样就绪标志、RGB VF映射和VF采样上下文
+ *         vf_samp为PWM0-2三通道(未做RGB映射)
  */
 typedef struct
 {
     bool sample_ready;
     uint8_t *rgb_vf_mux;
-    vf_sample_ctx_t vf_samp; //此结构体为PWM0-2的三通道未做RGB映射
+    vf_sample_ctx_t vf_samp;
 
 } led_measure_context_t;
 
 /**
- * @brief led rgb safty threshold struct
+ * @brief  LED RGB安全阈值结构体
+ * @note   定义RGB通道的上下限阈值
  */
 typedef struct
 {

@@ -20,12 +20,21 @@
 
 #include "tc.h"
 
-/*统计任务运行状态*/
+/**
+ * @brief  任务运行时统计模块
+ * @note   仅在TC_GENERATE_RUN_TIME_STATS使能时编译
+ *         每5秒统计一次各个任务的CPU使用率
+ */
 #if TC_GENERATE_RUN_TIME_STATS
 
-static uint32_t TcRecordTaskFreshTime = 0;  //每5秒刷新一次
+static uint32_t TcRecordTaskFreshTime = 0;  /**< 上次刷新时间戳，每5秒刷新一次 */
 
-/*记录每个任务运行时间*/
+/**
+ * @brief  记录每个任务运行时间
+ * @note   在SysTick中断中调用，每次中断时累加当前任务的tickCntPer5S计数
+ *         当系统运行时间达到5秒时，调用TcAllTaskClrTickCnt()清零计数器
+ *         并将累计值保存到lastTickCnt中供后续计算CPU利用率
+ */
 void TcRecordTaskRunTime(void)
 {
     T_TcTask * taskLock = NULL;

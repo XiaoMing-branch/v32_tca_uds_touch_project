@@ -29,9 +29,21 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief  空闲模式
+ */
 #define SLPMODE_IDLE            0
+/**
+ * @brief  睡眠模式
+ */
 #define SLPMODE_SLEEP           1
+/**
+ * @brief  睡眠漫步模式
+ */
 #define SLPMODE_SLEEPWALK       2
+/**
+ * @brief  深度睡眠模式
+ */
 #define SLPMODE_DEEPSLEEP       3
 
 typedef enum
@@ -43,9 +55,25 @@ typedef enum
     SLEEP_MODE_MAX  = 4
 } sleep_mode_e;
 
+/**
+ * @brief  MCU进入低功耗模式
+ * @param state - 睡眠模式 @ref sleep_mode_e
+ * @param on_exit - true: 退出时唤醒，false: 持续睡眠
+ */
 void ll_lpm_mcu_enter(sleep_mode_e state, bool on_exit);
+/**
+ * @brief  AFE模拟前端进入低功耗模式
+ * @param mode - 睡眠模式 @ref sleep_mode_e
+ */
 void ll_lpm_afe_enter(sleep_mode_e mode);
+/**
+ * @brief  PMU GPIO进入低功耗状态
+ */
 void ll_pmu_gpio_lowpower(void);
+/**
+ * @brief  使能/禁能PMU LDO虚拟负载
+ * @param enable - true: 使能，false: 禁能
+ */
 void ll_pmu_ldo_dummy_enable(bool enable);
 
 #ifdef __cplusplus

@@ -25,14 +25,20 @@
 extern "C" {
 #endif
 
-#define PAL_CRC_TYPE_HARDWARE                     (0)
-#define PAL_CRC_TYPE_TABLE                        (1)
-#define PAL_CRC_TYPE_SOFTWARE                     (2)
+/**
+ * @brief CRC计算模式选择宏
+ */
+#define PAL_CRC_TYPE_HARDWARE                     (0) /**< 硬件CRC计算 */
+#define PAL_CRC_TYPE_TABLE                        (1) /**< 软件查表CRC计算 */
+#define PAL_CRC_TYPE_SOFTWARE                     (2) /**< 软件逐位CRC计算 */
 
 #include "tcae10_ll_def.h"
-#define CFG_SUPPORT_USE_CRC_TABLE                 (PAL_CRC_TYPE_SOFTWARE)
-#define CFG_SUPPROT_LINSNPD_EXT_RES               (1)
-#define CFG_SUPPORT_SERIAL_NUM_CHECK              (0)
+/**
+ * @brief 功能配置宏
+ */
+#define CFG_SUPPORT_USE_CRC_TABLE                 (PAL_CRC_TYPE_SOFTWARE) /**< CRC模式选择 */
+#define CFG_SUPPROT_LINSNPD_EXT_RES               (1) /**< LIN SNP扩展电阻支持 */
+#define CFG_SUPPORT_SERIAL_NUM_CHECK              (0) /**< LED灯珠串联数自动检测 */
 
 //#ifdef __has_include
 //// 使用编译器提供的宏判断头文件是否存在
@@ -48,23 +54,23 @@ extern "C" {
 #include "app.h"
 
 /**
-  * @brief  led channel enumeration
+  * @brief  LED通道编号枚举
   */
 typedef enum
 {
-    LED_CHANNLE_0,
-    LED_CHANNLE_MAX
+    LED_CHANNLE_0,    /**< LED通道0 */
+    LED_CHANNLE_MAX   /**< 通道数量 */
 } led_channel_e;
 
 /**
-  * @brief  rgb type enumeration
+  * @brief  RGB颜色通道枚举
   */
 typedef enum
 {
-    RGB_RED = 0,
-    RGB_GREEN,
-    RGB_BLUE,
-    RGB_TYPE_MAX,
+    RGB_RED = 0,     /**< 红色通道 */
+    RGB_GREEN,        /**< 绿色通道 */
+    RGB_BLUE,         /**< 蓝色通道 */
+    RGB_TYPE_MAX,     /**< RGB通道数量 */
 } rgb_type_e;
 
 

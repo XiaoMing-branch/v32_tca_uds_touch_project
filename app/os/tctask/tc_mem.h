@@ -21,35 +21,77 @@
 #ifndef TC_MEM_H__
 #define TC_MEM_H__
 
-/*内存管理节点*/
+/**
+ * @brief  固定大小内存块管理节点
+ * @note   TCTask使用固定大小内存块（而非malloc）管理消息节点和队列节点
+ *         所有空闲内存块通过单向链表串接，分配和释放均为O(1)操作
+ */
 typedef struct
 {
-    void *memAddr;                  //内存缓冲区，以单向链表方式串接，本字段指向链表头
-    void *memFreeList;              //以链表方式串接所有空闲内存池
-    uint32_t memBlkSize;            //每个块大小
-    uint32_t memNBlks;              //总块数
-    uint32_t memNFree;              //空闲块数
+    void *memAddr;              /**< 内存缓冲区空闲链表头指针 */
+    void *memFreeList;          /**< 空闲内存池链表（用于TcMemDestroy释放回全局） */
+    uint32_t memBlkSize;        /**< 每个内存块大小（字节） */
+    uint32_t memNBlks;          /**< 内存块总数 */
+    uint32_t memNFree;          /**< 当前空闲内存块数 */
 } T_TcMem;
 
-/*初始化内存池*/
+/**
+ * @brief  初始化全局内存池管理器
+ * @note   将所有T_TcMem节点串联到memFreeList空闲链表中
+ *         在每个内存池创建前调用一次
+ */
 void TcMemInit(void);
 
-/*创建内存池，创建完成后才可使用，创建失败返回NULL，blkSize不能小于4，否则也返回NULL，建议addr要字对齐，blkSize也为字的整数倍，可以提高运行效率*/
+/**
+ * @brief  创建固定大小内存块池
+ * @param  addr   - 预分配的内存缓冲区起始地址
+ * @param  nBlks  - 内存块数量
+ * @param  blkSize - 每个内存块大小（字节，不能小于4）
+ * @note   addr建议字对齐，blkSize建议为4字节整数倍以提高访问效率
+ *         创建时将addr中的内存块通过单向链表串联起来
+ * @retval T_TcMem* - 创建成功，返回内存池指针
+ * @retval NULL     - 创建失败（参数无效或无空闲内存池节点）
+ */
 T_TcMem * TcMemCreate(void *addr,uint32_t nBlks,uint32_t blkSize);
 
-/*获取内存池中内存，获取失败，返回NULL*/
+/**
+ * @brief  从内存池中分配一个内存块
+ * @param  pmem - 内存池指针
+ * @retval void* - 分配成功，返回内存块地址
+ * @retval NULL  - 分配失败（内存池已无空闲块或参数无效）
+ */
 void * TcMemGet(T_TcMem *pmem);
 
-/*释放内存到内存池中*/
+/**
+ * @brief  释放一个内存块回内存池
+ * @param  pmem - 内存池指针
+ * @param  pblk - 待释放的内存块地址
+ * @note   pblk必须是此前通过TcMemGet从同一内存池获取的地址
+ */
 void TcMemPut(T_TcMem *pmem,void *pblk);
 
-/*释放内存池，释放内存池之前要保证内存池中没有被使用的内存块，否则会出现内存泄漏风险，返回-1，正常返回0*/
+/**
+ * @brief  销毁内存池，释放回全局空闲链表
+ * @param  pmem - 内存池指针
+ * @note   销毁前必须保证所有已分配块均已归还（即memNFree == memNBlks）
+ *         否则存在内存泄漏风险
+ * @retval 1  - 销毁成功
+ * @retval -1 - 销毁失败（仍有未归还的内存块或参数无效）
+ */
 int TcMemDestroy(T_TcMem *pmem);
 
-/*空闲内存块数*/
+/**
+ * @brief  获取内存池中空闲内存块数量
+ * @param  pmem - 内存池指针
+ * @retval 当前空闲块数
+ */
 #define TcMemFreeNum(pmem)  ((pmem)->memNFree)
 
-/*总内存块数*/
+/**
+ * @brief  获取内存池总内存块数量
+ * @param  pmem - 内存池指针
+ * @retval 总块数
+ */
 #define TcMemTotalNum(pmem) ((pmem)->memNBlks)
 
 #endif

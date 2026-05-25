@@ -28,13 +28,12 @@
 #include "colormixing.h"
 extern uint8_t lin_receive_msg_timeout;
 
-/********************************************************
-** \brief   emc_monitor_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  EMC测试监控处理函数
+ *         检测LIN接收超时，若超时次数超过10次则将LED通道0设为红色报警
+ * @param  无
+ * @retval 无
+ */
 static void emc_monitor_handle(void)
 {
     if (lin_receive_msg_timeout++ > 10)
@@ -48,13 +47,12 @@ static void emc_monitor_handle(void)
 }
 #endif
 
-/********************************************************
-** \brief   task_monitor_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  监控任务处理函数
+ *         喂看门狗、进入低功耗模式（可选）、EMC异常检测
+ * @param  无
+ * @retval 无
+ */
 static void task_monitor_handle(void)
 {
 #if CFG_SUPPORT_WDG_EN
@@ -71,13 +69,12 @@ static void task_monitor_handle(void)
 #endif
 }
 
-/********************************************************
-** \brief   monitor_task_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  监控任务初始化函数
+ *         初始化看门狗（3000ms超时）、初始化低功耗模式、创建监控任务
+ * @param  无
+ * @retval 无
+ */
 void monitor_task_init(void)
 {
 #if CFG_SUPPORT_WDG_EN

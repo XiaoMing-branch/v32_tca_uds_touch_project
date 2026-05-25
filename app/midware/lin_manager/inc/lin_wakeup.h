@@ -1,6 +1,7 @@
 /**
  *****************************************************************************
- * @brief   lin wakeup header file.
+ * @brief   LIN休眠/唤醒管理模块头文件。
+ *          声明低功耗初始化和休眠模式进入函数。
  *
  * @file    lin_wakeup.h
  * @author  AE/FAE team
@@ -27,7 +28,9 @@ extern "C"
 {
 #endif
 
+/** @brief 初始化系统低功耗管理模块 */
 void system_low_power_init(void);
+/** @brief 进入休眠模式的主入口函数（包含唤醒后的恢复处理） */
 void sleep_mode_enter(void);
 
 #ifdef __cplusplus

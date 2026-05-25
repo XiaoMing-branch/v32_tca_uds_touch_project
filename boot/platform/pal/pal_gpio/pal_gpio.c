@@ -23,51 +23,44 @@
 
 #if defined (__TCPL03X__)
 
-/********************************************************
-** \brief   pal_gpio_read
-**
-** \param   gpio_pin_e  gpio_pin
-**
-** \retval  bool        true for false
-*********************************************************/
+/**
+ * @brief  读取GPIO引脚电平
+ * @param  gpio_pin - GPIO引脚号
+ * @retval true - 高电平, false - 低电平
+ */
 bool pal_gpio_read(gpio_pin_e gpio_pin)
 {
     return ll_gpio_read(gpio_pin);
 }
 
-/********************************************************
-** \brief   pal_gpio_output
-**
-** \param   gpio_pin_e  gpio_pin
-** \param   bool        state:true-H_LEVEL, false-L_LEVEL
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置GPIO引脚输出电平
+ * @param  gpio_pin - GPIO引脚号
+ * @param  state - true:高电平, false:低电平
+ * @retval 无
+ */
 void pal_gpio_output(gpio_pin_e gpio_pin, bool state)
 {
     ll_gpio_output(gpio_pin, state);
 }
 
-/********************************************************
-** \brief   pal_gpio_toggle
-**
-** \param   gpio_pin_e  gpio_pin
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  翻转GPIO引脚输出电平
+ * @param  gpio_pin - GPIO引脚号
+ * @retval 无
+ */
 void pal_gpio_toggle(gpio_pin_e gpio_pin)
 {
     ll_gpio_toggle(gpio_pin);
 }
 
-/********************************************************
-** \brief   pal_gpio_init
-**
-** \param   gpio_config_t               config
-** \param   ISR_FUNC_CALLBACK           callback
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  GPIO初始化
+ * @param  cfg - GPIO配置参数
+ * @param  callback - 中断回调函数(需配置触发标志)
+ * @note   初始化完成后根据trigger_flag自动使能中断
+ * @retval 无
+ */
 void pal_gpio_init(gpio_config_t *cfg, ISR_FUNC_CALLBACK callback)
 {
     ll_gpio_init(cfg, callback);

@@ -28,9 +28,29 @@
 extern "C" {
 #endif
 
+/**
+ * @brief  获取系统滴答计数值
+ * @retval 当前滴答值
+ */
 uint32_t systick_count_get(void);
+
+/**
+ * @brief  计算滴答时间差
+ * @param  start_tick - 起始值
+ * @retval 时间差
+ */
 uint32_t systick_diff(uint32_t start_tick);
+
+/**
+ * @brief  毫秒延时
+ * @param  ms - 毫秒数
+ */
 void delay_ms(uint32_t ms);
+
+/**
+ * @brief  微秒延时(基于SysTick)
+ * @param  us - 微秒数
+ */
 void delay_us(uint32_t us);
 
 #ifdef __cplusplus

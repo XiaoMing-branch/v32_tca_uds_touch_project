@@ -28,9 +28,31 @@ extern "C"
 {
 #endif
 
+/**
+ * @brief  GPIO初始化配置
+ * @param  cfg - GPIO配置参数
+ * @param  callback - 中断回调函数
+ */
 void pal_gpio_init(gpio_config_t *cfg, ISR_FUNC_CALLBACK callback);
+
+/**
+ * @brief  读取GPIO引脚电平
+ * @param  gpio_pin - 引脚号
+ * @retval true - 高电平, false - 低电平
+ */
 bool pal_gpio_read(gpio_pin_e gpio_pin);
+
+/**
+ * @brief  设置GPIO引脚输出电平
+ * @param  gpio_pin - 引脚号
+ * @param  state - true:高, false:低
+ */
 void pal_gpio_output(gpio_pin_e gpio_pin, bool state);
+
+/**
+ * @brief  翻转GPIO引脚输出电平
+ * @param  gpio_pin - 引脚号
+ */
 void pal_gpio_toggle(gpio_pin_e gpio_pin);
 
 #ifdef __cplusplus

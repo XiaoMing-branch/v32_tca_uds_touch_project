@@ -34,24 +34,21 @@ static rtc_config_t config =
     .period_cnt = RTC_RELOAD_VALUE,
 };
 
-/********************************************************
-** \brief   rtc_gpio_callback
-**
-** \param   uint32_t            isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  RTC GPIO中断回调(预留)
+ * @param  isr - 中断状态
+ * @retval 无
+ */
 static void rtc_gpio_callback(uint32_t isr)
 {
 }
 
-/********************************************************
-** \brief   rtc_gpio_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  RTC GPIO复用初始化
+ * @param  无
+ * @note   初始化RTC定时器用于GPIO功能复用
+ * @retval 无
+ */
 void rtc_gpio_init(void)
 {
     ll_rtc_init(&config, rtc_gpio_callback);
@@ -59,13 +56,11 @@ void rtc_gpio_init(void)
     ll_rtc_isr_enable(true);
 }
 
-/********************************************************
-** \brief   curretn_rtc_get
-**
-** \param   rtc_time_t*         time
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取当前RTC时间
+ * @param  time - 输出RTC时间结构体
+ * @retval 无
+ */
 void curretn_rtc_get(rtc_time_t *time)
 {
     ll_rtc_time_get(time);

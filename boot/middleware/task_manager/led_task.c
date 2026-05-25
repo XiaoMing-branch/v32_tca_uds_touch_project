@@ -23,13 +23,12 @@
 #include "led_disp.h"
 #include "colormixing.h"
 #include "led_control.h"
-/********************************************************
-** \brief   task_led_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED任务处理函数
+ *         遍历所有LED通道，依次调用PWM点亮输出
+ * @param  无
+ * @retval 无
+ */
 static void task_led_handle(void)
 {
     for (led_channel_e channel = LED_CHANNEL_0; channel < LED_CHANNEL_MAX; channel++)
@@ -38,13 +37,12 @@ static void task_led_handle(void)
     }
 }
 
-/********************************************************
-** \brief   led_task_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED任务初始化函数
+ *         初始化LED显示模块，创建LED处理任务
+ * @param  无
+ * @retval 无
+ */
 void led_task_init(void)
 {
     led_disp_init();

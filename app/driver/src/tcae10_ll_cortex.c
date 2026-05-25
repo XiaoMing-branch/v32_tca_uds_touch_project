@@ -22,13 +22,11 @@
 #include "tcae10_ll_def.h"
 #include "tcae10_ll_cortex.h"
 
-/********************************************************
-** \brief   NMI_Handler
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   NMI（不可屏蔽中断）处理函数
+ * @note    TCAE10 MCU NMI异常入口，触发时执行系统复位
+ * @retval  None
+ */
 void NMI_Handler(void)
 {
 //    while (1)
@@ -38,13 +36,11 @@ void NMI_Handler(void)
     NVIC_SystemReset();
 }
 
-/********************************************************
-** \brief   HardFault_Handler
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   硬故障（HardFault）处理函数
+ * @note    ARM Cortex-M0+硬故障异常入口，触发时执行系统复位
+ * @retval  None
+ */
 void HardFault_Handler(void)
 {
 //    while (1)
@@ -54,19 +50,15 @@ void HardFault_Handler(void)
     NVIC_SystemReset();
 }
 
-/********************************************************
-** \brief  EnableNvic
-**
-** \param   uint32_t        irq
-** \param   uint8_t         level
-** \param   bool            en
-**
-** \retval  None
-**
-** \note   the Cortex-M0 or Cortex-M0+/the dynamic changing of the priority
-**         level of enabled interrupts or exceptions is not supported,
-**         You should setup the priority levels before enabling the interrupts
-*********************************************************/
+/**
+ * @brief   配置并使能/禁能NVIC中断
+ * @param   irq    - 中断号，对应IRQn_Type枚举
+ * @param   level  - 中断优先级（0~3，Cortex-M0+仅支持4级优先级）
+ * @param   en     - true使能中断，false禁能中断
+ * @note    Cortex-M0/M0+不支持运行时动态更改已使能中断的优先级，
+ *         必须在使能中断前设置好优先级
+ * @retval  None
+ */
 void EnableNvic(uint32_t irq, uint8_t level, bool en)
 {
     IRQn_Type enIrq = (IRQn_Type)irq;
@@ -80,25 +72,21 @@ void EnableNvic(uint32_t irq, uint8_t level, bool en)
     }
 }
 
-/********************************************************
-** \brief   resume all interrupt enabled
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   全局使能所有中断（除NMI和HardFault外）
+ * @note    对应ARM CPSIE I指令，清除PRIMASK寄存器
+ * @retval  None
+ */
 void interrupt_enable(void)
 {
     __enable_irq();
 }
 
-/********************************************************
-** \brief   mask all interrupt but NMI and HardFault
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   全局禁能所有中断（除NMI和HardFault外）
+ * @note    对应ARM CPSID I指令，设置PRIMASK寄存器
+ * @retval  None
+ */
 void interrupt_disable(void)
 {
     __disable_irq();

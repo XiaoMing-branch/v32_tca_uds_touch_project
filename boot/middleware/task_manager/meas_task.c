@@ -38,13 +38,13 @@ extern const sft_adpat_value_t sft_adpat_value;
 #endif
 
 #if CFG_SUPPORT_LED_CTRL
-/********************************************************
-** \brief   task_meas_pn_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  PN电容测量任务处理函数
+ *         轮询各LED通道的PN电容值，根据SNPD忙状态控制采样节奏，
+ *         在静态采样完成后切换到LOOP模式以加快采集
+ * @param  无
+ * @retval 无
+ */
 static void task_meas_pn_handle(void)
 {
     static led_channel_e mux_channel;
@@ -79,13 +79,13 @@ static void task_meas_pn_handle(void)
 }
 #endif
 
-/********************************************************
-** \brief   task_meas_safty_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  安全测量任务处理函数
+ *         执行安全相关测量（VBAT/TEMP），以及故障检测处理
+ * @note   若SNPD忙则跳过本次测量周期
+ * @param  无
+ * @retval 无
+ */
 static void task_meas_safty_handle(void)
 {
 #if CFG_SUPPORT_LIN_SNPD
@@ -101,13 +101,14 @@ static void task_meas_safty_handle(void)
 #endif
 }
 
-/********************************************************
-** \brief   meas_task_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  测量任务初始化函数
+ *         初始化所有LED通道的PN测量管理器，配置典型PN值，
+ *         初始化安全测量（VBAT/TEMP）计算参数和故障检测模块，
+ *         创建PN测量任务和安全测量任务
+ * @param  无
+ * @retval 无
+ */
 void meas_task_init(void)
 {
     for (led_channel_e channel = LED_CHANNEL_0; channel < LED_CHANNEL_MAX ; channel++)

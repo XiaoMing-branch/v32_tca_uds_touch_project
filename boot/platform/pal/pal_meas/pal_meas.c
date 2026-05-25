@@ -79,15 +79,13 @@ const sft_adpat_value_t sft_adpat_value[LED_TYPE_MAX] =
 
 led_measure_context_t led_meas_context[LED_CHANNEL_MAX];
 
-/********************************************************
-** \brief   led_meas_vf_status_set
-**
-** \param   vf_sample_ctx_t*        vf_sample
-** \param   led_vf_status_type_e    type
-** \param   uint8_t                 status
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置VF采样状态标志
+ * @param  vf_sample - VF采样上下文指针
+ * @param  type - 状态类型
+ * @param  status - 状态值(0/1)
+ * @retval 无
+ */
 static void led_meas_vf_status_set(vf_sample_ctx_t *vf_sample, led_vf_status_type_e type, uint8_t status)
 {
     if (status)
@@ -100,26 +98,22 @@ static void led_meas_vf_status_set(vf_sample_ctx_t *vf_sample, led_vf_status_typ
     }
 }
 
-/********************************************************
-** \brief   led_meas_vf_status_get
-**
-** \param   vf_sample_ctx_t*        vf_sample
-** \param   led_vf_status_type_e    type
-**
-** \retval  uint8_t
-*********************************************************/
+/**
+ * @brief  获取VF采样状态标志
+ * @param  vf_sample - VF采样上下文指针
+ * @param  type - 状态类型
+ * @retval 状态值(0或1)
+ */
 static uint8_t led_meas_vf_status_get(vf_sample_ctx_t *vf_sample, led_vf_status_type_e type)
 {
     return (!!(vf_sample->vf_status & type));
 }
 
-/********************************************************
-** \brief   led_meas_pn_recovery
-**
-** \param   led_measure_context_t*       ctx
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  PN结测量恢复(关闭ADC中断和PWM采样标志)
+ * @param  ctx - LED测量上下文指针
+ * @retval 无
+ */
 static void led_meas_pn_recovery(led_measure_context_t *ctx)
 {
     ll_adc_isr_enable(false);
@@ -127,14 +121,13 @@ static void led_meas_pn_recovery(led_measure_context_t *ctx)
     led_meas_vf_status_set(&ctx->vf_samp, (led_vf_status_type_e)(LED_VF_DATA_STATUS | LED_VF_SUSPEND_STATUS), false);
 }
 
-/********************************************************
-** \brief   led_meas_pn_channel_setup
-**
-** \param   led_measure_context_t*      ctx
-** \param   bool                        init_flag
-**
-** \retval  bool                        flag
-*********************************************************/
+/**
+ * @brief  PN结测量通道设置(切换通道或完成采集)
+ * @param  ctx - LED测量上下文指针
+ * @param  init_flag - true:初始化/切换通道, false:完成当前通道采集
+ * @note   初始化时选择ADC通道和配置;完成时标记数据就绪并关闭中断
+ * @retval true - 设置成功, false - 失败
+ */
 static bool led_meas_pn_channel_setup(led_measure_context_t *ctx, bool init_flag)
 {
     uint8_t adc_channel;
@@ -189,13 +182,11 @@ static bool led_meas_pn_channel_setup(led_measure_context_t *ctx, bool init_flag
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_init
-**
-** \param   led_channel_e    channel
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  LED测量初始化(ADC配置、温度传感器使能、上下文清零)
+ * @param  channel - LED通道号
+ * @retval true - 初始化成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_init(led_channel_e channel)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -232,19 +223,14 @@ MEAS_INSTANCE bool led_meas_init(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_gain_config
-**
-** \param   led_channel_e       channel
-** \param   uint8_t*            serial_num
-**
-** \retval  bool
-** \note    TCPL01x:
-**          Vs-Vled = 40 * ( ( code * Vref / ( 1024 * Gain2 )  + VCR ) / Gain1 )
-**          VR = 40 * ( ( code * 1528 / ( 1024 * 8 )  + 668 ) / 17 )
-**          VG = 40 * ( ( code * 1528 / ( 1024 * 4 )  + 769 ) / 15 )
-**          VB = 40 * ( ( code * 1528 / ( 1024 * 8 )  + 820 ) / 15 )
-*********************************************************/
+/**
+ * @brief  LED测量增益配置
+ * @param  channel - LED通道号
+ * @note   配置ADC通道(VBAT/VTEMP/PN)的增益参数
+ *         TCPL01x电压计算公式:
+ *         Vs-Vled = 40 * ((code * Vref / (1024 * Gain2) + VCR) / Gain1)
+ * @retval true - 配置成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_gain_config(led_channel_e channel)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -286,14 +272,12 @@ MEAS_INSTANCE bool led_meas_gain_config(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_voltage_code_get
-**
-** \param   meas_volt_type_e    type
-** \param   int16_t*            value
-**
-** \retval  bool            true:success false:failed
-*********************************************************/
+/**
+ * @brief  获取电压ADC原始码值(温度或电池电压)
+ * @param  type - 电压测量类型(温度/电池)
+ * @param  value - 输出取平均后的ADC原始码值
+ * @retval true - 获取成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_voltage_code_get(meas_volt_type_e type, uint16_t *value)
 {
     uint8_t adc_channel ;
@@ -321,13 +305,13 @@ MEAS_INSTANCE bool led_meas_voltage_code_get(meas_volt_type_e type, uint16_t *va
     return (true);
 }
 
-/********************************************************
-** \brief   led_meas_pn_voltage_get
-**
-** \param   led_channel_e       channel
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取PN结电压ADC原始码值
+ * @param  channel - LED通道号
+ * @note   关闭LED诊断，从ADC FIFO读取数据并取平均，
+ *         TCPL03X额外采集AON和AON_T通道
+ * @retval true - 获取成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_pn_voltage_get(led_channel_e channel)
 {
     uint16_t adc_value[ADC_PN_TRIGGER_NUMBER];
@@ -359,15 +343,14 @@ MEAS_INSTANCE bool led_meas_pn_voltage_get(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_volt_calc_func
-**
-** \param   meas_volt_type_e    type
-** \param   uint16_t            raw_code
-** \param   int16_t*            value
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  电压值计算(温度或电池电压)
+ * @param  type - 电压测量类型
+ * @param  raw_code - ADC原始码值
+ * @param  value - 输出计算后的电压/温度值
+ * @note   电池电压支持增益自动切换(当原始码超出范围时)
+ * @retval true - 计算成功
+ */
 MEAS_INSTANCE bool led_meas_volt_calc_func(meas_volt_type_e type, uint16_t raw_code, int16_t *value)
 {
     adc_cfg_t *cfg = NULL;
@@ -411,16 +394,15 @@ MEAS_INSTANCE bool led_meas_volt_calc_func(meas_volt_type_e type, uint16_t raw_c
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_calc_func
-**
-** \param   led_channel_e       channel:led channel
-** \param   led_type_e          led_type_e: rgb type
-** \param   uint16_t*           raw_code
-** \param   int16_t*            value: value
-**
-** \retval  bool            true:success false:failed
-*********************************************************/
+/**
+ * @brief  PN结电压计算(原始码转电压值)
+ * @param  channel - LED通道号
+ * @param  rgb - RGB类型
+ * @param  raw_code - 输出原始ADC码值
+ * @param  value - 输出计算后的电压值(mV)
+ * @note   检查数据就绪状态，调用底层计算函数转换
+ * @retval true - 计算成功, false - 参数无效或数据未就绪
+ */
 MEAS_INSTANCE bool led_meas_pn_calc_func(led_channel_e channel, led_type_e rgb, uint16_t *raw_code, int16_t *value)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel) || rgb >= LED_TYPE_MAX)
@@ -449,13 +431,13 @@ MEAS_INSTANCE bool led_meas_pn_calc_func(led_channel_e channel, led_type_e rgb, 
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_status_reflash
-**
-** \param   led_channel_e   channel:led channel
-**
-** \retval  bool            true:success false:failed
-*********************************************************/
+/**
+ * @brief  刷新PN结测量状态(确定采样触发源)
+ * @param  channel - LED通道号
+ * @note   根据当前PWM占空比确定最大通道,
+ *         从最后一个关闭的通道开始采样以避开LED开启噪声
+ * @retval true - 刷新成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_pn_status_reflash(led_channel_e channel)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -499,14 +481,14 @@ MEAS_INSTANCE bool led_meas_pn_status_reflash(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_process
-**
-** \param   led_channel_e   channel:led channel
-** \param   uint32_t        pwm_isr
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  PN结采样处理(PWM中断中调用)
+ * @param  channel - LED通道号
+ * @param  pwm_isr - PWM中断状态
+ * @note   在分时采集中处理触发源匹配，使能LED诊断并启动ADC采集
+ *         避免因分时方案导致的采集恢复问题
+ * @retval true - 处理成功, false - 无需处理或参数无效
+ */
 MEAS_INSTANCE bool led_meas_pn_process(led_channel_e channel, uint32_t pwm_isr)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -550,14 +532,13 @@ MEAS_INSTANCE bool led_meas_pn_process(led_channel_e channel, uint32_t pwm_isr)
     return true;
 }
 
-/********************************************************
-** \brief   this function is used to suspend the pn sample routine
-**
-** \param   led_channel_e   channel:led channel
-**
-** \retval  bool
-** \note if the adc is on routine,user need reset the adc and load the trim value before start it
-*********************************************************/
+/**
+ * @brief  暂停PN结采样例程
+ * @param  channel - LED通道号
+ * @note   去初始化ADC并关闭PWM采样中断，设置暂停标志
+ *         若ADC正在运行，需先复位ADC并在恢复时重新加载校准值
+ * @retval true - 暂停成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_pn_suspend(led_channel_e channel)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -575,14 +556,12 @@ MEAS_INSTANCE bool led_meas_pn_suspend(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   this function is used to resume the pn measure routine
-**
-** \param   led_channel_e   channel:led channel
-**
-** \retval  bool
-** \note if the adc is on routine,user need reset the adc and load the trim value before start it
-*********************************************************/
+/**
+ * @brief  恢复PN结采样例程
+ * @param  channel - LED通道号
+ * @note   重新初始化ADC和增益配置，清除暂停和数据标志
+ * @retval true - 恢复成功, false - 失败
+ */
 MEAS_INSTANCE bool led_meas_pn_resume(led_channel_e channel)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -599,13 +578,13 @@ MEAS_INSTANCE bool led_meas_pn_resume(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_acquire
-**
-** \param   led_channel_e   channel:led channel
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  触发PN结采样采集
+ * @param  channel - LED通道号
+ * @note   若非动态/静态采样中且未就绪或正在采集，则设置暂停标志
+ *         并初始化PN通道设置开始采样
+ * @retval true - 采集触发成功
+ */
 MEAS_INSTANCE bool led_meas_pn_acquire(led_channel_e channel)
 {
     bool ret = false;
@@ -628,15 +607,13 @@ MEAS_INSTANCE bool led_meas_pn_acquire(led_channel_e channel)
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_status_get
-**
-** \param   led_channel_e                   channel
-** \param   led_vf_status_type_e            type
-** \param   uint8_t*                        status
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取PN结采样状态
+ * @param  channel - LED通道号
+ * @param  type - 状态类型
+ * @param  status - 输出状态值
+ * @retval true - 获取成功, false - 通道无效
+ */
 MEAS_INSTANCE bool led_meas_pn_status_get(led_channel_e channel, led_vf_status_type_e type, uint8_t *status)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))
@@ -651,15 +628,13 @@ MEAS_INSTANCE bool led_meas_pn_status_get(led_channel_e channel, led_vf_status_t
     return true;
 }
 
-/********************************************************
-** \brief   led_meas_pn_status_set
-**
-** \param   led_channel_e                   channel
-** \param   led_vf_status_type_e            type
-** \param   uint8_t                         status
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  设置PN结采样状态
+ * @param  channel - LED通道号
+ * @param  type - 状态类型
+ * @param  status - 状态值(0/1)
+ * @retval true - 设置成功, false - 通道无效
+ */
 MEAS_INSTANCE bool led_meas_pn_status_set(led_channel_e channel, led_vf_status_type_e type, uint8_t status)
 {
     if (MEAS_LED_CHANNEL_INVALID(channel))

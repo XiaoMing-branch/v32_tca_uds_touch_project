@@ -21,16 +21,26 @@
 #ifndef LIN_TASK_H__
 #define LIN_TASK_H__
 
-//初始化lin
+/**
+ * @brief  LIN任务初始化，创建LIN任务
+ */
 void LinInit(void);
 
-//上电之后lin是否通信过
+/**
+ * @brief  获取上电后LIN总线是否通信过的标志
+ * @retval 1 - 已通信过，0 - 未通信过
+ */
 unsigned char LinCommSincePowerOn(void);
 
-//销毁lin
+/**
+ * @brief  销毁LIN任务，释放相关资源并关闭LIN时钟
+ */
 void LinDestroy(void);
 
-//返回1表示收到lin sleep命令后可以进入低功耗，0表示不可以
+/**
+ * @brief  检查是否允许进入低功耗（收到LIN休眠命令后调用）
+ * @retval 1 - 可以进入低功耗，0 - 不可以进入
+ */
 int32_t LinCanEnterSleep(void);
 
 #endif

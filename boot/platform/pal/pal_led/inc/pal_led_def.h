@@ -29,16 +29,55 @@ extern "C" {
 #endif
 
 
+/**
+ * @brief  LED初始化函数指针类型
+ */
 typedef void (*ctrl_init)(led_channel_e);
+
+/**
+ * @brief  LED使能函数指针类型
+ */
 typedef void (*ctrl_enable)(led_channel_e, bool);
+
+/**
+ * @brief  LED刹车函数指针类型
+ */
 typedef void (*ctrl_break)(led_channel_e, bool);
+
+/**
+ * @brief  LED占空比设置函数指针类型
+ */
 typedef void (*ctrl_duty_set)(led_channel_e, uint16_t *);
+
+/**
+ * @brief  LED占空比获取函数指针类型
+ */
 typedef void (*ctrl_duty_get)(led_channel_e, uint16_t *);
+
+/**
+ * @brief  LED电流设置函数指针类型
+ */
 typedef void (*ctrl_current_set)(led_channel_e, uint8_t *);
+
+/**
+ * @brief  LED电流获取函数指针类型
+ */
 typedef void (*ctrl_current_get)(led_channel_e, uint8_t *);
+
+/**
+ * @brief  静态PN结电压采样设置函数指针类型
+ */
 typedef void (*ctrl_static_pnvolt_set)(led_channel_e, bool);
+
+/**
+ * @brief  LED通道多路复用获取函数指针类型
+ */
 typedef void (*ctrl_channel_mux_get)(led_channel_e, uint8_t **);
 
+/**
+ * @brief  控制管理器实例结构体
+ * @note   通过函数指针表实现LED控制接口的抽象管理
+ */
 typedef struct ctrl_manager_instance_t_ {
     void (*ctrl_init)(led_channel_e);
     void (*ctrl_enable)(led_channel_e, bool);

@@ -36,16 +36,14 @@
 
 #define BIT(A,B)            (((A)>>(B))&0x01)
 
-/********************************************************
-** \brief   pal_lin_init
-**
-** \param   lin_bus_e              bus
-** \param   lin_mode_e             mode
-** \param   uint32_t               baudrate
-** \param   ISR_FUNC_CALLBACK      callback
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN通信初始化
+ * @param  bus - LIN总线号
+ * @param  mode - LIN模式(主机/从机)
+ * @param  baudrate - 通信波特率
+ * @param  callback - 中断回调函数指针
+ * @retval 无
+ */
 void pal_lin_init(lin_bus_e bus, lin_mode_e mode, uint32_t baudrate, ISR_FUNC_CALLBACK callback)
 {
     sci_config_t config =
@@ -73,26 +71,22 @@ void pal_lin_init(lin_bus_e bus, lin_mode_e mode, uint32_t baudrate, ISR_FUNC_CA
     ll_sci_isr_enable((ll_sci_bus_e)bus, true);
 }
 
-/********************************************************
-** \brief   pal_lin_deinit
-**
-** \param   lin_bus_e              bus
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN通信去初始化
+ * @param  bus - LIN总线号
+ * @retval 无
+ */
 void pal_lin_deinit(lin_bus_e bus)
 {
     ll_sci_deinit((ll_sci_bus_e)bus);
 }
 
-/********************************************************
-** \brief   pal_lin_parity_calib
-**
-** \param   lin_parity_type_e   type
-** \param   uint8_t             pid
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN PID奇偶校验计算或检查
+ * @param  type - 奇偶校验类型(生成/校验)
+ * @param  pid - 待处理的PID值
+ * @retval 校验模式:0xFF=失败,低6位PID=成功; 生成模式:含校验位的PID
+ */
 uint8_t pal_lin_parity_calib(lin_parity_type_e type, uint8_t pid)
 {
     uint8_t ret;
@@ -120,14 +114,12 @@ uint8_t pal_lin_parity_calib(lin_parity_type_e type, uint8_t pid)
 }
 
 
-/********************************************************
-** \brief   pal_lin_checksum_calib
-**
-** \param   uint8_t             pid
-** \param   uint8_t*            buffer
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN校验和计算(经典/增强型)
+ * @param  pid - 帧ID(用于判断校验类型)
+ * @param  buffer - 8字节数据缓冲区
+ * @retval 计算得到的校验和
+ */
 uint8_t pal_lin_checksum_calib(uint8_t pid, uint8_t *buffer)
 {
      uint8_t init_sum = ((0x3C != pid) && (0x7D != pid)) ? pid : 0;
@@ -136,13 +128,11 @@ uint8_t pal_lin_checksum_calib(uint8_t pid, uint8_t *buffer)
 }
 
 #if CFG_SUPPORT_LIN_SNPD
-/********************************************************
-** \brief   pal_lin_aa_enter
-**
-** \param   uint16_t*       aa_cur_th
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN自动寻址功能进入
+ * @param  aa_cur_th - 自动寻址电流阈值
+ * @retval 无
+ */
 void pal_lin_aa_enter(uint16_t *aa_cur_th)
 {
 #if CFG_SUPPROT_LINSNPD_EXT_RES
@@ -161,40 +151,34 @@ void pal_lin_aa_enter(uint16_t *aa_cur_th)
     ll_lin_aa_enable(LL_SCI_BUS_1, LIN_AA_STYPE_STEPS_4, use_ext_res, aa_cur_th);
 }
 
-/********************************************************
-** \brief   pal_lin_aa_exit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN自动寻址功能退出
+ * @param  无
+ * @retval 无
+ */
 void pal_lin_aa_exit(void)
 {
     /* *disable Lin aa* */
     ll_lin_aa_disable(LL_SCI_BUS_1);
 }
 
-/********************************************************
-** \brief   pal_lin_aa_ready
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN自动寻址就绪设置
+ * @param  无
+ * @retval 无
+ */
 void pal_lin_aa_ready(void)
 {
     /* *Enable Lin aa* */
     ll_lin_aa_ready_set(LL_SCI_BUS_1, true);
 }
 
-/********************************************************
-** \brief   pal_lin_aa_raw_code_get
-**
-** \param   uint16_t*               bufffer
-** \param   uint16_t                length
-**
-** \retval  uint16_t                raw code length
-*********************************************************/
+/**
+ * @brief  获取LIN自动寻址ADC原始码值
+ * @param  bufffer - ADC数据缓冲区
+ * @param  length - 缓冲区长度
+ * @retval 实际获取的原始码值个数
+ */
 uint16_t pal_lin_aa_raw_code_get(uint16_t *bufffer, uint16_t length)
 {
     uint8_t len = ll_adc_fifo_get(bufffer, length);
@@ -202,45 +186,39 @@ uint16_t pal_lin_aa_raw_code_get(uint16_t *bufffer, uint16_t length)
 }
 #endif
 
-/********************************************************
-** \brief   pal_lin_rx_response
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t                 pid
-** \param   uint8_t*                buffer
-** \param   uint8_t                 msg_length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN接收响应数据
+ * @param  bus - LIN总线号
+ * @param  pid - 帧ID
+ * @param  buffer - 接收数据缓冲区
+ * @param  msg_length - 消息长度
+ * @retval 无
+ */
 void pal_lin_rx_response(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t msg_length)
 {
     ll_lin_receive((ll_sci_bus_e)bus, pid, buffer, msg_length);
 }
 
-/********************************************************
-** \brief   pal_lin_tx_4byte
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t*                buffer
-** \param   uint8_t                 msg_length
-**
-** \retval  ll_status_e
-*********************************************************/
+/**
+ * @brief  LIN发送4字节数据(多字节模式下使用)
+ * @param  bus - LIN总线号
+ * @param  buffer - 待发送数据缓冲区
+ * @param  msg_length - 消息长度
+ * @retval 无
+ */
 void pal_lin_tx_4byte(lin_bus_e bus, uint8_t *buffer, uint8_t msg_length)
 {
     ll_sci_transmit((ll_sci_bus_e)bus, buffer, msg_length);
 }
 
-/********************************************************
-** \brief   pal_lin_tx_response
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t                 pid
-** \param   uint8_t*                buffer
-** \param   uint8_t                 msg_length
-**
-** \retval  bool                    true:success, false:failed
-*********************************************************/
+/**
+ * @brief  LIN发送响应数据
+ * @param  bus - LIN总线号
+ * @param  pid - 帧ID
+ * @param  buffer - 待发送数据缓冲区
+ * @param  msg_length - 消息长度
+ * @retval true - 发送成功, false - 发送失败
+ */
 bool pal_lin_tx_response(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t msg_length)
 {
     if (LL_OK == ll_lin_transmit((ll_sci_bus_e)bus, pid, buffer, msg_length))
@@ -251,14 +229,12 @@ bool pal_lin_tx_response(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t ms
     return false;
 }
 
-/********************************************************
-** \brief   pal_lin_abort_handle
-**
-** \param   lin_bus_e               bus
-** \param   lin_abort_type_e        type
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN总线中止处理(清除发送/接收FIFO及中止标志)
+ * @param  bus - LIN总线号
+ * @param  type - 中止类型(发送/接收/两者)
+ * @retval 无
+ */
 void pal_lin_abort_handle(lin_bus_e bus, lin_abort_type_e type)
 {
     ll_sci_clear_type_e clear_type = SCI_CLEAR_NULL;
@@ -276,15 +252,13 @@ void pal_lin_abort_handle(lin_bus_e bus, lin_abort_type_e type)
     ll_sci_state_clear((ll_sci_bus_e)bus, (ll_sci_clear_type_e)clear_type);
 }
 
-/********************************************************
-** \brief   pal_lin_read_byte
-**
-** \param   lin_bus_e               bus
-** \param   lin_read_type_e         type
-** \param   uint8_t*                byte
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN读取一个字节(PID或FIFO数据)
+ * @param  bus - LIN总线号
+ * @param  type - 读取类型(PID/FIFO)
+ * @param  byte - 输出读取的字节值
+ * @retval 无
+ */
 void pal_lin_read_byte(lin_bus_e bus, lin_read_type_e type, uint8_t *byte)
 {
     if (LIN_READ_TYPE_PID == type)
@@ -297,13 +271,12 @@ void pal_lin_read_byte(lin_bus_e bus, lin_read_type_e type, uint8_t *byte)
     }
 }
 
-/********************************************************
-** \brief   pal_lin_autobaudrate_check
-**
-** \param   lin_bus_e               bus
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN自动波特率检测与校准
+ * @param  bus - LIN总线号
+ * @note   当检测到的自动波特率与配置波特率偏差超过14%时，复位LIN控制器
+ * @retval 无
+ */
 void pal_lin_autobaudrate_check(lin_bus_e bus)
 {
 #ifdef __TCPL03X__

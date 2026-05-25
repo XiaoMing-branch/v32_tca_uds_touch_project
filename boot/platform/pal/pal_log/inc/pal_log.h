@@ -29,8 +29,21 @@
 extern "C" {
 #endif
 
+/**
+ * @brief  日志模块初始化(串口)
+ * @param  baudrate - 波特率
+ */
 void pal_log_init(uint32_t baudrate);
+
+/**
+ * @brief  日志模块去初始化
+ */
 void pal_log_deinit(void);
+
+/**
+ * @brief  日志打印一个字符
+ * @param  ch - 字符
+ */
 void pal_log_print(uint8_t ch);
 
 #ifdef __cplusplus

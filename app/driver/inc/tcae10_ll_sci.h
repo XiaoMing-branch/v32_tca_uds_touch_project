@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 
+/**
+ * @brief  SCI中断偏移量
+ */
 #define SCI_INT_OFFSET                (0)
 
 /** @defgroup LIN_SCI_INT
@@ -115,28 +118,171 @@ typedef struct
 #define IS_SCI_BUS(__BUS__)         (((__BUS__) == LL_SCI_BUS_0) || ((__BUS__) ==LL_SCI_BUS_1) )
 #define IS_SCI_MODE(__MODE__)       ((__MODE__) < SCI_MODE_MAX )
 
+/**
+ * @brief  去初始化SCI模块
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ */
 void ll_sci_deinit(ll_sci_bus_e bus);
+/**
+ * @brief  初始化SCI模块
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param config - SCI配置结构体指针
+ * @param callback - 中断回调函数指针
+ */
 void ll_sci_init(ll_sci_bus_e bus, sci_config_t *config, ISR_FUNC_CALLBACK callback);
+/**
+ * @brief  配置SCI波特率
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param baudrate - 目标波特率
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_sci_baudrate_config(ll_sci_bus_e bus, uint32_t baudrate);
+/**
+ * @brief  使能/禁能SCI中断
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_sci_isr_enable(ll_sci_bus_e bus, bool enable);
+/**
+ * @brief  清除SCI状态（FIFO/中止）
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param type - 清除类型 @ref ll_sci_clear_type_e
+ */
 void ll_sci_state_clear(ll_sci_bus_e bus, ll_sci_clear_type_e type);
+/**
+ * @brief  设置LIN接收延迟
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param count - 延迟计数值
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_rx_delay_set(ll_sci_bus_e bus, uint8_t count);
+/**
+ * @brief  使能/禁能LIN唤醒功能
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_wakeup_enable(ll_sci_bus_e bus, bool enable);
+/**
+ * @brief  使能LIN自动寻址功能
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param type - 自动寻址类型 @ref lin_aa_type_e
+ * @param ext_shunt_res - true: 使用外部分流电阻，false: 内部
+ * @param cur_th - 电流阈值输出指针
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_lin_aa_enable(ll_sci_bus_e bus, lin_aa_type_e type, bool ext_shunt_res, uint16_t *cur_th);
+/**
+ * @brief  禁能LIN自动寻址功能
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_aa_disable(ll_sci_bus_e bus);
+/**
+ * @brief  设置LIN自动寻址就绪状态
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param enable - true: 就绪，false: 未就绪
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_aa_ready_set(ll_sci_bus_e bus, bool enable);
+/**
+ * @brief  SCI模式发送数据
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param buffer - 发送数据缓冲区
+ * @param length - 发送数据长度
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_sci_transmit(ll_sci_bus_e bus, uint8_t *buffer, uint16_t length);
+/**
+ * @brief  SCI模式接收数据
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param buffer - 接收数据缓冲区
+ * @param length - 接收数据长度
+ * @retval LL_OK 成功，LL_COMM_ERROR 通信错误
+ */
 ll_status_e ll_sci_receive(ll_sci_bus_e bus, uint8_t *buffer, uint16_t length);
+/**
+ * @brief  LIN模式发送数据帧
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param pid - LIN协议ID（保护ID）
+ * @param buffer - 发送数据缓冲区
+ * @param length - 发送数据长度
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_lin_transmit(ll_sci_bus_e bus, uint8_t pid, uint8_t *buffer, uint16_t length);
+/**
+ * @brief  LIN模式接收数据帧
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param pid - LIN协议ID（保护ID）
+ * @param buffer - 接收数据缓冲区
+ * @param length - 接收数据长度
+ * @retval LL_OK 成功，LL_COMM_ERROR 通信错误
+ */
 ll_status_e ll_lin_receive(ll_sci_bus_e bus, uint8_t pid, uint8_t *buffer,  uint16_t length);
+/**
+ * @brief  计算LIN校验和
+ * @param pid - LIN协议ID
+ * @param buffer - 数据缓冲区
+ * @param length - 数据长度
+ * @retval 计算后的校验和
+ */
 uint8_t ll_lin_checksum_calib_func(uint8_t pid, uint8_t *buffer, uint16_t length);
+/**
+ * @brief  读取LIN接收到的PID
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param pid - PID值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_pid_read(ll_sci_bus_e bus, uint8_t *pid);
+/**
+ * @brief  读取LIN接收的单字节数据
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param byte - 字节数据输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_read_byte(ll_sci_bus_e bus, uint8_t *byte);
+/**
+ * @brief  读取LIN自动检测的波特率
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param baud - 波特率值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_auto_baudrate_read(ll_sci_bus_e bus, uint32_t *baud);
+/**
+ * @brief  读取LIN当前配置的波特率
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param baud - 波特率值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_baudrate_read(ll_sci_bus_e bus, uint32_t *baud);
+/**
+ * @brief  使能/禁能LIN全局使能
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param sw - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_ctrl_glben(ll_sci_bus_e bus, bool sw);
+/**
+ * @brief  中止LIN接收
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param sw - true: 中止接收
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_ctrl_rx_abort(ll_sci_bus_e bus, bool sw);
+/**
+ * @brief  发送LIN break信号
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param brk_num - break长度（字节数）
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_lin_ctrl_brk_tx(ll_sci_bus_e bus, uint8_t brk_num);
+/**
+ * @brief  发送LIN帧头（Break + Sync + PID）
+ * @param bus - SCI总线 @ref ll_sci_bus_e
+ * @param pid - LIN协议ID
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_lin_tx_header(ll_sci_bus_e bus, uint8_t pid);
 
 #if defined(__cplusplus)

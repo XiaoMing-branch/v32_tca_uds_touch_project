@@ -21,13 +21,13 @@
 
 #include "pal_pmu.h"
 
-/********************************************************
-** \brief   pmu_lpm_enter
-**
-** \param   sleep_mode_e                mode
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  进入低功耗模式
+ * @param  mode - 睡眠模式选择
+ * @note   关闭PWM中断、GPIO低功耗模式、自动寻址、ADC温度传感器、
+ *         偏置电流和看门狗;使能LIN唤醒;依次进入AFE和MCU睡眠
+ * @retval 无
+ */
 void pmu_lpm_enter(sleep_mode_e mode)
 {
     /* Need stop & clr intterrupt sources */
@@ -85,13 +85,12 @@ void pmu_lpm_enter(sleep_mode_e mode)
     ll_lin_wakeup_enable(LL_SCI_BUS_1, false);
 }
 
-/********************************************************
-** \brief   pmu_lpm_exit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  退出低功耗模式
+ * @param  无
+ * @note   恢复看门狗、ADC温度传感器和偏置电流
+ * @retval 无
+ */
 void pmu_lpm_exit(void)
 {
     /* Enable timer */
@@ -112,13 +111,12 @@ void pmu_lpm_exit(void)
 #endif
 }
 
-/********************************************************
-** \brief   pmu_lpm_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  低功耗模式初始化
+ * @param  无
+ * @note   配置GPIO低功耗模式，禁用LIN自动寻址
+ * @retval 无
+ */
 void pmu_lpm_init(void)
 {
     ll_pmu_gpio_lowpower();
@@ -131,13 +129,11 @@ void pmu_lpm_init(void)
     ll_lin_aa_disable(LL_SCI_BUS_1);
 }
 
-/********************************************************
-** \brief   pmu_otp_enable
-**
-** \param   bool    enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  使能/禁能OTP(过温保护)
+ * @param  enable - true:使能, false:禁能
+ * @retval 无
+ */
 void pmu_otp_enable(bool enable)
 {
 #if defined (__TCPL03X__)
@@ -145,13 +141,11 @@ void pmu_otp_enable(bool enable)
 #endif
 }
 
-/********************************************************
-** \brief   pmu_otp_status
-**
-** \param   None
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取OTP(过温保护)状态
+ * @param  无
+ * @retval true - 过温保护触发, false - 正常
+ */
 bool pmu_otp_status(void)
 {
 #if defined (__TCPL03X__)

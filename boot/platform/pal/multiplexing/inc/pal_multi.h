@@ -29,7 +29,15 @@ extern "C" {
 #include "pal_func_def.h"
 
 #if defined (__TCPL01X__)
+/**
+ * @brief  RTC GPIO复用初始化
+ */
 void rtc_gpio_init(void);
+
+/**
+ * @brief  获取当前RTC时间
+ * @param  time - 输出时间结构体
+ */
 void curretn_rtc_get(rtc_time_t *time);
 #endif
 

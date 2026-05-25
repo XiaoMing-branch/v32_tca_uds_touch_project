@@ -21,25 +21,21 @@
 
 #include "pal_log.h"
 
-/********************************************************
-** \brief   pal_log_print
-**
-** \param   uint8_t     ch
-**
-** \retval  ll_status_e
-*********************************************************/
+/**
+ * @brief  日志打印一个字符(串口发送)
+ * @param  ch - 待打印字符
+ * @retval 无
+ */
 void pal_log_print(uint8_t ch)
 {
     ll_sci_transmit(LL_SCI_BUS_0, (uint8_t *)&ch, 1);
 }
 
-/********************************************************
-** \brief   pal_log_init
-**
-** \param   uint32_t    baudrate
-**
-** \retval  ll_status_e
-*********************************************************/
+/**
+ * @brief  日志模块初始化(串口配置)
+ * @param  baudrate - 串口波特率
+ * @retval 无
+ */
 void pal_log_init(uint32_t baudrate)
 {
     sci_config_t config =
@@ -51,13 +47,11 @@ void pal_log_init(uint32_t baudrate)
     ll_sci_init(LL_SCI_BUS_0, &config, NULL);
 }
 
-/********************************************************
-** \brief   pal_log_deinit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  日志模块去初始化
+ * @param  无
+ * @retval 无
+ */
 void pal_log_deinit(void)
 {
     ll_sci_deinit(LL_SCI_BUS_0);

@@ -30,27 +30,35 @@ extern "C"
 {
 #endif
 
+/** @brief 创建并注册一个周期性/一次性任务 */
 #define OS_TASK_CREATE(task_func, delay, period, op) \
     os_task_create(task_func, delay, period, op)
 
+/** @brief 删除指定句柄的任务 */
 #define OS_TASK_DELETE(handle) \
     os_task_delete(handle)
 
+/** @brief 设置指定任务的运行模式 */
 #define OS_TASK_MODE_SET(handle, mode) \
     os_task_mode_set(handle, mode)
 
+/** @brief 执行所有就绪的任务 */
 #define OS_TASK_RUN() \
     os_task_run()
 
+/** @brief 获取当前系统tick计数值 */
 #define OS_TICK_GET() \
     systick_count_get()
 
+/** @brief 计算两个tick之间的差值 */
 #define OS_TICK_DIFF(os_tick) \
     systick_diff(os_tick)
 
+/** @brief 阻塞式延时（毫秒） */
 #define OS_DELAY_MS(ms) \
     delay_ms(ms)
 
+/** @brief 断言宏：条件为假时触发断言处理 */
 #define OS_ASSERT(expr) (expr?(void)0U: os_assert((uint8_t *)__FILE__, __LINE__))
 
 #ifdef __cplusplus

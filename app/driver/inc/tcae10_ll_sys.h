@@ -33,42 +33,52 @@ extern "C" {
 /**
   * @defgroup ASYSCFG_OTP_RST_Definitions
   */
+/** @brief  使能OTP复位 */
 #define ASYSCFG_OTP_RST_ENABLE()    (ASYSCFG->OTP_RST_CTRL_F.OTP_RST_EN=1)
+/** @brief  禁能OTP复位 */
 #define ASYSCFG_OTP_RST_DISABLE()   (ASYSCFG->OTP_RST_CTRL_F.OTP_RST_EN=0)
 
 /**
   * @defgroup ASYSCFG_HRC_CLOCK_Config_Macro
   */
-/*Enable software HRC, when it enable the PMU high power mode ready*/
+/** @brief  使能软件HRC时钟（PMU高功率模式） */
 #define ASYSCFG_SW_HRC_ENABLE()                     (ASYSCFG->RCCLK_CTRL_F.SW_HRC_EN=1)
-/*Disable software HRC, */
+/** @brief  禁能软件HRC时钟 */
 #define ASYSCFG_SW_HRC_DISABLE()                    (ASYSCFG->RCCLK_CTRL_F.SW_HRC_EN=0)
-/*Disable software HRC clock in sleepwalk mode*/
+/** @brief  睡眠漫步模式禁能HRC时钟 */
 #define ASYSCFG_HRC_CLOCK_DISABLE_ON_SLEEPWALK()    (ASYSCFG->PMU_CTRL_F.SLWK_HRC_EN=0)
-/*Enable software HRC clock in sleepwalk mode*/
+/** @brief  睡眠漫步模式使能HRC时钟 */
 #define ASYSCFG_HRC_CLOCK_ENABLE_ON_SLEEPWALK()     (ASYSCFG->PMU_CTRL_F.SLWK_HRC_EN=1)
 
 
 /** ]
   * @defgroup ASYSCFG_RESET_CAUSE_Definitions
   */
+/** @brief  复位原因：软件POR请求 */
 #define ASYSCFG_RST_CAUSE_SW_POR_REQ        0X01
+/** @brief  复位原因：IO4引脚复位 */
 #define ASYSCFG_RST_CAUSE_IO4_PAD_RST       0X02
+/** @brief  复位原因：独立看门狗 */
 #define ASYSCFG_RST_CAUSE_IWDG              0X04
+/** @brief  复位原因：过温保护 */
 #define ASYSCFG_RST_CAUSE_OTP               0X08
+/** @brief  复位原因：VS电压跌落 */
 #define ASYSCFG_RST_CAUSE_VS_ALT            0X10
-#define ASYSCFG_RST_CAUSE_CM0_RST           0X20    //CM0 Reset or CM0 lockup
+/** @brief  复位原因：CM0复位或锁死 */
+#define ASYSCFG_RST_CAUSE_CM0_RST           0X20
 
 /**
   * @defgroup ASYSCFG_RESET_CONTROL_Definitions
   */
+/** @brief  使能CM0锁死复位 */
 #define ASYSCFG_CM0_LOCKUP_RST_ENABLE()     (ASYSCFG->RST_CTRL_F.M0_LOCKUP_EN=1)
+/** @brief  禁能CM0锁死复位 */
 #define ASYSCFG_CM0_LOCKUP_RST_DISABLE()    (ASYSCFG->RST_CTRL_F.M0_LOCKUP_EN=0)
-/*Request a software reset, this will reset all logic*/
+/** @brief  请求软件复位（复位所有逻辑） */
 #define ASYSCFG_RST_REQUEST()               (ASYSCFG->RST_CTRL_F.SW_POR_REQ=1)
-/*Get the reset cuase*/
+/** @brief  获取复位原因 */
 #define ASYSCFG_RST_CAUSE_GET()             (ASYSCFG->RST_CTRL_F.RST_FLAG)
-/*Clear the reset cuase*/
+/** @brief  清除复位原因标志 */
 #define ASYSCFG_RST_CAUSE_CLEAR()           (ASYSCFG->RST_CTRL_F.CLR_RST=1)
 
 
@@ -167,15 +177,63 @@ typedef enum
 
 } sys_backup_zone_e;
 
+/**
+ * @brief  配置系统向量表重映射
+ * @param vetor_offset - 向量表偏移地址
+ * @param enable - true: 使能重映射，false: 禁能
+ */
 void ll_syscfg_remap_config(uint32_t vetor_offset, bool enable);
+/**
+ * @brief  获取芯片版本和ID信息
+ * @param revision_id - 版本号输出指针
+ * @param chip_id - 芯片ID输出指针
+ */
 void ll_syscfg_info_get(uint8_t *revision_id, uint16_t *chip_id);
+/**
+ * @brief  初始化唤醒源配置
+ * @param source - 唤醒源选择 @ref wakeup_source_e
+ * @param time - 唤醒时间 @ref wakeup_time_e
+ * @param filter - 唤醒滤波 @ref wakeup_filter_e
+ */
 void ll_wakeup_init(wakeup_source_e source, wakeup_time_e time, wakeup_filter_e filter);
+/**
+ * @brief  使能/禁能系统配置中断
+ * @param isr - 中断类型 @ref asyscfg_isr_type_e
+ * @param enable - true: 使能，false: 禁能
+ */
 void ll_syscfg_isr_enable(asyscfg_isr_type_e isr, bool enable);
+/**
+ * @brief  使能/禁能OTP过温保护
+ * @param enable - true: 使能，false: 禁能
+ */
 void ll_syscfg_otp_enable(bool enable);
+/**
+ * @brief  获取OTP过温保护状态
+ * @retval true: 过温触发，false: 正常
+ */
 bool ll_syscfg_otp_status(void);
+/**
+ * @brief  清除系统配置中断标志
+ * @param isr - 中断类型 @ref asyscfg_isr_type_e
+ */
 void ll_syscfg_isr_clear(asyscfg_isr_type_e isr);
+/**
+ * @brief  获取系统配置中断标志状态
+ * @param isr - 中断类型 @ref asyscfg_isr_type_e
+ * @retval 中断状态值
+ */
 uint8_t ll_syscfg_isr_get(asyscfg_isr_type_e isr);
+/**
+ * @brief  写入系统备份寄存器
+ * @param zone - 备份区选择 @ref sys_backup_zone_e
+ * @param data - 要写入的数据
+ */
 void ll_syscfg_backup_reg_write(sys_backup_zone_e zone, uint32_t data);
+/**
+ * @brief  读取系统备份寄存器
+ * @param zone - 备份区选择 @ref sys_backup_zone_e
+ * @param data - 读取数据输出指针
+ */
 void ll_syscfg_backup_reg_read(sys_backup_zone_e zone, uint32_t *data);
 
 

@@ -79,13 +79,15 @@ extern "C" {
 #define LED_CHANNEL_2                             (2)
 
 /**
-  * @brief  typedef led channel enumeration
-  */
+ * @brief  LED通道号类型定义
+ * @note   使用uint8_t表示LED通道编号
+ */
 typedef uint8_t led_channel_e;
 
 /**
-  * @brief  rgb type enumeration
-  */
+ * @brief  RGB颜色类型枚举
+ * @note   定义红/绿/蓝三色索引
+ */
 typedef enum
 {
     LED_R = 0,

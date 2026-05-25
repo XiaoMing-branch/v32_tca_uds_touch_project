@@ -37,38 +37,35 @@ extern void lin_goto_idle_state(void);
 extern void meas_manager_value_clear(void);
 extern void led_disp_wakeup_recovery_handle(void);
 
-/********************************************************
-** \brief   meas_manager_value_clear
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  清除测量管理器的数据（弱定义）
+ * @param  无
+ * @note   弱符号定义，可由外部模块重写
+ * @retval 无
+ */
 __attribute__((weak)) void meas_manager_value_clear(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   led_disp_wakeup_recovery_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED显示唤醒恢复处理（弱定义）
+ * @param  无
+ * @note   弱符号定义，可由外部模块重写，用于唤醒后恢复LED显示状态
+ * @retval 无
+ */
 __attribute__((weak)) void led_disp_wakeup_recovery_handle(void)
 {
     //do noting
 }
 
 #ifdef CFG_LIN_CONFORM_TEST
-/********************************************************
-** \brief   lin_gpio_callback
-**
-** \param   uint32_t gpio_pin
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN GPIO唤醒回调函数（一致性测试）
+ * @param  gpio_pin - 触发中断的GPIO引脚号
+ * @note   设置从机唤醒标志并复位唤醒计数器，仅在CFG_LIN_CONFORM_TEST使能时编译
+ * @retval 无
+ */
 __attribute__((weak)) void lin_gpio_callback(uint32_t gpio_pin)
 {
     if (lin_slave_wakeup_flag == 0 && GPIO_PIN_0 != gpio_pin)
@@ -80,13 +77,12 @@ __attribute__((weak)) void lin_gpio_callback(uint32_t gpio_pin)
     bus_wakeup_cnt = 0;
 }
 
-/********************************************************
-** \brief   lin_gpio_callback
-**
-** \param   uint32_t gpio_pin
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从机唤醒主机处理（一致性测试）
+ * @param  无
+ * @note   唤醒后按特定间隔发送LIN总线Break信号以唤醒主机
+ * @retval 无
+ */
 void lin_slave_wakeup_master_handle(void)
 {
     if (lin_slave_wakeup_flag == 0)
@@ -113,14 +109,12 @@ void lin_slave_wakeup_master_handle(void)
     }
 }
 
-/********************************************************
-** \brief   system_low_power_init
-**
-** \param   None
-**
-** \retval  None
-** \note    EEPSLEEP_MODE=580ua, SLEEPWALK_MODE=23ua
-*********************************************************/
+/**
+ * @brief  初始化GPIO唤醒（一致性测试）
+ * @param  mode - 睡眠模式（EEPSLEEP_MODE=580uA, SLEEPWALK_MODE=23uA）
+ * @note   配置GPIO_PIN_0为下拉输入、上升沿触发唤醒
+ * @retval 无
+ */
 static void lin_gpio_wakeup_init(sleep_mode_e mode)
 {
     gpio_config_t gpio_config =
@@ -137,14 +131,12 @@ static void lin_gpio_wakeup_init(sleep_mode_e mode)
 }
 #endif
 
-/********************************************************
-** \brief   system_low_power_init
-**
-** \param   None
-**
-** \retval  None
-** \note    EEPSLEEP_MODE=580ua, SLEEPWALK_MODE=23ua
-*********************************************************/
+/**
+ * @brief  设置系统进入睡眠模式
+ * @param  mode - 睡眠模式选择
+ * @note   进入低功耗前关闭LIN主机引脚，退出后恢复空闲状态
+ * @retval 无
+ */
 static void lin_sleep_mode_set(sleep_mode_e mode)
 {
 #ifdef CFG_LIN_CONFORM_TEST
@@ -166,13 +158,12 @@ static void lin_sleep_mode_set(sleep_mode_e mode)
     pmu_lpm_exit();
 }
 
-/********************************************************
-** \brief   system_low_power_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  系统低功耗初始化
+ * @param  无
+ * @note   初始化PMU低功耗管理，一致性测试时额外初始化GPIO唤醒
+ * @retval 无
+ */
 void system_low_power_init(void)
 {
     pmu_lpm_init();
@@ -182,13 +173,12 @@ void system_low_power_init(void)
 #endif
 }
 
-/********************************************************
-** \brief   sleep_mode_enter
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  进入睡眠模式入口
+ * @param  无
+ * @note   检查睡眠标志后进入睡眠，唤醒后清除测量数据并恢复LED显示
+ * @retval 无
+ */
 void sleep_mode_enter(void)
 {
 #ifdef CFG_LIN_CONFORM_TEST

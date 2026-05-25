@@ -42,6 +42,9 @@ extern "C"
 #endif
 
 
+/**
+ * @brief  发送模式选择（0: 轮询，1: 中断）
+ */
 #define TX_INTERRUPT    0   /* 0 if TX uses polling, 1 interrupt driven. */
 
 
@@ -61,11 +64,16 @@ typedef enum
 
 /** @defgroup LIN_SCI_FIFO
   * @{
-  */    
+  */
+/** @brief  清除发送FIFO */
 #define tx_fifo_clr()       (LIN_SCI1->CTRL_F.TX_FIFO_CLR = 1)
+/** @brief  清除接收FIFO */
 #define rx_fifo_clr()       (LIN_SCI1->CTRL_F.RX_FIFO_CLR=1)
+/** @brief  中止发送状态 */
 #define tx_state_abort()    (LIN_SCI1->CTRL_F.TX_ABORT=1)
+/** @brief  中止接收状态 */
 #define rx_state_abort()    (LIN_SCI1->CTRL_F.RX_ABORT=1)
+/** @brief  触发发送Break信号 */
 #define break_tx_trig()     (LIN_SCI1->CTRL_F.BRK_TX_TRIG=1)
 /**
   * @}
@@ -104,17 +112,65 @@ typedef enum
   
   
   
+/**
+ * @brief  去初始化LIN/SCI/UART模块
+ */
 void ll_lin_sci_uart_deinit(void);
+/**
+ * @brief  配置LIN/SCI/UART IO引脚
+ */
 void ll_lin_sci_uart_io_config(void);
+/**
+ * @brief  使能/禁能LIN/SCI/UART模块
+ * @param en - TRUE: 使能，FALSE: 禁能
+ */
 void ll_lin_sci_uart_enable(boolean_t en);
+/**
+ * @brief  LIN/SCI/UART发送单字节
+ * @param data - 要发送的字节数据
+ */
 void ll_lin_sci_uart_send_byte(uint8_t data);
+/**
+ * @brief  LIN/SCI/UART发送多字节数据
+ * @param pu8Buffer - 数据缓冲区指针
+ * @param u32Len - 发送数据长度（字节）
+ */
 void ll_lin_sci_uart_send_bytes(uint8_t *pu8Buffer, uint32_t u32Len);
+/**
+ * @brief  设置LIN/SCI/UART波特率
+ * @param baudrate - 目标波特率
+ */
 void ll_lin_sci_uart_setbaudrate(uint32_t baudrate);
+/**
+ * @brief  设置LIN/SCI/UART工作模式
+ * @param mode - 工作模式（LIN或UART）@ref sci_mode_t
+ */
 void ll_lin_sci_uart_mode(sci_mode_t mode);
+/**
+ * @brief  配置LIN/SCI/UART接收过滤器
+ * @param filter - 过滤器配置值
+ */
 void ll_lin_sci_uart_rxfilter_cfg(uint16_t filter);
+/**
+ * @brief  使能LIN/SCI/UART中断
+ * @param lin_sci_int - 中断标志位
+ */
 void ll_lin_sci_uart_interrupt_enable(uint32_t lin_sci_int);
+/**
+ * @brief  禁能LIN/SCI/UART中断
+ * @param lin_sci_int - 中断标志位
+ */
 void ll_lin_sci_uart_interrupt_disable(uint32_t lin_sci_int);
+/**
+ * @brief  获取LIN/SCI/UART中断状态
+ * @param lin_sci_int - 中断标志位
+ * @retval true: 中断已触发，false: 中断未触发
+ */
 bool ll_lin_sci_uart_interrupt_status_get(uint32_t lin_sci_int);
+/**
+ * @brief  清除LIN/SCI/UART中断标志
+ * @param lin_sci_int - 中断标志位
+ */
 void ll_lin_sci_uart_interrupt_clear(uint32_t lin_sci_int);
   
   

@@ -21,13 +21,13 @@
 
 #include "pal_pmu.h"
 
-/********************************************************
-** \brief   pmu_lpm_enter
-**
-** \param   sleep_mode_e                mode
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  进入低功耗睡眠模式
+ * @note   关闭PWM中断、GPIO低功耗配置、禁能自动寻址和ADC传感器、
+ *         关闭偏置电流、使能LIN唤醒、AFE和MCU进入睡眠
+ * @param  mode - 睡眠模式选择
+ * @retval None
+ */
 void pmu_lpm_enter(sleep_mode_e mode)
 {
     //    uint32_t imr0, imr1;
@@ -90,13 +90,12 @@ void pmu_lpm_enter(sleep_mode_e mode)
     ll_lin_wakeup_enable(LL_SCI_BUS_1, false);
 }
 
-/********************************************************
-** \brief   pmu_lpm_exit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  退出低功耗睡眠模式
+ * @note   恢复看门狗、使能ADC温度传感器和偏置电流、关闭LDO dummy负载
+ * @param  None
+ * @retval None
+ */
 void pmu_lpm_exit(void)
 {
     /* Enable timer */
@@ -117,13 +116,12 @@ void pmu_lpm_exit(void)
 #endif
 }
 
-/********************************************************
-** \brief   pmu_lpm_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  低功耗模式初始化
+ * @note   配置GPIO低功耗模式、关闭LDO dummy负载、禁能自动寻址
+ * @param  None
+ * @retval None
+ */
 void pmu_lpm_init(void)
 {
     ll_pmu_gpio_lowpower();

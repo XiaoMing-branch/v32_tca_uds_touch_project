@@ -26,24 +26,21 @@ static volatile uint32_t systick_count = 0;
 
 extern void os_task_update(void);
 
-/********************************************************
-** \brief   os_task_update
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  OS任务更新回调(弱符号，可重写)
+ * @param  无
+ * @retval 无
+ */
 __attribute__((weak)) void os_task_update(void)
 {
 }
 
-/********************************************************
-** \brief   SysTick_Handler
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SysTick中断服务函数
+ * @param  无
+ * @note   调用OS任务更新，递增系统滴答计数器
+ * @retval 无
+ */
 void SysTick_Handler(void)
 {
     os_task_update();
@@ -52,25 +49,21 @@ void SysTick_Handler(void)
     systick_count++;
 }
 
-/********************************************************
-** \brief   systick_count_get
-**
-** \param   None
-**
-** \retval  uint32_t
-*********************************************************/
+/**
+ * @brief  获取当前系统滴答计数值
+ * @param  无
+ * @retval 当前滴答计数值
+ */
 uint32_t systick_count_get(void)
 {
     return (systick_count);
 }
 
-/********************************************************
-** \brief   systick_diff
-**
-** \param   uint32_t        start_tick
-**
-** \retval  uint32_t
-*********************************************************/
+/**
+ * @brief  计算两次滴答之间的时间差(支持溢出)
+ * @param  start_tick - 起始滴答值
+ * @retval 从start_tick到当前的时间差
+ */
 uint32_t systick_diff(uint32_t start_tick)
 {
     uint32_t tick_diff = 0;
@@ -88,13 +81,12 @@ uint32_t systick_diff(uint32_t start_tick)
     return (tick_diff);
 }
 
-/********************************************************
-** \brief   delay_ms
-**
-** \param   uint32_t        ms
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  毫秒级延时
+ * @param  ms - 延时毫秒数
+ * @note   基于SysTick计数的阻塞延时
+ * @retval 无
+ */
 void delay_ms(uint32_t ms)
 {
     interrupt_disable();
@@ -104,13 +96,12 @@ void delay_ms(uint32_t ms)
     while (ms > systick_diff(curret_systick));
 }
 
-/********************************************************
-** \brief   delay_us
-**
-** \param   uint32_t        us
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  微秒级延时
+ * @param  us - 延时微秒数
+ * @note   基于SysTick计数器寄存器的精准阻塞延时
+ * @retval 无
+ */
 void delay_us(uint32_t us)
 {
     uint32_t ticks;

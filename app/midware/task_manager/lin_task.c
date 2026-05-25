@@ -22,7 +22,11 @@ static void LinHaltMonitorCallback(void);          //Lin低功耗监控器
 extern void lin_goto_idle_state(void);
 extern void lin_uncd_frame_handle(void);
 
-// 通过LIN打印调试信息
+/**
+ * @brief  通过LIN总线打印日志缓存中的调试信息
+ * @note   使用UDS诊断服务读取日志RAM缓冲区并通过LIN发送
+ *         仅在LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN时编译
+ */
 #if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN
 static void Lin_PrintLogInfo(void)
 {
@@ -52,9 +56,15 @@ static void Lin_PrintLogInfo(void)
 }
 #endif
 
+/**
+ * @brief  LIN任务初始化
+ * @note   创建名为"lin"的高优先级任务，用于管理LIN通信、
+ *         诊断服务、SNPD、低功耗唤醒等
+ * @retval 无返回值，创建失败时通过TC_LOGE打印错误日志
+ */
 void LinInit(void)
 {
-    if ((linTask = TcTaskCreate("lin", LinTask, NULL, TC_TASK_PRIO_HIGH)) == NULL)   //创建Lin任务
+    if ((linTask = TcTaskCreate("lin", LinTask, NULL, TC_TASK_PRIO_HIGH)) == NULL)   /* 创建Lin任务 */
     {
         TC_LOGE(TAG, "LinTask create fail");
     }
@@ -64,11 +74,26 @@ void LinInit(void)
     }
 }
 
+/**
+ * @brief  用户自定义LIN操作（弱符号，可被用户覆盖）
+ * @note   在LinTask的MSG_TASK_INIT初始化流程尾部调用，
+ *         用于添加用户特定的初始化操作，默认为空
+ */
 __WEAK void lin_customized_operation(void)
 {
     ;
 }
-static void LinTask(uint32_t msg, void *param)    //Lin任务
+/**
+ * @brief  LIN主任务处理函数
+ * @param  msg - 消息类型，支持：
+ *         MSG_TASK_INIT - 初始化定时器、LIN协议栈、SNPD、低功耗回调注册
+ *         MSG_TASK_TIMER - 周期执行诊断服务、帧处理、SNPD、低功耗管理
+ *         MSG_TASK_ENTER_HALT - 进入低功耗前配置LIN唤醒源
+ *         MSG_TASK_WAKE_UP - 从低功耗唤醒后恢复LIN通信
+ * @param  param - 消息参数（暂未使用）
+ * @note   内部维护linTimer定时器、唤醒标志、通信超时计数等状态
+ */
+static void LinTask(uint32_t msg, void *param)
 {
     static T_TcTimer *linTimer = NULL;            //定时器
 #if !(LIN_CUSTOM_MASTER_WKUP)
@@ -232,13 +257,20 @@ static void LinTask(uint32_t msg, void *param)    //Lin任务
     }
 }
 
-//上电之后lin是否通信过
+/**
+ * @brief  获取上电后LIN总线是否通信过的标志
+ * @retval 1 - 已检测到LIN总线通信（收到Break信号），0 - 未通信过
+ */
 unsigned char LinCommSincePowerOn(void)
 {
     return linCommSincePowerOn;
 }
 
-//销毁lin
+/**
+ * @brief  销毁LIN任务，释放相关资源
+ * @note   强制销毁LIN任务、反初始化LIN硬件（pal_lin_deinit）、
+ *         关闭LIN_SCI外设时钟
+ */
 void LinDestroy(void)
 {
     if (linTask)
@@ -254,24 +286,31 @@ void LinDestroy(void)
     }
 }
 
-//返回1表示收到lin sleep命令后可以进入低功耗，0表示不可以
+/**
+ * @brief  检查是否允许进入低功耗（弱符号，可被用户覆盖）
+ * @retval 1 - 允许进入低功耗，0 - 禁止进入
+ * @note   收到LIN休眠命令后调用，默认允许进入低功耗
+ */
 __WEAK int32_t LinCanEnterSleep(void)
 {
     return 1;
 }
 
-/********************************************************
-** \brief   lin_uncd_frame_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN未配置帧处理函数（弱符号，可被用户覆盖）
+ * @note   在周期定时中调用，用于处理未在LDF中配置的LIN帧，
+ *         默认为空操作
+ */
 __attribute__((weak)) void lin_uncd_frame_handle(void)
 {
     //do noting
 }
 
+/**
+ * @brief  LIN低功耗唤醒过滤回调函数
+ * @retval linWakeupFlag - 1表示需要唤醒，0表示继续休眠
+ * @note   在低功耗唤醒循环中被调用，检查LIN是否有唤醒事件
+ */
 static int LinHaltFilterWakeupCallback(void)
 {
     if (!linTask)
@@ -281,6 +320,11 @@ static int LinHaltFilterWakeupCallback(void)
     return linWakeupFlag;
 }
 
+/**
+ * @brief  LIN低功耗监控器回调函数
+ * @note   在低功耗期间周期执行，检测LIN协议栈是否被唤醒
+ *         若LIN状态非SLEEP_MODE则置位唤醒标志
+ */
 static void LinHaltMonitorCallback(void)
 {
     if (!linTask)
@@ -288,28 +332,40 @@ static void LinHaltMonitorCallback(void)
         return;
     }
 
-    if (lin_lld_sci_get_state() != LIN_SLEEP_MODE)      //lin协议栈唤醒
+    if (lin_lld_sci_get_state() != LIN_SLEEP_MODE)      /* LIN协议栈唤醒 */
     {
         linWakeupFlag = 1;
     }
 }
 
+/**
+ * @brief  LVD（低电压检测）中断处理函数（弱符号，可被用户覆盖）
+ * @note   在AON_IRQHandler中检测到VS_LVD中断时调用，
+ *         默认为空，用户可在此处理低电压告警逻辑
+ */
 __WEAK void LvdIRQHandler(void)
 {
 
 }
 
+/**
+ * @brief  AON（Always-On）域中断处理函数
+ * @note   处理两个中断源：
+ *         - ASYSCFG_INT_WAKEUP：LIN唤醒中断，置位linWakeupFlag
+ *         - ASYSCFG_INT_VSLVD：VS电源LVD中断，调用LvdIRQHandler
+ *         处理完成后清除所有已响应的中断标志
+ */
 void AON_IRQHandler(void)
 {
     uint32_t isr = ASYSCFG->ISR;
 
     ASYSCFG_CONFIG_UNLOCK();
 
-    if (ll_syscfg_isr_get(ASYSCFG_INT_WAKEUP))  //wakeup
+    if (ll_syscfg_isr_get(ASYSCFG_INT_WAKEUP))  /* wakeup */
     {
         linWakeupFlag = 1;
     }
-    if (ll_syscfg_isr_get(ASYSCFG_INT_VSLVD)) // lvd
+    if (ll_syscfg_isr_get(ASYSCFG_INT_VSLVD))   /* lvd */
     {
         LvdIRQHandler();
     }

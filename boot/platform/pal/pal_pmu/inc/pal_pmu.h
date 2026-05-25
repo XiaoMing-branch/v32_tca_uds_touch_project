@@ -28,10 +28,32 @@
 extern "C" {
 #endif
 
+/**
+ * @brief  进入低功耗模式
+ * @param  mode - 睡眠模式
+ */
 void pmu_lpm_enter(sleep_mode_e mode);
+
+/**
+ * @brief  退出低功耗模式
+ */
 void pmu_lpm_exit(void);
+
+/**
+ * @brief  低功耗模式初始化
+ */
 void pmu_lpm_init(void);
+
+/**
+ * @brief  使能过温保护(OTP)
+ * @param  enable - true:使能, false:禁能
+ */
 void pmu_otp_enable(bool enable);
+
+/**
+ * @brief  获取过温保护状态
+ * @retval true - 触发保护, false - 正常
+ */
 bool pmu_otp_status(void);
 
 #ifdef __cplusplus

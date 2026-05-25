@@ -114,6 +114,10 @@ typedef enum
     AFIO_MUX_7
 } gpio_afio_mux_e;
 
+/**
+ * @defgroup GPIO_SOFTWARE_FUNCTIONS GPIO软件输入功能选择
+ * @{
+ */
 /*GPIO0 SOFTWARE FUNCTIONS*/
 #define GPIO0_SOFTWARE_INPUT_FUNCTION_SWCLK         0
 #define GPIO0_SOFTWARE_INPUT_FUNCTION_GPIO          1
@@ -189,6 +193,7 @@ typedef enum
 #define LED_IO2_SOFTWARE_INPUT_FUNCTION_GPIO8       3
 #define LED_IO2_SOFTWARE_INPUT_FUNCTION_DTB3        4
 #define LED_IO2_SOFTWARE_INPUT_FUNCTION_CAP_SHIELD  6
+/** @} */
 
 /**
   * @defgroup GPIO_Configuration struct
@@ -203,17 +208,72 @@ typedef struct
     gpio_trigger_flag_e trigger_flag;
 } gpio_config_t;
 
+/**
+ * @brief  去初始化GPIO模块
+ */
 void ll_gpio_deinit(void);
+/**
+ * @brief  初始化GPIO引脚
+ * @param config - GPIO配置结构体指针（含引脚、模式、上下拉等）
+ * @param callback - 中断回调函数指针
+ */
 void ll_gpio_init(gpio_config_t *config, ISR_FUNC_CALLBACK callback);
+/**
+ * @brief  读取GPIO引脚电平
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @retval true: 高电平，false: 低电平
+ */
 bool ll_gpio_read(gpio_pin_e gpio_pin);
+/**
+ * @brief  设置GPIO引脚输出电平
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @param state - true: 高电平，false: 低电平
+ */
 void ll_gpio_output(gpio_pin_e gpio_pin, bool state);
+/**
+ * @brief  翻转GPIO引脚输出电平
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ */
 void ll_gpio_toggle(gpio_pin_e gpio_pin);
+/**
+ * @brief  使能/禁能GPIO中断
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @param enable - true: 使能，false: 禁能
+ */
 void ll_gpio_isr_enable(gpio_pin_e gpio_pin, bool enable);
+/**
+ * @brief  获取GPIO中断标志
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @retval true: 中断已触发，false: 中断未触发
+ */
 bool ll_gpio_interrupt_flag_get(gpio_pin_e gpio_pin);
+/**
+ * @brief  清除GPIO中断标志
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ */
 void ll_gpio_interrupt_clear(gpio_pin_e gpio_pin);
+/**
+ * @brief  配置GPIO复用功能
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @param afio_mux - 复用功能选择 @ref gpio_afio_mux_e
+ */
 void ll_gpio_afio_config(gpio_pin_e gpio_pin, gpio_afio_mux_e afio_mux);
+/**
+ * @brief  获取GPIO当前复用功能
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @retval 当前复用功能选择 @ref gpio_afio_mux_e
+ */
 gpio_afio_mux_e ll_gpio_afio_get(gpio_pin_e gpio_pin);
+/**
+ * @brief  配置GPIO低功耗模式下的模拟引脚状态
+ * @param gpio_pin - GPIO引脚号 @ref gpio_pin_e
+ * @param keep_high - true: 保持高电平，false: 保持低电平
+ */
 void ll_gpio_ano_lpm_config(gpio_pin_e gpio_pin, bool keep_high);
+/**
+ * @brief  使能/禁能GPIO复位功能
+ * @param enable - true: 使能复位，false: 禁能复位
+ */
 void ll_gpio_reset_enable(bool enable);
 
 #if defined(__cplusplus)

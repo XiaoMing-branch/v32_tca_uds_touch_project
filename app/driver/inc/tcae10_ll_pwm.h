@@ -189,24 +189,132 @@ typedef struct
 
 } pwm_config_t;
 
+/**
+ * @brief  使能/禁能PWM中断标志
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param isr - 中断标志位
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_isr_flag_enable(ll_pwm_bus_e bus, uint32_t isr, bool enable);
+/**
+ * @brief  使能/禁能PWM中断总开关
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_isr_enable(ll_pwm_bus_e bus, bool enable);
+/**
+ * @brief  清除PWM中断标志
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param flag - 中断标志位
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_isr_clear(ll_pwm_bus_e bus, uint32_t flag);
+/**
+ * @brief  获取PWM中断标志状态
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param flag - 中断标志输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_isr_flag_get(ll_pwm_bus_e bus, uint32_t *flag);
 
+/**
+ * @brief  使能/禁能PWM输出
+ * @param mode - HVIO模式（LED或PWM）@ref pwm_hvio_mode_e
+ * @param enable - true: 使能，false: 禁能
+ */
 void ll_pwm_enable(pwm_hvio_mode_e mode, bool enable);
+/**
+ * @brief  配置PWM通道高低阈值
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param threshold_h - 高阈值
+ * @param threshold_l - 低阈值
+ * @retval LL_OK 成功，LL_PARAM_INVALID 参数无效
+ */
 ll_status_e ll_pwm_channel_threshold_config(pwm_channel_e channel, uint16_t threshold_h, uint16_t threshold_l);
+/**
+ * @brief  配置PWM通道周期
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param period - 周期值
+ * @retval LL_OK 成功，LL_PARAM_INVALID 参数无效
+ */
 ll_status_e ll_pwm_channel_period_config(pwm_channel_e channel, uint16_t period);
+/**
+ * @brief  获取PWM通道高阈值
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param value - 高阈值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_high_threshold_get(pwm_channel_e channel, uint16_t *value);
+/**
+ * @brief  获取PWM通道计数器值
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param value - 计数器值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e LL_pwm_channel_counter_get(pwm_channel_e channel, uint16_t *value);
+/**
+ * @brief  设置PWM刹车功能
+ * @param enable - true: 使能刹车，false: 禁能刹车
+ */
 void ll_pwm_break_set(bool enable);
+/**
+ * @brief  获取PWM通道状态
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param value - 状态值输出指针
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_status_get(pwm_channel_e channel, uint8_t *value);
+/**
+ * @brief  配置LED驱动电流
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param current - 驱动电流选择 @ref led_driver_current_e
+ * @retval LL_OK 成功，LL_PARAM_INVALID 参数无效
+ */
 ll_status_e ll_led_driver_current_config(pwm_channel_e channel, led_driver_current_e current);
+/**
+ * @brief  配置LED诊断电流
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param current - 诊断电流选择 @ref led_diag_current_e
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_led_diag_current_config(pwm_channel_e channel, led_diag_current_e current);
+/**
+ * @brief  使能/禁能LED诊断功能
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_led_diagnose_enable(pwm_channel_e channel, bool enable);
+/**
+ * @brief  使能/禁能LED开关
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_led_switch_enable(ll_pwm_bus_e bus, bool enable);
+/**
+ * @brief  设置LED上升/下降沿时间
+ * @param channel - PWM通道 @ref pwm_channel_e
+ * @param rise_time - 上升沿时间 @ref led_rise_sr_time_e
+ * @param fall_time - 下降沿时间 @ref led_fall_sr_time_e
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_led_fall_rise_time_set(pwm_channel_e channel, led_rise_sr_time_e rise_time, led_fall_sr_time_e fall_time);
+/**
+ * @brief  去初始化PWM模块
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_pwm_deinit(ll_pwm_bus_e bus);
+/**
+ * @brief  初始化PWM模块
+ * @param bus - PWM总线 @ref ll_pwm_bus_e
+ * @param config - PWM配置结构体指针
+ * @param callback - 中断回调函数指针
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_pwm_init(ll_pwm_bus_e bus, pwm_config_t *config, ISR_FUNC_CALLBACK callback);
 
 #if defined(__cplusplus)

@@ -28,8 +28,18 @@ extern "C" {
 
 #include "pal_func_def.h"
 
+/**
+ * @brief  进入低功耗睡眠模式
+ * @param  mode - 睡眠模式
+ */
 void pmu_lpm_enter(sleep_mode_e mode);
+/**
+ * @brief  退出低功耗睡眠模式
+ */
 void pmu_lpm_exit(void);
+/**
+ * @brief  低功耗模式初始化
+ */
 void pmu_lpm_init(void);
 
 #ifdef __cplusplus

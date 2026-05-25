@@ -41,13 +41,11 @@ extern void lin_diag_service_handle(void);
 extern void lin_uncd_frame_handle(void);
 extern void lin_master_frame_handle(void);
 
-/********************************************************
-** \brief   lin_master_frame_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主站帧处理函数（弱定义）
+ * @note   当CFG_SUPPORT_LIN_MASTER使能时，由用户重写此函数处理主站帧
+ * @retval 无
+ */
 __attribute__((weak)) void lin_master_frame_handle(void)
 {
 #if CFG_SUPPORT_LIN_MASTER
@@ -69,25 +67,22 @@ __attribute__((weak)) void lin_master_frame_handle(void)
 #endif
 }
 
-/********************************************************
-** \brief   lin_uncd_frame_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN非诊断帧（UNCD）处理函数（弱定义）
+ * @note   由用户重写此函数处理非诊断帧
+ * @retval 无
+ */
 __attribute__((weak)) void lin_uncd_frame_handle(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   task_lin_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN任务主处理函数
+ *         周期执行诊断服务、非诊断帧处理、SCI超时检测及SNPD处理
+ * @param  无
+ * @retval 无
+ */
 static void task_lin_handle(void)
 {
     lin_diag_service_handle();
@@ -99,13 +94,12 @@ static void task_lin_handle(void)
 }
 
 #if CFG_SUPPORT_LIN_MASTER
-/********************************************************
-** \brief   task_lin_handle
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主站任务处理函数
+ *         调用主站帧处理函数处理LIN主站通信
+ * @param  无
+ * @retval 无
+ */
 static void task_lin_master_handle(void)
 {
     lin_master_frame_handle();
@@ -113,25 +107,22 @@ static void task_lin_master_handle(void)
 #endif
 
 #if CFG_SUPPORT_LIN_SNPD
-/********************************************************
-** \brief   lin_task_busy_status
-**
-** \param   None
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取LIN SNPD任务忙状态
+ * @retval true  - SNPD正在处理中，其他任务应等待
+ * @retval false - SNPD空闲，允许执行其他操作
+ */
 bool lin_task_busy_status(void)
 {
     return (!!lin_snpd_status_get(LIN_AA_STATUS_STATE));
 }
 #if CFG_SUPPORT_LIN_SNPD_LED
-/********************************************************
-** \brief   color_snpd_enter
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SNPD进入时的颜色保存处理
+ *         保存当前LED通道0的颜色到target_color，设置PWM输出为0（熄灭LED）
+ * @param  无
+ * @retval 无
+ */
 static void color_recovery_snpd_enter(void)
 {
     color_pwm_t color_pwm = {0};
@@ -140,13 +131,12 @@ static void color_recovery_snpd_enter(void)
     cm_target_pwm_lighting(LED_CHANNEL_0);
 }
 
-/********************************************************
-** \brief   color_snpd_exit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SNPD退出时的颜色恢复处理
+ *         将之前保存的target_color恢复到LED通道0
+ * @param  无
+ * @retval 无
+ */
 static void color_recovery_snpd_exit(void)
 {
     cm_set_target_Yxy(LED_CHANNEL_0, &target_color);
@@ -155,13 +145,13 @@ static void color_recovery_snpd_exit(void)
 #endif
 #endif
 
-/********************************************************
-** \brief   lin_task_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN任务初始化函数
+ *         初始化LIN处理模块，配置SNPD上下文（进入/退出回调），
+ *         创建LIN主任务及可选的主站任务
+ * @param  无
+ * @retval 无
+ */
 void lin_task_init(void)
 {
     lin_process_init();

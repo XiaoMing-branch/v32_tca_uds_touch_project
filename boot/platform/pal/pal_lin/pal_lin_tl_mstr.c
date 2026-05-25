@@ -76,26 +76,23 @@ static lin_tl_queue_t lin_rx_queue =
     .tl_data = rx_queue_data,
 };
 
-/********************************************************
-** \brief   lin_tl_queue_clear
-**
-** \param   lin_tl_queue_t*     queue
-**
-** \retval  void
-*********************************************************/
+/**
+ * @brief  清空LIN传输层队列
+ * @param  queue - 待清空的队列指针
+ * @retval 无
+ */
 void lin_tl_queue_clear(lin_tl_queue_t *queue)
 {
     queue->frame_byte = queue->frame_index = queue->header = queue->tail = 0;
 }
 
-/********************************************************
-** \brief   lin_callback_handle
-**
-** \param   lin_event_type_e    event
-** \param   uint8_t             frame_id
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主机回调处理函数(弱符号，可重写)
+ * @param  event - LIN事件类型
+ * @param  frame_id - 帧ID
+ * @note   处理PID发送完成、接收完成、错误等事件的状态机流转
+ * @retval 无
+ */
 __attribute__((weak)) void lin_callback_handle(lin_event_type_e event, uint8_t frame_id)
 {
     lin_tl_queue_t *queue = (LIN_BUS_RECV == lin_bus_state) ? &lin_rx_queue : &lin_tx_queue;
@@ -150,29 +147,26 @@ __attribute__((weak)) void lin_callback_handle(lin_event_type_e event, uint8_t f
     }
 }
 
-/********************************************************
-** \brief   lin_tl_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN传输层初始化(主机模式)
+ * @param  无
+ * @retval 无
+ */
 void lin_tl_init(void)
 {
     lin_tl_queue_clear(&lin_tx_queue);
     lin_tl_queue_clear(&lin_rx_queue);
 }
 
-/********************************************************
-** \brief   lin_tl_uncd_master_send
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t                 pid
-** \param   uint8_t*                buffer
-** \param   uint16_t                length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  主机发送无条件帧
+ * @param  bus - LIN总线号
+ * @param  pid - 帧PID
+ * @param  buffer - 待发送数据
+ * @param  length - 数据长度
+ * @note   清除队列，设置PID并发送帧头
+ * @retval 无
+ */
 void lin_tl_uncd_master_send(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t length)
 {
     lin_tl_queue_t *queue = &lin_tx_queue;
@@ -183,16 +177,15 @@ void lin_tl_uncd_master_send(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_
     ll_lin_tx_header((ll_sci_bus_e)bus, pid);
 }
 
-/********************************************************
-** \brief   lin_tl_uncd_master_receive
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t                 pid
-** \param   uint8_t*                buffer
-** \param   uint16_t                length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  主机接收无条件帧
+ * @param  bus - LIN总线号
+ * @param  pid - 帧PID
+ * @param  buffer - 接收数据缓冲区
+ * @param  length - 数据长度
+ * @note   清除队列，设置PID并发送帧头以请求从机响应
+ * @retval 无
+ */
 void lin_tl_uncd_master_receive(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uint8_t length)
 {
     lin_tl_queue_t *queue = &lin_rx_queue;
@@ -202,15 +195,13 @@ void lin_tl_uncd_master_receive(lin_bus_e bus, uint8_t pid, uint8_t *buffer, uin
     ll_lin_tx_header((ll_sci_bus_e)bus, pid);
 }
 
-/********************************************************
-** \brief   lin_tl_uncd_frame_get
-**
-** \param   lin_bus_e               bus
-** \param   uint8_t*                pid
-** \param   uint8_t*                buffer
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取接收到的无条件帧数据
+ * @param  bus - LIN总线号
+ * @param  pid - 输出帧PID
+ * @param  buffer - 输出帧数据缓冲区
+ * @retval true - 获取成功, false - 无数据
+ */
 bool lin_tl_uncd_frame_get(lin_bus_e bus, uint8_t *pid, uint8_t *buffer)
 {
     lin_tl_queue_t *queue = &lin_rx_queue;
@@ -226,13 +217,13 @@ bool lin_tl_uncd_frame_get(lin_bus_e bus, uint8_t *pid, uint8_t *buffer)
 }
 
 
-/********************************************************
-** \brief   lin_lld_isr_callback
-**
-** \param   uint32_t             isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN主机ISR回调函数
+ * @param  isr - 中断状态标志位
+ * @note   处理Break/同步/PID接收/字节接收/发送完成/错误等中断事件
+ *         根据总线状态机调用对应的LIN_CALLBACK_HANDLE
+ * @retval 无
+ */
 void lin1_lld_isr_callback(uint32_t isr)
 {
     uint8_t byte __attribute__((unused));

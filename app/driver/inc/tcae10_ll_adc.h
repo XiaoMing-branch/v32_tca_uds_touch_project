@@ -209,30 +209,147 @@ typedef struct
     adc_trig_mode_e trig_mode;
 } adc_config_t;
 
+/**
+ * @brief  获取ADC原始码（从FIFO数据寄存器读取）
+ * @retval ADC转换原始码（12位有符号数）
+ */
 static __INLINE int16_t ll_adc_getcode(void)
 {
     return ((int16_t)(ADC->FIFO_DATA << 2)) >> 2;
 }
 
+/**
+ * @brief  去初始化ADC模块
+ */
 void ll_adc_deinit(void);
+/**
+ * @brief  初始化ADC模块
+ * @param config - ADC配置参数结构体指针
+ * @param callback - 中断回调函数指针
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_init(adc_config_t *config, ISR_FUNC_CALLBACK callback);
+/**
+ * @brief  配置ADC参考电压
+ * @param vref - 参考电压选择 @ref adc_vref_e
+ * @retval LL_OK 成功，LL_PARAM_INVALID 参数无效
+ */
 ll_status_e ll_adc_vref_config(adc_vref_e vref);
+/**
+ * @brief  配置ADC通道增益
+ * @param channel - ADC通道选择 @ref adc_channel_e
+ * @param cfg - ADC配置参数结构体指针（含增益、VCR等）
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_gain_config(adc_channel_e channel, adc_cfg_t *cfg);
+/**
+ * @brief  使能/禁能ADC中断
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_adc_isr_enable(bool enable);
+/**
+ * @brief  使能/禁能LIN自动寻址ADC触发
+ * @param type - LIN自动寻址类型 @ref lin_aa_type_e
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_lin_aa_enable(lin_aa_type_e type, bool enable);
+/**
+ * @brief  选择ADC通道并配置参数
+ * @param channel - ADC通道 @ref adc_channel_e
+ * @param cfg - ADC配置参数（增益、VCM、VREF等）
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_select_channel(adc_channel_e channel, adc_cfg_t *cfg);
+/**
+ * @brief  获取ADC FIFO当前数据长度
+ * @retval FIFO中有效数据个数
+ */
 uint8_t ll_adc_fifo_length_get(void);
+/**
+ * @brief  从ADC FIFO读取数据
+ * @param buffer - 数据缓冲区指针
+ * @param length - 要读取的数据个数
+ * @retval 实际读取的数据个数
+ */
 uint16_t ll_adc_fifo_get(uint16_t *buffer, uint16_t length);
+/**
+ * @brief  清除ADC FIFO数据
+ * @retval 清除的数据个数
+ */
 uint16_t ll_adc_fifo_clear(void);
+/**
+ * @brief  读写ADC控制寄存器
+ * @param value - 写入的值或读出的值指针
+ * @param is_write - true: 写入，false: 读取
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_adc_crtl_config(uint32_t *value, bool is_write);
+/**
+ * @brief  软件触发ADC启动
+ * @param enable - true: 启动，false: 停止
+ */
 void ll_adc_softwart_start(bool enable);
+/**
+ * @brief  计算ADC电压因子（VF）值
+ * @param channel - ADC通道 @ref adc_channel_e
+ * @param buffer - ADC原始数据缓冲区
+ * @param value - 计算后的VF值输出指针
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_vf_calculate_func(adc_channel_e channel, uint16_t *buffer, uint16_t *value);
+/**
+ * @brief  计算ADC电压值
+ * @param code - ADC转换原始码
+ * @param cfg - ADC配置参数（参考电压、增益等）
+ * @param value - 计算后的电压值输出指针（单位mV）
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_volt_calculate_func(int16_t code, adc_cfg_t *cfg, uint16_t *value);
+/**
+ * @brief  计算VBAT电池电压
+ * @param code - ADC转换原始码
+ * @param value - 计算后的电压值输出指针（单位mV）
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_vbat_calculate_func(int16_t code, uint16_t *value);
+/**
+ * @brief  计算ADC温度传感器值
+ * @param channel - 温度通道 @ref temp_channel_e
+ * @param code - ADC转换原始码
+ * @param cfg - ADC配置参数
+ * @param value - 计算后的温度值输出指针
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_temp_calculate_func(temp_channel_e channel, int16_t code, adc_cfg_t *cfg,  uint16_t *value);
+/**
+ * @brief  简化温度值计算
+ * @param channel - 温度通道 @ref temp_channel_e
+ * @param code - ADC转换原始码
+ * @retval 计算后的温度值
+ */
 int ll_adc_temp_calculate(temp_channel_e channel, int16_t code);
+/**
+ * @brief  启动指定ADC通道转换
+ * @param channel - ADC通道 @ref adc_channel_e
+ * @param cfg - ADC配置参数
+ * @param buffer - 转换结果缓冲区
+ * @param trig_num - 触发次数
+ * @retval LL_OK 成功，LL_ERROR 失败
+ */
 ll_status_e ll_adc_channnel_start(adc_channel_e channel, adc_cfg_t *cfg, uint16_t *buffer, uint8_t trig_num);
+/**
+ * @brief  使能/禁能ADC温度传感器
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_adc_tsensor_enable(bool enable);
+/**
+ * @brief  使能/禁能ADC偏置控制
+ * @param enable - true: 使能，false: 禁能
+ * @retval LL_OK 成功
+ */
 ll_status_e ll_bias_control_enable(bool enable);
 
 #ifdef __cplusplus

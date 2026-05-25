@@ -22,6 +22,10 @@
 #include "pal_func_def.h"
 #include "pal_meas_def.h"
 
+/**
+ * @brief 默认VBAT/VTEMP ADC参数配置表（TCPL03X）
+ * @note  [0] = VTEMP通道, [1] = VBAT通道
+ */
 #if defined (__TCPL03X__)
 adc_cfg_t default_vbvt_param_table[2] =
 {
@@ -51,6 +55,10 @@ adc_cfg_t default_vbvt_param_table[2] =
     },
 };
 
+/**
+ * @brief RGB各通道ADC参数配置表（TCPL03X）
+ * @note  按[RGB_RED/GREEN/BLUE][SERIAL_1]索引，仅有单串配置
+ */
 const adc_cfg_t seft_check_param_table[RGB_TYPE_MAX][LED_MEAS_SERIAL_MAX] =
 {
     {
@@ -97,6 +105,10 @@ const adc_cfg_t seft_check_param_table[RGB_TYPE_MAX][LED_MEAS_SERIAL_MAX] =
     },
 };
 
+/**
+ * @brief 默认VBAT/VTEMP ADC参数配置表（TCPL01X）
+ * @note  [0] = VTEMP通道, [1] = VBAT通道
+ */
 #else
 adc_cfg_t default_vbvt_param_table[2] =
 {
@@ -115,6 +127,11 @@ adc_cfg_t default_vbvt_param_table[2] =
         .op_sel = ADC_OP_GAIN0,
     },
 };
+/**
+ * @brief RGB各通道ADC参数配置表（TCPL01X，支持3种串数配置）
+ * @note  按[RGB_RED/GREEN/BLUE][SERIAL_1/2/3]索引
+ *        SERIAL_1/2使用VB通道增益，SERIAL_3使用直接增益
+ */
 const adc_cfg_t seft_check_param_table[RGB_TYPE_MAX][LED_MEAS_SERIAL_MAX] =
 {
     {

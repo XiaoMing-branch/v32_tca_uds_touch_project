@@ -26,17 +26,18 @@
 
 
 /**
-  * @brief  This function De-Init spi all registers
-  * @param  None
-  * @retval None
-  */
+ * @brief   反初始化SPI外设，复位所有寄存器
+ * @param   None
+ * @note    复位SPI外设时钟，将所有寄存器恢复默认值
+ * @retval  None
+ */
 void ll_spi_deinit(void)
 {
     CRG_CONFIG_UNLOCK();
-    CRG->SPI_CLKRST_CTRL_F.RST_SPI = 1;
+    CRG->SPI_CLKRST_CTRL_F.RST_SPI = 1;                     /* 复位SPI外设 */
     __NOP();
     __NOP();
-    CRG->SPI_CLKRST_CTRL_F.RST_SPI = 0;
+    CRG->SPI_CLKRST_CTRL_F.RST_SPI = 0;                     /* 释放复位 */
     __NOP();
     __NOP();
     CRG_CONFIG_LOCK();
@@ -45,38 +46,38 @@ void ll_spi_deinit(void)
 
 
 /**
-  * @brief  This function enables or disable SPI output in Slave mode
-  *         this is useful in 3wire mode
-  * @param  state the new status of slave out
-  *         NOTE slave output is default enable
-  * @retval None
-  */
+ * @brief   使能或禁能SPI从模式输出（3线模式使用）
+ * @param   state - ENABLE使能从机输出，DISABLE禁能
+ * @note    从机输出默认使能，在3线模式下可通过此函数禁用输出
+ * @retval  None
+ */
 void ll_spi_slaveoutenable(FunctionalState state)
 {
-    SPI->CR0_F.IO_DIS = (state ? 0 : 1);
+    SPI->CR0_F.IO_DIS = (state ? 0 : 1);                    /* 设置IO_DIS位控制从机输出 */
 }
 
 
 
 /**
-  * @brief  This function enables or disable SPI input in Master mode
-  *         Disables Reciving data on RXd pin during sending data
-  * @param  state the new status of master data in
-  *         NOTE master data in is default enable
-  * @retval None
-  */
+ * @brief   使能或禁能SPI主模式输入（发送期间禁能接收）
+ * @param   state - ENABLE使能主设备数据输入，DISABLE禁能
+ * @note    主设备数据输入默认使能
+ * @retval  None
+ */
 void ll_spi_masterinenable(FunctionalState state)
 {
-    SPI->CR0_F.IO_DIS = (state ? 0 : 1);
+    SPI->CR0_F.IO_DIS = (state ? 0 : 1);                    /* 设置IO_DIS位控制主设备输入 */
 }
 
 
 
 /**
-  * @brief  This function initialize SPI
-  * @param  config  a pointer to the spi configuration struct
-  * @retval None
-  */
+ * @brief   初始化SPI外设
+ * @param   config - 指向SPI配置结构体的指针（包含模式、线数、数据长度、时钟极性/相位等）
+ * @note    先复位SPI，再配置CR0寄存器中各参数：主从模式、线数、数据长度、
+ *         帧格式、CSN极性、CRC、字节序、时钟相位/极性、回环模式等
+ * @retval  None
+ */
 void ll_spi_init(SPI_COnfig_t *config)
 {
     CRG_CONFIG_UNLOCK();
@@ -108,18 +109,18 @@ void ll_spi_init(SPI_COnfig_t *config)
     SPI->CR0_F.SPH = config->SPI_ClockPhase;
     SPI->CR0_F.SPO = config->SPI_ClockPolarity;
     SPI->CR0_F.LP_BACK_EN = config->LoopBack_Enable;
-    SPI->CPSR_F.FCLK_DIV = config->ClockPrescale;
+    SPI->CPSR_F.FCLK_DIV = config->ClockPrescale;               /* 设置时钟分频系数 */
 
 }
 
 
 
 /**
-  * @brief  This function configures the spi related IOs
-  * @param  w_mode the current spi wiring mode, to be configured based on
-  *         this parameter can be any value of @ref SPI_WIREMODE_ENUM
-  * @retval None
-  */
+ * @brief   配置SPI相关的GPIO引脚复用功能
+ * @param   w_mode - SPI接线模式，可取@ref SPI_WIREMODE_ENUM中的值
+ * @note    3线模式配置CSN/CLK/DATA引脚，4线模式配置CSN/CLK/TXD/RXD引脚
+ * @retval  None
+ */
 void ll_spi_ioconfig(SPI_WireMode_t w_mode)
 {
     if (w_mode == SPI_WireMode_3Wires)
@@ -141,51 +142,50 @@ void ll_spi_ioconfig(SPI_WireMode_t w_mode)
 
 
 /**
-  * @brief  This function configures SPI FIFO
-  * @param  fifo selects the fifo to be configured,
-  *         this parameter can be any value of @ref SPI_FIFOSELECT_ENUM
-  * @param  threshold selects the FIFO threshold value,
-  *         this parameter can be any value of @ref SPI_FIFOTHRESHOLD_ENUM
-  * @retval None
-  */
+ * @brief   配置SPI FIFO阈值
+ * @param   fifo      - 要配置的FIFO（TX或RX），可取@ref SPI_FIFOSELECT_ENUM
+ * @param   threshold - 阈值等级，可取@ref SPI_FIFOTHRESHOLD_ENUM
+ * @retval  None
+ */
 void ll_spi_fifoconfig(SPI_FifoSelect_t fifo, SPI_FifoThreshold_t threshold)
 {
     if (fifo == SPI_FifoSelect_Rx)
     {
-        SPI->CR1_F.RX_FIFO_INT_TH = threshold;
+        SPI->CR1_F.RX_FIFO_INT_TH = threshold;                 /* 设置RX FIFO中断阈值 */
     }
     else if (fifo == SPI_FifoSelect_Tx)
     {
-        SPI->CR1_F.TX_FIFO_INT_TH = threshold;
+        SPI->CR1_F.TX_FIFO_INT_TH = threshold;                 /* 设置TX FIFO中断阈值 */
     }
 }
 
 
 
 /**
-  * @brief  This function enables or disables SPI
-  * @param  state specifies the new state of spi, can be ENABLE or DISABLE
-  * @retval None
-  */
+ * @brief   使能或禁能SPI外设
+ * @param   state - ENABLE使能SPI，DISABLE禁能
+ * @retval  None
+ */
 void ll_spi_cmd(FunctionalState state)
 {
-    SPI->CR0_F.SPI_EN = (state ? 1 : 0);
+    SPI->CR0_F.SPI_EN = (state ? 1 : 0);                    /* 设置SPI使能位 */
 }
 
 
 
 /**
-  * @brief  This function sends data over SPI
-  * @param  data a pointer to the data packet
-  * @param  length the data length
-  * @retval None
-  */
+ * @brief   通过SPI发送数据
+ * @param   data   - 指向待发送数据的指针
+ * @param   length - 数据长度（字为单位）
+ * @note    阻塞等待TX FIFO非满后写入数据寄存器
+ * @retval  None
+ */
 void ll_spi_senddata(const uint32_t *data, uint16_t length)
 {
     while (length-- > 0)
     {
-        SPI->WDR_F.TX_DATA = *data;
-        while (SPI->SR_F.TX_FIFO_FULL_FLG != 0);
+        SPI->WDR_F.TX_DATA = *data;                            /* 写入数据到发送寄存器 */
+        while (SPI->SR_F.TX_FIFO_FULL_FLG != 0);               /* 等待TX FIFO非满 */
         data++;
     }
 
@@ -194,80 +194,76 @@ void ll_spi_senddata(const uint32_t *data, uint16_t length)
 
 
 /**
-  * @brief  This function receives data over SPI
-  * @param  a pointer to the buffer where the received data will be stored
-  * @param  the data length user wants to receive
-  * @retval None
-  */
+ * @brief   通过SPI接收数据
+ * @param   buffer - 指向接收缓冲区的指针
+ * @param   length - 要接收的数据长度（字为单位）
+ * @retval  None
+ */
 void ll_spi_receivedata(uint32_t *buffer, uint16_t length)
 {
     for (uint8_t i = 0; i < length ; i++)
     {
-        buffer[i] = SPI->RDR_F.RX_DATA;
+        buffer[i] = SPI->RDR_F.RX_DATA;                        /* 从接收寄存器读取数据 */
     }
 }
 
 
 
 /**
-  * @brief  This function gets SPI status for specific flag
-  * @param  status_flag the status flag to get status
-  *         this parameter can be any value of @ref SPI_STATUS_ENUM
-  * @retval the status of the specified flag
-  */
+ * @brief   获取SPI状态标志
+ * @param   status_flag - 要查询的状态标志，可取@ref SPI_STATUS_ENUM中的值
+ * @retval  true - 标志置位，false - 标志清除
+ */
 bool ll_spi_statusget(SPI_Status_t status_flag)
 {
-    return (SPI->SR & 1 << status_flag) ;
+    return (SPI->SR & 1 << status_flag) ;                    /* 读取状态寄存器对应位 */
 }
 
 
 
 /**
-  * @brief  This function enables spi interrupt
-  * @param  spi_int the interrupt to be enabled, this value can be one or
-  *         combination of @ref SPI_INTERRUPT_Definitions
-  * @retval None
-  */
+ * @brief   使能SPI中断
+ * @param   spi_int - 要使能的中断标志，可取@ref SPI_INTERRUPT_Definitions中的值或组合
+ * @note    写IMR寄存器清除对应位以使能中断
+ * @retval  None
+ */
 void ll_spi_interruptenable(uint16_t spi_int)
 {
-    SPI->IMR &= ~(spi_int);
+    SPI->IMR &= ~(spi_int);                                  /* 清除IMR对应位，使能中断 */
 }
 
 
 
 /**
-  * @brief  This function disables spi interrupt
-  * @param  spi_int the interrupt to be disabled,this value can be one or
-  *         combination of @ref SPI_INTERRUPT_Definitions
-  * @retval None
-  */
+ * @brief   禁能SPI中断
+ * @param   spi_int - 要禁能的中断标志，可取@ref SPI_INTERRUPT_Definitions中的值或组合
+ * @retval  None
+ */
 void ll_spi_interruptdisable(uint16_t spi_int)
 {
-    SPI->IMR |= spi_int;
+    SPI->IMR |= spi_int;                                     /* 设置IMR对应位，禁能中断 */
 }
 
 
 
 /**
-  * @brief  This function gets the status of a specified spi interrupt flag
-  * @param  spi_int the interrupt to read status, this value can be one or
-  *          combination of @ref SPI_INTERRUPT_Definitions
-  * @retval returns the specified flag's status
-  */
+ * @brief   获取SPI中断标志状态
+ * @param   spi_int - 要查询的中断标志，可取@ref SPI_INTERRUPT_Definitions中的值或组合
+ * @retval  true - 中断已发生，false - 无中断
+ */
 bool ll_spi_interruptstatusget(uint16_t spi_int)
 {
-    return (SPI->ISR & spi_int) ;
+    return (SPI->ISR & spi_int) ;                            /* 读取ISR寄存器 */
 }
 
 
 
 /**
-  * @brief  This function clears the specified spi interrupt flag
-  * @param  spi_int the interrupt flag to be cleard this value can be one or
-  *          combination of @ref SPI_INTERRUPT_Definitions
-  * @retval None
-  */
+ * @brief   清除SPI中断标志
+ * @param   spi_int - 要清除的中断标志，可取@ref SPI_INTERRUPT_Definitions中的值或组合
+ * @retval  None
+ */
 void ll_spi_interruptclear(uint16_t spi_int)
 {
-    SPI->ICR |= spi_int;
+    SPI->ICR |= spi_int;                                     /* 写ICR清除中断标志 */
 }

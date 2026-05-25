@@ -23,6 +23,10 @@
 
 #include <stdint.h>
 
+/**
+ * @brief  CPU状态寄存器保存类型
+ * @note   用于临界区保护时保存/恢复PRIMASK寄存器状态
+ */
 typedef uint32_t TC_CPU_SR;
 
 #endif

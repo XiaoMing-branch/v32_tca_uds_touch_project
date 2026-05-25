@@ -84,37 +84,33 @@ static lin_tl_queue_t lin_rx_queue =
 
 static lin_recv_context_t lin_recv_ctx = {0};
 
-/********************************************************
-** \brief   lin_sci_baudrate_update
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  SCI波特率更新(弱符号，可重写)
+ * @param  无
+ * @retval 无
+ */
 __attribute__((weak)) void lin_sci_baudrate_update(void)
 {
     //do noting
 }
 
-/********************************************************
-** \brief   lin_tl_queue_clear
-**
-** \param   lin_tl_queue_t*     queue
-**
-** \retval  void
-*********************************************************/
+/**
+ * @brief  清空LIN传输层队列
+ * @param  queue - 待清空的队列指针
+ * @retval 无
+ */
 void lin_tl_queue_clear(lin_tl_queue_t *queue)
 {
     queue->frame_index = queue->header = queue->tail = 0;
 }
 
-/********************************************************
-** \brief   lin_uds_recv_ready_check
-**
-** \param   lin_tl_queue_t      *queue
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  UDS接收就绪检查
+ * @param  queue - LIN接收队列指针
+ * @note   根据单帧(SF)/首帧(FF)判断是否完成接收
+ *         对多帧进行队列重组(NAD及帧类型匹配)
+ * @retval 无
+ */
 static void lin_uds_recv_ready_check(lin_tl_queue_t *queue)
 {
     uint8_t frame_type;
@@ -149,14 +145,14 @@ static void lin_uds_recv_ready_check(lin_tl_queue_t *queue)
     }
 }
 
-/********************************************************
-** \brief   lin_callback_handle
-**
-** \param   lin_event_type_e    event
-** \param   uint8_t             pid
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN从机回调处理函数(弱符号，可重写)
+ * @param  event - LIN事件类型
+ * @param  pid - 帧PID
+ * @note   处理PID_OK(0x7D为发送响应，其他为接收响应)、
+ *         接收完成、发送完成、错误等事件
+ * @retval 无
+ */
 __attribute__((weak)) void lin_callback_handle(lin_event_type_e event, uint8_t pid)
 {
     lin_tl_queue_t *queue = (LIN_BUS_RECV == lin_bus_state) ? &lin_rx_queue : &lin_tx_queue;
@@ -227,28 +223,25 @@ __attribute__((weak)) void lin_callback_handle(lin_event_type_e event, uint8_t p
     }
 }
 
-/********************************************************
-** \brief   lin_tl_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN传输层初始化(从机模式)
+ * @param  无
+ * @retval 无
+ */
 void lin_tl_init(void)
 {
     lin_tl_queue_clear(&lin_tx_queue);
     lin_tl_queue_clear(&lin_rx_queue);
 }
 
-/********************************************************
-** \brief   lin_uds_send
-**
-** \param   uint8_t     nad
-** \param   uint8_t*    data
-** \param   uint16_t    length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  UDS诊断消息发送(单帧或多帧)
+ * @param  nad - 节点地址
+ * @param  data - 待发送数据
+ * @param  length - 数据长度
+ * @note   长度≤6使用单帧(SF)，>6使用首帧(FF)+续帧(CF)
+ * @retval true - 入队成功, false - 失败
+ */
 bool lin_uds_send(uint8_t nad, uint8_t *data, uint16_t length)
 {
     if (!length)
@@ -302,15 +295,13 @@ bool lin_uds_send(uint8_t nad, uint8_t *data, uint16_t length)
     return true;
 }
 
-/********************************************************
-** \brief   lin_uds_negative_response
-**
-** \param   uint8_t     nad
-** \param   uint8_t     sid
-** \param   uint8_t     error_code
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  UDS否定响应(Negative Response)发送
+ * @param  nad - 节点地址
+ * @param  sid - 服务ID
+ * @param  error_code - 错误码
+ * @retval true - 入队成功, false - 失败
+ */
 bool lin_uds_negative_response(uint8_t nad, uint8_t sid, uint8_t error_code)
 {
     lin_tl_queue_t *queue = &lin_tx_queue;
@@ -328,15 +319,15 @@ bool lin_uds_negative_response(uint8_t nad, uint8_t sid, uint8_t error_code)
     return true;
 }
 
-/********************************************************
-** \brief   lin_uds_receive
-**
-** \param   uint8_t     nad
-** \param   uint8_t*    data
-** \param   uint16_t*   length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  UDS诊断消息接收(单帧/多帧重组)
+ * @param  nad - 节点地址
+ * @param  data - 接收数据缓冲区
+ * @param  length - 输出实际接收长度
+ * @note   支持单帧(SF)、首帧(FF)和续帧(CF)的自动重组
+ *         检查NAD地址匹配，支持广播地址0x7F
+ * @retval true - 接收完成, false - 无数据或未完成
+ */
 bool lin_uds_receive(uint8_t nad, uint8_t *data, uint16_t *length)
 {
     lin_tl_queue_t *queue = &lin_rx_queue;
@@ -423,13 +414,13 @@ bool lin_uds_receive(uint8_t nad, uint8_t *data, uint16_t *length)
     return res;
 }
 
-/********************************************************
-** \brief   lin_lld_isr_callback
-**
-** \param   uint32_t             isr
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LIN从机ISR回调函数
+ * @param  isr - 中断状态标志位
+ * @note   处理Break检测/同步检测/PID接收/字节接收/校验和/
+ *         发送完成/冲突等中断事件，驱动从机状态机
+ * @retval 无
+ */
 void lin_lld_isr_callback(uint32_t isr)
 {
     uint8_t byte __attribute__((unused));

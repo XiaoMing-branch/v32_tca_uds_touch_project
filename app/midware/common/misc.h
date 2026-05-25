@@ -23,37 +23,92 @@
 
 #include "tcae10_ll_adc.h"
 
-int GetVbatMv(adc_vref_e vref, int sampCount);  //sampCount：采样计数器，多次采样求平均，获取vbat电压，单位mv
-int GetTempCode(uint8_t index, adc_vref_e vref, int sampCount);  //index：传感器编号0-1，sampCount：采样计数器，多次采样求平均
+/**
+ * @brief  获取VBAT电压值（单位mV），通过ADC多次采样取平均
+ * @param  vref - ADC参考电压选择
+ * @param  sampCount - 采样次数，多次采样求平均
+ * @retval VBAT电压值（mV），参数无效时返回0
+ */
+int GetVbatMv(adc_vref_e vref, int sampCount);
 
-void LinAsGpioInit(bool pullup_enable);     //lin高压口配置成gpio，pullup_enable内部30k上拉电阻使能
-void LinAsGpioOutput(bool state);   //设置lin口输出，注意输出0电压到不了0V（当上拉10k时，输出0电压对应0.7v左右，当上拉30k时，输出0电压对应0.6v左右）
+/**
+ * @brief  获取温度传感器ADC原始码值，多次采样求平均
+ * @param  index - 温度传感器编号（0或1）
+ * @param  vref - ADC参考电压选择
+ * @param  sampCount - 采样次数，多次采样求平均
+ * @retval ADC原始码平均值
+ */
+int GetTempCode(uint8_t index, adc_vref_e vref, int sampCount);
 
-void WdgInit(void);     //看门狗初始化
-void PrintRstCause(void);   //打印复位原因
+/**
+ * @brief  将LIN高压口配置为GPIO模式
+ * @param  pullup_enable - 内部30k上拉电阻使能
+ */
+void LinAsGpioInit(bool pullup_enable);
 
-void RtcTrigConfig(uint8_t freq, uint8_t sw);    //RTC触发配置，freq:中断频率,sw:1开0关
+/**
+ * @brief  设置LIN口GPIO输出电平
+ * @param  state - 输出状态（true=高，false=低）
+ * @note   输出0时电压到不了0V：上拉10k时约0.7V，上拉30k时约0.6V
+ */
+void LinAsGpioOutput(bool state);
 
-void AdcExtVrefInit(void);  //GPIO6作为外部adc vref
+/**
+ * @brief  独立看门狗初始化
+ */
+void WdgInit(void);
 
+/**
+ * @brief  打印复位原因（从ASYSCFG寄存器读取）
+ */
+void PrintRstCause(void);
+
+/**
+ * @brief  RTC定时器触发配置（使用TIM_LITE）
+ * @param  freq - 中断频率（Hz）
+ * @param  sw - 开关（1开启，0关闭）
+ */
+void RtcTrigConfig(uint8_t freq, uint8_t sw);
+
+/**
+ * @brief  将GPIO6配置为外部ADC参考电压输入
+ */
+void AdcExtVrefInit(void);
+
+/**
+ * @brief  VS电源LVD阈值选择
+ * @note   rising=电压上升阈值，falling=电压下降阈值
+ */
 typedef enum
 {
-    LVD_THD_R40F35 = 0,         //rising 4.0v,falling 3.5v
-    LVD_THD_R45F40,             //rising 4.5v,falling 4.0v
-    LVD_THD_R50F45,             //rising 5.0v,falling 4.5v
-    LVD_THD_R55F50,             //rising 5.5v,falling 5.0v
-    LVD_THD_R60F55,             //rising 6.0v,falling 5.5v
-    LVD_THD_R65F60,             //rising 6.5v,falling 6.0v
-    LVD_THD_R70F65,             //rising 7.0v,falling 6.5v
-    LVD_THD_R75F70,             //rising 7.5v,falling 7.0v
+    LVD_THD_R40F35 = 0,         /**< 上升4.0V，下降3.5V */
+    LVD_THD_R45F40,             /**< 上升4.5V，下降4.0V */
+    LVD_THD_R50F45,             /**< 上升5.0V，下降4.5V */
+    LVD_THD_R55F50,             /**< 上升5.5V，下降5.0V */
+    LVD_THD_R60F55,             /**< 上升6.0V，下降5.5V */
+    LVD_THD_R65F60,             /**< 上升6.5V，下降6.0V */
+    LVD_THD_R70F65,             /**< 上升7.0V，下降6.5V */
+    LVD_THD_R75F70,             /**< 上升7.5V，下降7.0V */
 } vs_lvd_threshold_e;
+
+/**
+ * @brief  VS电源LVD中断触发方式
+ * @note   LVD中断信号：低于阈值=1，高于阈值=0；
+ *         电压从高到低跌落时应选择上升沿中断
+ */
 typedef enum
 {
-    LVD_INT_POSEDGE = 0,      //posedge irq
-    LVD_INT_NEGEDGE,          //negedge irq
-    LVD_INT_HIGHLEVEL,        //high level irq
-    LVD_INT_NONE              //none irq
-} vs_lvd_interrupt_e;         //lvd中断信号低于阈值是1，高于阈值是0，所以电压从高到低跌落，需要选择上升沿中断
-void VsLvdInit(vs_lvd_threshold_e threshold,vs_lvd_interrupt_e int_type);
+    LVD_INT_POSEDGE = 0,        /**< 上升沿中断 */
+    LVD_INT_NEGEDGE,            /**< 下降沿中断 */
+    LVD_INT_HIGHLEVEL,          /**< 高电平中断 */
+    LVD_INT_NONE                /**< 无中断 */
+} vs_lvd_interrupt_e;
+
+/**
+ * @brief  VS电源LVD初始化配置
+ * @param  threshold - LVD阈值选择
+ * @param  int_type - 中断触发方式
+ */
+void VsLvdInit(vs_lvd_threshold_e threshold, vs_lvd_interrupt_e int_type);
 
 #endif

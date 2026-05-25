@@ -172,13 +172,45 @@ typedef struct
 
 }CapTouch_InitConfig_t;
 
+/**
+ * @brief  使能电容触摸中断
+ * @param touch_int - 触摸中断标志位
+ */
 void CapTouch_InterruptEnable(uint8_t touch_int);
+/**
+ * @brief  禁能电容触摸中断
+ * @param touch_int - 触摸中断标志位
+ */
 void CapTouch_InterruptDisable(uint8_t touch_int);
+/**
+ * @brief  清除电容触摸中断标志
+ * @param touch_int - 触摸中断标志位
+ */
 void CapTouch_InterruptClear(uint8_t touch_int);
+/**
+ * @brief  使能/禁能电容触摸模块
+ * @param state - ENABLE: 使能，DISABLE: 禁能
+ */
 void CapTouch_Enable(FunctionalState state);
+/**
+ * @brief  初始化电容触摸模块
+ * @param touch_cfg - 触摸初始化配置结构体指针
+ */
 void CapTouch_Init(CapTouch_InitConfig_t *touch_cfg);
+/**
+ * @brief  软件触发电容触摸转换
+ */
 void CapTouch_SoftwareTrig(void);
+/**
+ * @brief  设置电容触摸跳频周期
+ * @param period - 跳频周期值
+ */
 void CapTouch_Hopping(uint8_t period);
+/**
+ * @brief  获取电容触摸中断状态
+ * @param touch_int - 触摸中断标志位
+ * @retval true: 中断已触发，false: 中断未触发
+ */
 bool CapTouch_InterruptStatusGet(uint8_t touch_int);
 
 #ifdef __cplusplus

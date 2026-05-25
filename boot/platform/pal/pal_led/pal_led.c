@@ -41,13 +41,11 @@ __attribute__((weak)) void pwm_callback_handle(uint32_t isr)
     //do noting
 }
 
-/********************************************************
-** \brief   pal_led_init
-**
-** \param   led_channel_e               channel
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED初始化(PWM配置、电流配置、多路复用开关配置)
+ * @param  channel - LED通道号
+ * @retval 无
+ */
 void pal_led_init(led_channel_e channel)
 {
     /**
@@ -126,14 +124,12 @@ void pal_led_init(led_channel_e channel)
     ll_pwm_isr_enable((ll_pwm_bus_e)channel, true);
 }
 
-/********************************************************
-** \brief   pal_led_current_set
-**
-** \param   led_channel_e               channel
-** \param   uint8_t                     *current
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LED R/G/B驱动电流
+ * @param  channel - LED通道号
+ * @param  current - R/G/B电流配置数组
+ * @retval 无
+ */
 void pal_led_current_set(led_channel_e channel, uint8_t *current)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -149,14 +145,12 @@ void pal_led_current_set(led_channel_e channel, uint8_t *current)
     }
 }
 
-/********************************************************
-** \brief   pal_led_current_get
-**
-** \param   led_channel_e               channel
-** \param   uint8_t*                    *current
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED R/G/B驱动电流
+ * @param  channel - LED通道号
+ * @param  current - 输出R/G/B电流配置数组
+ * @retval 无
+ */
 void pal_led_current_get(led_channel_e channel, uint8_t *current)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -174,14 +168,12 @@ void pal_led_current_get(led_channel_e channel, uint8_t *current)
     }
 }
 
-/********************************************************
-** \brief   pal_led_dutcycle_set
-**
-** \param   led_channel_e               channel
-** \param   uint16_t*                   duty_cycle
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置LED PWM占空比(R/G/B)
+ * @param  channel - LED通道号
+ * @param  duty_cycle - R/G/B占空比数组
+ * @retval 无
+ */
 void pal_led_dutcycle_set(led_channel_e channel, uint16_t *duty_cycle)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -203,14 +195,12 @@ void pal_led_dutcycle_set(led_channel_e channel, uint16_t *duty_cycle)
 #endif /* CFG_SUPPORT_MULTIPLEX_LED */
 }
 
-/********************************************************
-** \brief   pal_led_dutcycle_get
-**
-** \param   led_channel_e               channel
-** \param   uint16_t*                   duty_cycle
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED PWM占空比(R/G/B)
+ * @param  channel - LED通道号
+ * @param  duty_cycle - 输出R/G/B占空比数组
+ * @retval 无
+ */
 void pal_led_dutcycle_get(led_channel_e channel, uint16_t *duty_cycle)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -226,14 +216,12 @@ void pal_led_dutcycle_get(led_channel_e channel, uint16_t *duty_cycle)
     }
 }
 
-/********************************************************
-** \brief   pal_led_enable
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED使能/禁能(PWM输出)
+ * @param  channel - LED通道号
+ * @param  enable - true:使能输出, false:禁能输出
+ * @retval 无
+ */
 void pal_led_enable(led_channel_e channel, bool enable)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -247,14 +235,12 @@ void pal_led_enable(led_channel_e channel, bool enable)
     ctx->is_open = enable;
 }
 
-/********************************************************
-** \brief   pal_led_break
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED刹车控制(紧急关闭PWM输出)
+ * @param  channel - LED通道号
+ * @param  enable - true:刹车(关闭), false:释放(恢复)
+ * @retval 无
+ */
 void pal_led_break(led_channel_e channel, bool enable)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -267,14 +253,14 @@ void pal_led_break(led_channel_e channel, bool enable)
     ll_pwm_break_set(enable);
 }
 
-/********************************************************
-** \brief   pal_led_static_pnvolt_set
-**
-** \param   led_channel_e               channel
-** \param   bool                        enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  设置静态PN结电压采样模式
+ * @param  channel - LED通道号
+ * @param  enable - true:进入静态采样模式, false:退出
+ * @note   进入时保存当前占空比并清零PWM阈值以关闭LED;
+ *         退出时恢复占空比;切换PWM频率至静态采样频率
+ * @retval 无
+ */
 void pal_led_static_pnvolt_set(led_channel_e channel, bool enable)
 {
     led_control_context_t *ctx = &led_ctrl_context[channel];
@@ -326,34 +312,19 @@ void pal_led_static_pnvolt_set(led_channel_e channel, bool enable)
     }
 }
 
-/********************************************************
-** \brief   pal_led_channel_mux_get
-**
-** \param   led_channel_e               channel
-** \param   uint8_t**                   channel_mux
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取LED通道的RGB PWM通道映射
+ * @param  channel - LED通道号
+ * @param  channel_mux - 输出RGB映射数组指针
+ * @retval 无
+ */
 void pal_led_channel_mux_get(led_channel_e channel, uint8_t **channel_mux)
-{
-    led_control_context_t *ctx = &led_ctrl_context[channel];
 
-    if (NULL == ctx)
-    {
-        return;
-    }
-
-
-    *channel_mux = ctx->channel.rgb;
-}
-
-/********************************************************
-** \brief   pal_led_channel_switch
-**
-** \param   led_channel_e               channel
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED通道切换(多路复用预留接口)
+ * @param  channel - 目标通道号
+ * @retval 无
+ */
 void pal_led_channel_switch(led_channel_e channel)
 {
 

@@ -38,10 +38,23 @@
 
 #include "tc_port.h"
 
-/*软件版本*/
+/**
+ * @brief  TCTask软件版本号
+ */
 #define TC_TASK_VERSION		"1.1"
 
-/*初始化tctask，失败返回-1，成功返回1*/
+/**
+ * @brief  TCTask系统初始化
+ * @note   按以下顺序初始化各模块：
+ *         1. TcMemInit() - 内存管理模块
+ *         2. TcTaskInit() - 任务管理模块
+ *         3. TcTimerInit() - 定时器管理模块
+ *         4. TcQueueInit() - 队列管理模块
+ *         5. TcPortInit() - 硬件相关初始化（SysTick等）
+ *         任一模块初始化失败将中止并返回错误码
+ * @retval 1  - 初始化成功
+ * @retval -1 - 初始化失败（任务或队列模块初始化失败）
+ */
 int TcInit(void);
 
 #endif

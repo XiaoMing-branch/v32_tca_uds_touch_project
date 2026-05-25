@@ -32,6 +32,10 @@ extern "C" {
 #define TIMER_BASE_PERIOD   (480)
 #define TIMER_SRC_FDIV      (0xA)
 
+/**
+ * @brief  定时器控制实例结构体
+ * @note   包含时钟源、分频系数、计数周期和回调函数
+ */
 typedef struct
 {
     fclk_src_e src;
@@ -44,7 +48,16 @@ typedef struct
 
 extern timer_control_instance_t timer_ctrl_instance;
 
+/**
+ * @brief  定时器初始化
+ * @param  instance - 定时器配置实例
+ */
 void pal_timer_init(timer_control_instance_t *instance);
+
+/**
+ * @brief  定时器去初始化
+ * @param  instance - 定时器配置实例
+ */
 void pal_timer_deinit(timer_control_instance_t *instance);
 
 #ifdef __cplusplus

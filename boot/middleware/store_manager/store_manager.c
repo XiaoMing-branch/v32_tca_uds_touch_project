@@ -81,13 +81,12 @@ const uint32_t sys_param_addr_map[] =
     SYSTEM_ID_CFG_OFFSET,
 };
 
-/********************************************************
-** \brief   store_system_data_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  系统配置参数初始化（从 Flash 加载）
+ * @note   初始化系统配置结构体 g_sys_cfgs，从 Flash 中读取 NAD、
+ *         帧 ID 配置等参数；若读取成功则更新 lin_configured_NAD
+ * @retval 无
+ */
 static void store_system_data_init(void)
 {
     uint32_t addr = 0;
@@ -111,13 +110,12 @@ static void store_system_data_init(void)
     // pal_store_data_init(addr, (uint8_t *)g_sys_cfgs.frame_id_cfg, LIN_SIZE_OF_CFG);
 }
 
-/********************************************************
-** \brief   store_generic_data_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  LED 通用参数初始化（从 Flash 加载）
+ * @note   遍历所有 LED 通道，从 Flash 加载 PN 结电压、RGB 颜色、
+ *         白平衡及相对比例因子参数；若加载失败使用默认值
+ * @retval 无
+ */
 static void store_generic_data_init(void)
 {
     uint32_t base_addr;
@@ -148,26 +146,22 @@ static void store_generic_data_init(void)
     }
 }
 
-/********************************************************
-** \brief   store_manager_init
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  存储管理器初始化
+ * @note   依次初始化系统配置参数和 LED 通用参数
+ * @retval 无
+ */
 void store_manager_init(void)
 {
     store_system_data_init();
     store_generic_data_init();
 }
 
-/********************************************************
-** \brief   store_manager_clear
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  清除所有存储参数
+ * @note   清除所有 LED 通道参数和系统参数所在的 Flash sector
+ * @retval 无
+ */
 void store_manager_clear(void)
 {
     for (uint8_t index = 0 ; index < LED_CHANNEL_MAX; index++)
@@ -178,16 +172,14 @@ void store_manager_clear(void)
     pal_store_data_clear(SYSTEM_PARAM_BASE_ADDR, STORE_SECTOR_SIZE);
 }
 
-/********************************************************
-** \brief   store_generic_data_set
-**
-** \param   led_channel_e       channel
-** \param   led_param_type_e    type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  写入 LED 通用参数到 Flash
+ * @param  channel - LED 通道索引
+ * @param  type    - LED 参数类型（PN 结电压/RGB/白平衡/相对比例等）
+ * @param  param   - 待写入的数据缓冲区指针
+ * @param  len     - 待写入的数据长度（字节）
+ * @retval 无
+ */
 void store_generic_data_set(led_channel_e channel, led_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = led_param_addr_map[channel] + led_param_offset_map[channel][type];
@@ -195,16 +187,15 @@ void store_generic_data_set(led_channel_e channel, led_param_type_e type, uint8_
     pal_store_data_set(addr, param, len);
 }
 
-/********************************************************
-** \brief   store_generic_data_get
-**
-** \param   led_channel_e       channel
-** \param   led_param_type_e    type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从 Flash 读取 LED 通用参数
+ * @param  channel - LED 通道索引
+ * @param  type    - LED 参数类型（PN 结电压/RGB/白平衡/相对比例等）
+ * @param  param   - 存放读取数据的缓冲区指针
+ * @param  len     - 期望读取的数据长度（字节）
+ * @retval true  - 读取成功
+ * @retval false - 读取失败（CRC 校验错误等）
+ */
 bool store_generic_data_get(led_channel_e channel, led_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = led_param_addr_map[channel] + led_param_offset_map[channel][type];
@@ -212,15 +203,13 @@ bool store_generic_data_get(led_channel_e channel, led_param_type_e type, uint8_
     return (pal_store_data_get(addr, param, len));
 }
 
-/********************************************************
-** \brief   store_system_data_set
-**
-** \param   system_param_type_e type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  写入系统参数到 Flash
+ * @param  type  - 系统参数类型（系统配置/帧 ID 配置等）
+ * @param  param - 待写入的数据缓冲区指针
+ * @param  len   - 待写入的数据长度（字节）
+ * @retval 无
+ */
 void store_system_data_set(system_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = SYSTEM_PARAM_BASE_ADDR + sys_param_addr_map[type];
@@ -228,15 +217,14 @@ void store_system_data_set(system_param_type_e type, uint8_t *param, uint16_t le
     pal_store_data_set(addr, param, len);
 }
 
-/********************************************************
-** \brief   store_system_data_get
-**
-** \param   system_param_type_e type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从 Flash 读取系统参数
+ * @param  type  - 系统参数类型（系统配置/帧 ID 配置等）
+ * @param  param - 存放读取数据的缓冲区指针
+ * @param  len   - 期望读取的数据长度（字节）
+ * @retval true  - 读取成功
+ * @retval false - 读取失败（CRC 校验错误等）
+ */
 bool store_system_data_get(system_param_type_e type, uint8_t *param, uint16_t len)
 {
     uint32_t addr = SYSTEM_PARAM_BASE_ADDR + sys_param_addr_map[type];
@@ -244,15 +232,13 @@ bool store_system_data_get(system_param_type_e type, uint8_t *param, uint16_t le
     return (pal_store_data_get(addr, param, len));
 }
 
-/********************************************************
-** \brief   store_chip_info_get
-**
-** \param   chip_info_type_e    type
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  获取芯片信息
+ * @param  type  - 芯片信息类型（版本 ID/UUID/Bootloader 版本）
+ * @param  param - 存放读取数据的缓冲区指针
+ * @param  len   - 缓冲区长度（字节）
+ * @retval true  - 获取成功
+ */
 bool store_chip_info_get(chip_info_type_e type, uint8_t *param, uint16_t len)
 {
     chip_ver_id_t *chip_ver_id = (chip_ver_id_t *)param;
@@ -275,15 +261,14 @@ bool store_chip_info_get(chip_info_type_e type, uint8_t *param, uint16_t len)
     return true;
 }
 
-/********************************************************
-** \brief   store_customer_data_set
-**
-** \param   uint32_t            addr_offset
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  写入客户自定义参数到 Flash
+ * @param  addr_offset - 客户参数区内部偏移地址
+ * @param  param       - 待写入的数据缓冲区指针
+ * @param  len         - 待写入的数据长度（字节）
+ * @retval true  - 写入成功
+ * @retval false - 参数越界（偏移+长度超过 FLASH_SECTOR_SIZE）
+ */
 bool store_customer_data_set(uint32_t addr_offset, uint8_t *param, uint16_t len)
 {
     if (addr_offset >= FLASH_SECTOR_SIZE || (addr_offset + len) > FLASH_SECTOR_SIZE)
@@ -297,15 +282,14 @@ bool store_customer_data_set(uint32_t addr_offset, uint8_t *param, uint16_t len)
     return true;
 }
 
-/********************************************************
-** \brief   store_customer_data_get
-**
-** \param   uint32_t            addr_offset
-** \param   uint8_t*            param
-** \param   uint16_t            len
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  从 Flash 读取客户自定义参数
+ * @param  addr_offset - 客户参数区内部偏移地址
+ * @param  param       - 存放读取数据的缓冲区指针
+ * @param  len         - 期望读取的数据长度（字节）
+ * @retval true  - 读取成功
+ * @retval false - 参数越界（偏移+长度超过 FLASH_SECTOR_SIZE）
+ */
 bool store_customer_data_get(uint32_t addr_offset, uint8_t *param, uint16_t len)
 {
     if (addr_offset >= FLASH_SECTOR_SIZE || (addr_offset + len) > FLASH_SECTOR_SIZE)
@@ -318,13 +302,13 @@ bool store_customer_data_get(uint32_t addr_offset, uint8_t *param, uint16_t len)
     return (pal_store_data_get(addr, param, len));
 }
 
-/********************************************************
-** \brief   store_reg_param_set
-**
-** \param   uint8_t  address
-**
-** \retval  void
-*********************************************************/
+/**
+ * @brief  写入芯片寄存器参数
+ * @param  addr  - 寄存器地址指针（4 字节小端序）
+ * @param  value - 寄存器值指针（4 字节小端序）
+ * @note   将小端序地址和值转换为 uint32_t 后通过 pal_store_reg_rw 写入
+ * @retval 无
+ */
 void store_reg_param_set(uint8_t *addr, uint8_t *value)
 {
     uint32_t address = addr[3] << 24 | addr[2] << 16 | addr[1] << 8 | addr[0];
@@ -333,14 +317,13 @@ void store_reg_param_set(uint8_t *addr, uint8_t *value)
     pal_store_reg_rw(true, address, &reg_val);
 }
 
-/********************************************************
-** \brief   store_reg_param_get
-**
-** \param   uint8_t   address
-** \param   uint8_t   value
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  读取芯片寄存器参数
+ * @param  addr  - 寄存器地址指针（4 字节小端序）
+ * @param  value - 存放读取值的缓冲区指针（4 字节）
+ * @note   通过 pal_store_reg_rw 读取 32 位寄存器值，复制到 value 缓冲区
+ * @retval 无
+ */
 void store_reg_param_get(uint8_t *addr, uint8_t *value)
 {
     uint32_t address = addr[3] << 24 | addr[2] << 16 | addr[1] << 8 | addr[0];
@@ -350,13 +333,12 @@ void store_reg_param_get(uint8_t *addr, uint8_t *value)
     memcpy(value, (uint8_t *)&reg_val, sizeof(uint32_t));
 }
 
-/********************************************************
-** \brief   store_led_param_load
-**
-** \param   led_channel_e   channel
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  从 Flash 加载指定通道的所有 LED 参数
+ * @param  channel - LED 通道索引
+ * @note   依次加载 PN 结电压、RGB 颜色、白平衡和相对比例因子
+ * @retval 无
+ */
 void store_led_param_load(led_channel_e channel)
 {
     uint8_t *ptr = NULL;

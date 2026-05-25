@@ -22,15 +22,14 @@
 #include "pal_store.h"
 #include "utilities.h"
 
-/********************************************************
-** \brief   pal_store_data_set
-**
-** \param   uint32_t                    addr
-** \param   uint8_t*                    data
-** \param   uint16_t                    length
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  存储数据到Flash(带CRC校验保护)
+ * @param  addr - Flash起始地址
+ * @param  data - 待写入数据缓冲区
+ * @param  length - 数据长度
+ * @note   读取扇区内容，比较数据差异后写入，附加CRC16校验
+ * @retval 无
+ */
 void pal_store_data_set(uint32_t addr, uint8_t *data, uint16_t length)
 {
     uint8_t nvrdata[STORE_SECTOR_SIZE] __attribute((aligned(4)));
@@ -48,15 +47,14 @@ void pal_store_data_set(uint32_t addr, uint8_t *data, uint16_t length)
     }
 }
 
-/********************************************************
-** \brief   pal_store_data_get
-**
-** \param   uint32_t                    addr
-** \param   uint8_t*                    data
-** \param   uint16_t                    length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  从Flash读取数据(带CRC校验验证)
+ * @param  addr - Flash起始地址
+ * @param  data - 输出数据缓冲区
+ * @param  length - 数据长度
+ * @note   读取扇区数据，通过CRC16校验确保数据完整性
+ * @retval true - 读取成功(CRC校验通过), false - 校验失败
+ */
 bool pal_store_data_get(uint32_t addr, uint8_t *data, uint16_t length)
 {
     uint8_t nvrdata[STORE_SECTOR_SIZE] __attribute((aligned(4)));
@@ -76,15 +74,14 @@ bool pal_store_data_get(uint32_t addr, uint8_t *data, uint16_t length)
     return false;
 }
 
-/********************************************************
-** \brief   pal_store_data_init
-**
-** \param   uint32_t                    addr
-** \param   uint8_t*                    data
-** \param   uint16_t                    length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  初始化存储数据(CRC校验失败时写入默认值)
+ * @param  addr - Flash起始地址
+ * @param  data - 默认数据(校验失败时写入)
+ * @param  length - 数据长度
+ * @note   若CRC校验失败，说明数据未初始化或损坏，写入默认值
+ * @retval true - 数据有效(CRC校验通过), false - 已重新初始化
+ */
 bool pal_store_data_init(uint32_t addr, uint8_t *data, uint16_t length)
 {
     uint8_t nvrdata[STORE_SECTOR_SIZE] __attribute((aligned(4)));
@@ -109,14 +106,13 @@ bool pal_store_data_init(uint32_t addr, uint8_t *data, uint16_t length)
     return true;
 }
 
-/********************************************************
-** \brief   pal_store_data_clear
-**
-** \param   uint32_t                    addr
-** \param   uint16_t                    length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  清除存储数据(擦除或置0xFF)
+ * @param  addr - Flash起始地址
+ * @param  length - 数据长度
+ * @note   地址对齐扇区时直接擦除，否则按扇区读-改-写
+ * @retval true - 清除成功
+ */
 bool pal_store_data_clear(uint32_t addr, uint16_t length)
 {
     uint32_t offset = addr % STORE_SECTOR_SIZE;
@@ -136,15 +132,13 @@ bool pal_store_data_clear(uint32_t addr, uint16_t length)
     return true;
 }
 
-/********************************************************
-** \brief   pal_store_erase
-**
-** \param   flash_type_e    type
-** \param   uint32_t        addr
-** \param   uint16_t        length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  擦除Flash扇区
+ * @param  type - Flash类型(NVR/NVM)
+ * @param  addr - 起始地址
+ * @param  length - 擦除长度
+ * @retval true - 擦除成功, false - 擦除失败
+ */
 bool pal_store_erase(flash_type_e type, uint32_t addr, uint16_t length)
 {
     if (0 != ll_flash_erase(type, addr, length))
@@ -155,16 +149,14 @@ bool pal_store_erase(flash_type_e type, uint32_t addr, uint16_t length)
     return true;
 }
 
-/********************************************************
-** \brief   pal_store_write
-**
-** \param   flash_type_e    type
-** \param   uint32_t        addr
-** \param   uint8_t*        value
-** \param   uint16_t        length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  写Flash数据
+ * @param  type - Flash类型(NVR/NVM)
+ * @param  addr - 写入起始地址
+ * @param  value - 待写入数据
+ * @param  length - 数据长度
+ * @retval true - 写入成功, false - 写入失败
+ */
 bool pal_store_write(flash_type_e type, uint32_t addr, uint8_t *value, uint16_t length)
 {
     if (0 != ll_flash_write(type, addr, value, length))
@@ -175,16 +167,14 @@ bool pal_store_write(flash_type_e type, uint32_t addr, uint8_t *value, uint16_t 
     return true;
 }
 
-/********************************************************
-** \brief   pal_store_read
-**
-** \param   flash_type_e    type
-** \param   uint32_t        addr
-** \param   uint8_t*        value
-** \param   uint16_t        length
-**
-** \retval  bool
-*********************************************************/
+/**
+ * @brief  读Flash数据
+ * @param  type - Flash类型(NVR/NVM)
+ * @param  addr - 读取起始地址
+ * @param  value - 输出数据缓冲区
+ * @param  length - 读取长度
+ * @retval true - 读取成功, false - 读取失败
+ */
 bool pal_store_read(flash_type_e type, uint32_t addr, uint8_t *value, uint16_t length)
 {
     if (0 != ll_flash_read(type, addr, value, length))
@@ -195,13 +185,12 @@ bool pal_store_read(flash_type_e type, uint32_t addr, uint8_t *value, uint16_t l
     return true;
 }
 
-/********************************************************
-** \brief   Return the unique device identifier (UID based on 96 bits)
-**
-** \param   uint32_t        *uid
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取芯片唯一ID(96位)
+ * @param  uid - 输出UID缓冲区(3个uint32_t)
+ * @note   TCPL01X:从UID_BASE_ADDR读取，若全0xFF则读备份地址
+ * @retval 无
+ */
 void pal_store_uid_get(uint32_t *uid)
 {
 #if defined (__TCPL01X__)
@@ -220,13 +209,11 @@ void pal_store_uid_get(uint32_t *uid)
 #endif
 }
 
-/********************************************************
-** \brief   Return the unique device identifier (UID based on 96 bits)
-**
-** \param   uint32_t        *boot_ver
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取Bootloader版本号
+ * @param  boot_ver - 输出版本号(编码格式:主版本*10000+次版本*100+修订)
+ * @retval 无
+ */
 void pal_store_boot_ver_get(uint32_t *boot_ver)
 {
     uint32_t ver;
@@ -235,28 +222,24 @@ void pal_store_boot_ver_get(uint32_t *boot_ver)
     memcpy((uint8_t *)boot_ver, (uint8_t *)&ver, sizeof(ver));
 }
 
-/********************************************************
-** \brief   pal_store_chip_ver_id_get
-**
-** \param   uint8_t*        chip_ver
-** \param   uint16_t*       chip_id
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  获取芯片版本和ID
+ * @param  chip_ver - 输出版本号
+ * @param  chip_id - 输出芯片ID
+ * @retval 无
+ */
 void pal_store_chip_ver_id_get(uint8_t *chip_ver, uint16_t *chip_id)
 {
     ll_syscfg_info_get(chip_ver, chip_id);
 }
 
-/********************************************************
-** \brief   pal_store_reg_rw
-**
-** \param   bool            is_write
-** \param   uint32_t        addr
-** \param   uint32_t        *value
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  Flash寄存器读写操作
+ * @param  is_write - true:写入, false:读取
+ * @param  addr - 寄存器地址
+ * @param  value - 写入/读取的值
+ * @retval 无
+ */
 void pal_store_reg_rw(bool is_write, uint32_t addr, uint32_t *value)
 {
     ll_flash_reg_wr(is_write, addr, value);

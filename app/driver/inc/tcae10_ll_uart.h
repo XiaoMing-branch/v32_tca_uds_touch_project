@@ -48,10 +48,30 @@ typedef enum
     UART_PRINT_GPIO6
 } UART_PrintPin_t;
 
+/**
+ * @brief  去初始化UART打印模块
+ */
 void ll_uart_deinit(void);
+/**
+ * @brief  初始化UART打印模块
+ * @param baud - 波特率
+ */
 void ll_uart_init(uint32_t baud);
+/**
+ * @brief  UART发送单字节
+ * @param data - 要发送的字节数据
+ */
 void ll_uart_sendbyte(uint8_t data);
+/**
+ * @brief  UART发送多字节数据
+ * @param data - 数据缓冲区
+ * @param length - 发送长度（字节）
+ */
 void ll_uart_senddata(uint8_t *data, uint16_t length);
+/**
+ * @brief  设置UART打印输出引脚
+ * @param pin - 打印引脚选择 @ref UART_PrintPin_t
+ */
 void ll_uart_set_printpin(UART_PrintPin_t pin);
 
 #ifdef __cplusplus

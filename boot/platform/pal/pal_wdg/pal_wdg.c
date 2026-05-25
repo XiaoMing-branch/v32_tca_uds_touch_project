@@ -21,13 +21,12 @@
 
 #include "pal_wdg.h"
 
-/********************************************************
-** \brief   wdg_init
-**
-** \param   uint16_t        cnt_ms
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  看门狗初始化
+ * @param  cnt_ms - 看门狗超时时间(毫秒)
+ * @note   TCPL01X和TCPL03X的分频计算方式不同
+ * @retval 无
+ */
 void wdg_init(uint16_t cnt_ms)
 {
     wdg_config_t wdg =
@@ -55,25 +54,21 @@ void wdg_init(uint16_t cnt_ms)
     ll_wdg_enable(true);
 }
 
-/********************************************************
-** \brief   wdg_reload
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  看门狗喂狗(重载计数器)
+ * @param  无
+ * @retval 无
+ */
 void wdg_reload(void)
 {
     ll_wdg_reload();
 }
 
-/********************************************************
-** \brief   wdg_enable
-**
-** \param   bool
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief  看门狗使能/禁能
+ * @param  enable - true:使能, false:禁能
+ * @retval 无
+ */
 void wdg_enable(bool enable)
 {
     ll_wdg_enable(enable);
