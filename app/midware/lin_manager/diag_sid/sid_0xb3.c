@@ -31,7 +31,8 @@
 #if LIN_PROTOCOL != PROTOCOL_J2602
 /**
  * @brief  SID $B3 条件改变节点地址（ConditionalChangeNAD）处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   仅当product_id的指定字节经过（XOR Invert & AND Mask）运算结果为0时，
  *         才将NAD改为新值。匹配条件支持：
  *         - Byte 1~2：Supplier ID

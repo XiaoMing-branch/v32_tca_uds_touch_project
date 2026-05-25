@@ -33,7 +33,8 @@
 
 /**
  * @brief  SID $32 获取可追溯性消息处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   当前为空实现，仅抑制了未使用参数的编译警告。
  *         未执行任何实际的可追溯性消息读取或返回操作。
  * @retval None

@@ -25,7 +25,8 @@
 #if LIN_PROTOCOL == PROTOCOL_21
 /**
  * @brief  SID $B7 AssignFrameIDRange分配帧ID范围(LIN 2.1)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   请求格式: ptr[1]=起始索引, ptr[2~5]=4个PID值
  *         检查帧索引是否超出lin_cfg最大帧数(0xFF值跳过)
  *         PID值0x00=取消分配(设为0xFF), 0xFF=保持原值, 其他=计算校验位后分配

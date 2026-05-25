@@ -25,7 +25,8 @@
 
 /**
  * @brief  SID $32 GetTraceabilityMsg可追溯性信息获取
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   功能保留，当前为待实现状态(空函数体)
  *         用于获取ECU的可追溯性信息(生产批次、序列号等)
  * @retval None

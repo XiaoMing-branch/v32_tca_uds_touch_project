@@ -135,7 +135,8 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 
 /**
  * @brief  SID $B0 AssignNAD分配节点地址
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   请求格式: ptr[1-2]=SupplierID, ptr[3-4]=FunctionID, ptr[5]=新NAD
  *         验证SupplierID和FunctionID与本机匹配(或通配符ANY)
  *         J2602模式下: 新NAD必须在0x60~0x6D范围, 并调用ld_reconfig_msg_ID重算帧ID

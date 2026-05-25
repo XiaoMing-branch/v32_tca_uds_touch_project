@@ -32,7 +32,8 @@ extern void ll_wdg_enable(bool enable);
 
 /**
  * @brief  SID $11 ECU复位处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   子功能0x01 = 硬件复位：先发送正响应，再调用NVIC_SystemReset()复位MCU。
  *         其他子功能返回SFNS（子功能不支持）负响应。
  * @retval None (通过 lin_diag_positive_notify / lin_diag_negative_notify 返回)

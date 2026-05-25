@@ -24,7 +24,8 @@
 
 /**
  * @brief  SID $B6 SaveConfiguration保存配置到非易失存储
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   保存当前lin_configured_NAD到系统配置存储(SYSTEM_CFG_PARAM)
  *         保存帧ID配置数组到SYSTEM_ID_CFG_PARAM
  *         完成后回复正响应

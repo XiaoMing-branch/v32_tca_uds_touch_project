@@ -24,7 +24,8 @@
 
 /**
  * @brief  SID $3E TesterPresent处理(Boot版本)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   子功能0x00: 带正响应指示，回复正响应(保持会话激活)
  *         子功能0x80: 无响应指示，静默处理(不发送任何响应)
  *         其他子功能: 返回SFNS(子功能不支持)

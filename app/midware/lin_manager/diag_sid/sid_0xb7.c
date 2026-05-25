@@ -33,7 +33,8 @@
 #if LIN_PROTOCOL == PROTOCOL_21
 /**
  * @brief  SID $B7 分配帧ID范围（AssignFrameIDRange）处理函数（LIN 2.1）
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   报文长度须为6字节。从start_index开始分配4个连续帧ID：
  *         - 0x00：取消分配该帧（设为0xFF）
  *         - 0xFF：保持该帧之前分配的值不变

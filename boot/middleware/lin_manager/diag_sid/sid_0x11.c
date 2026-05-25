@@ -25,7 +25,8 @@ extern void wdg_enable(bool enable);
 
 /**
  * @brief  SID $11 ECU复位处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   支持硬件复位(子功能0x01): 先发送正响应，关闭看门狗，再执行NVIC系统复位
  *         其他子功能返回SFNS(子功能不支持)
  * @retval None

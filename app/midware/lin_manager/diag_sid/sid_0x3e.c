@@ -32,7 +32,8 @@
 
 /**
  * @brief  SID $3E 诊断仪在线处理函数（TesterPresent）
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   子功能0x00 = 需要响应，返回正响应。
  *         子功能0x80 = 抑制正响应（suppressPosRspMsgIndicationBit=1），仅刷新会话定时器。
  *         其他子功能返回SFNS负响应。用于保持诊断会话激活状态。

@@ -32,7 +32,8 @@
 
 /**
  * @brief  SID $B1 分配帧标识符（AssignFrameIdentifier）处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   LIN 2.0/J2602协议帧ID分配/删除操作。
  *         - PID=0x40时删除帧：在配置ROM中查找匹配的messageid，将RAM中对应项置0xFF。
  *         - 否则分配帧：校验PID奇偶位，检查帧ID是否已被其他消息占用。

@@ -27,7 +27,8 @@ extern l_u8 ld_read_by_id_callout(l_u8 id, l_u8 *data);
 
 /**
  * @brief  SID $B2 ReadByIdentifier读取LIN从节点标识符
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   请求格式: ptr[2-5]=SupplierID+FunctionID验证; ptr[1]=读取ID
  *         LIN_PRODUCT_IDENT(0): 返回SupplierID+FunctionID+Variant
  *         SERIAL_NUMBER(1): 返回SUBFUNCTION_NOT_SUPPORTED(当前不支持)

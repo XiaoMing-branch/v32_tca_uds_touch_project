@@ -83,7 +83,8 @@ static uint16_t GetDataById(uint8_t id)
 
 /**
  * @brief  SID $B4 数据转储控制（DataDump）处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   方向控制：
  *         - 0x10 = 从机→主机（Slave to Master）：返回指定ID的ADC原始数据（温度、VBAT、PN电压）
  *         - 0x20 = 主机→从机（Master to Slave）：存根，仅返回正响应（留用户扩展）

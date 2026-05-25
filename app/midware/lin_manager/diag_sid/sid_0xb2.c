@@ -38,7 +38,8 @@ extern l_u8 ld_read_by_id_callout(l_u8 id, l_u8 *data);
 
 /**
  * @brief  SID $B2 通过标识符读取数据（ReadByID）处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   LIN协议读取操作，支持：
  *         - LIN_PRODUCT_IDENT：读取产品ID（Supplier ID + Function ID + Variant）
  *         - SERIAL_NUMBER：暂不支持，返回SUBFUNCTION_NOT_SUPPORTED

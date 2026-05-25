@@ -26,7 +26,8 @@
 #if LIN_PROTOCOL == PROTOCOL_J2602
 /**
  * @brief  SID $B5 SNPD - J2602 Target Reset目标节点复位
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   遍历所有包含错误信号(Error Signal)的帧，将错误标志位置为0x01(表示"Reset")
  *         非广播NAD: 发送正响应
  *         广播NAD: 静默处理(不发送响应)
@@ -68,7 +69,8 @@ void lin_diag_target_reset(uint8_t *ptr, uint16_t length)
 #else
 /**
  * @brief  SNPD诊断处理弱函数(可被用户重写)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   weak属性允许用户在APP层覆盖此函数实现自定义SNPD逻辑
  *         默认实现为空函数体
  * @retval None
@@ -80,7 +82,8 @@ __attribute__((weak))  void lin_snpd_diag_handle(uint8_t *ptr, uint16_t length)
 
 /**
  * @brief  SID $B5 SNPD诊断入口(非J2602协议)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   直接转发到lin_snpd_diag_handle弱函数
  *         SNPD用于供应商自定义诊断服务
  * @retval None

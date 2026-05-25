@@ -33,7 +33,8 @@ extern const uint8_t led_type[20];
 
 /**
  * @brief  SID $BA LED配置读取(Boot版本GET)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   支持多种LED相关参数读取:
  *         - PN结电压/温度数据
  *         - RGB LED参数(色温/色坐标/亮度)

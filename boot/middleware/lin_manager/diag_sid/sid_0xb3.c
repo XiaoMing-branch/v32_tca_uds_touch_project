@@ -24,7 +24,8 @@
 #if LIN_PROTOCOL != PROTOCOL_J2602
 /**
  * @brief  SID $B3 ConditionalChangeNAD条件NAD变更(LIN 2.0非J2602)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   请求格式: ptr[1]=ID, ptr[2]=Byte, ptr[3]=Mask, ptr[4]=Invert, ptr[5]=新NAD
  *         ID必须为0, Byte指定产品标识字节(1~5):
  *         1-2: SupplierID LSB/MSB, 3-4: FunctionID LSB/MSB, 5: Variant

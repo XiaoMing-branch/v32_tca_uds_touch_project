@@ -147,7 +147,9 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 
 /**
  * @brief  SID $B0 分配节点地址（AssignNAD）处理函数
- * @param  NAD - 当前节点地址; ptr - UDS请求报文指针; length - 报文长度
+ * @param  NAD - 当前节点地址
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   仅当NAD匹配（初始NAD/广播/已配置NAD）且报文长度为6时执行。
  *         验证Supplier ID和Function ID是否匹配后，设置新的lin_configured_NAD。
  *         J2602协议下还需调用ld_reconfig_msg_ID()重新分配消息ID。

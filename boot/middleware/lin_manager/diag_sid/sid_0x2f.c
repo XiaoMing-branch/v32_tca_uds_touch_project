@@ -24,7 +24,8 @@
 
 /**
  * @brief  SID $2F IOControlByIdentifier处理(Boot版本)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   Bootloader侧仅返回正响应，不执行实际IO控制
  *         APP侧实现具体的IO控制逻辑(如LED点亮/熄灭)
  * @retval None

@@ -30,7 +30,8 @@ bool lin_receive_msg_timeout = true;
 
 /**
  * @brief  SID $BB LED配置写入(Boot版本SET)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   支持多种LED参数写入/控制:
  *         - RGB参数/典型PN电压/白点配置/电流设置
  *         - PWM/Luv/RGBL/Cxy多种调光模式控制

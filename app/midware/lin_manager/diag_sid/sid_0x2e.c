@@ -31,7 +31,8 @@
 
 /**
  * @brief  SID $2E 通过标识符写数据处理函数
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   存根实现，直接返回正响应。未执行实际的数据写入操作。
  *         后续可根据DID（数据标识符）实现对应参数写入逻辑。
  * @retval None (通过 lin_diag_positive_notify 返回)

@@ -80,7 +80,8 @@ static uint16_t GetDataById(uint8_t id)
 
 /**
  * @brief  SID $B4 DataDump数据转储控制
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   子功能0x10(Slave->Master): 读取ptr[2]和ptr[3]指定的两个数据ID值
  *         进行大小端转换后填入响应报文, 返回5字节数据
  *         子功能0x20(Master->Slave): 仅返回正响应(用户自定义扩展)

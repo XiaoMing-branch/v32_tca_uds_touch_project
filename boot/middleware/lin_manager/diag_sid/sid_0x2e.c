@@ -24,7 +24,8 @@
 
 /**
  * @brief  SID $2E WriteDataByIdentifier处理(Boot版本)
- * @param  ptr - UDS请求报文指针; length - 报文长度
+ * @param  ptr - UDS请求报文指针
+ * @param  length - 报文长度
  * @note   Bootloader侧仅返回正响应，不实际执行写入操作
  *         APP侧实现具体的数据标识符写入逻辑
  * @retval None
