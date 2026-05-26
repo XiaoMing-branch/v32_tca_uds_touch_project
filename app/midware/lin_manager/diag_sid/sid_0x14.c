@@ -1,8 +1,8 @@
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $14 清除诊断信息处理模块（ClearDiagnosticInformation）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0x14.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

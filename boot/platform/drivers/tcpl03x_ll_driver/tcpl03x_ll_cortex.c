@@ -22,52 +22,51 @@
 #include "tcpl03x_ll_def.h"
 #include "tcpl03x_ll_cortex.h"
 
-/********************************************************
-** \brief   NMI_Handler
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   NMI中断处理函数，系统复位
+ *
+ * @param   None
+ *
+ * @retval  None
+ *********************************************************/
 void NMI_Handler(void)
 {
-    NVIC_SystemReset();
+    NVIC_SystemReset();                         /* 系统复位 */
 }
 
-/********************************************************
-** \brief   HardFault_Handler
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   硬件错误中断处理函数，系统复位
+ *
+ * @param   None
+ *
+ * @retval  None
+ *********************************************************/
 void HardFault_Handler(void)
 {
-    NVIC_SystemReset();
+    NVIC_SystemReset();                         /* 系统复位 */
 }
 
-/********************************************************
-** \brief  EnableNvic
-**
-** \param   uint32_t        irq
-** \param   uint8_t         level
-** \param   bool            en
-**
-** \retval  None
-**
-** \note   the Cortex-M0 or Cortex-M0+/the dynamic changing of the priority
-**         level of enabled interrupts or exceptions is not supported,
-**         You should setup the priority levels before enabling the interrupts
-*********************************************************/
+/**
+ * @brief   使能NVIC中断
+ *
+ * @param   irq     中断号
+ * @param   level   中断优先级
+ * @param   en      使能标志（true为使能，false为禁能）
+ *
+ * @retval  None
+ *
+ * @note    Cortex-M0/M0+不支持已使能中断或异常的优先级动态更改，
+ *          请在使能中断前设置好优先级
+ *********************************************************/
 void EnableNvic(uint32_t irq, uint8_t level, bool en)
 {
-    IRQn_Type enIrq = (IRQn_Type)irq;
-    NVIC_DisableIRQ(enIrq);
-    NVIC_ClearPendingIRQ(enIrq);
-    NVIC_SetPriority(enIrq, level);
+    IRQn_Type enIrq = (IRQn_Type)irq;           /* 转换中断号类型 */
+    NVIC_DisableIRQ(enIrq);                      /* 先禁能中断，避免配置冲突 */
+    NVIC_ClearPendingIRQ(enIrq);                 /* 清除中断挂起状态 */
+    NVIC_SetPriority(enIrq, level);              /* 设置中断优先级 */
 
     if (true == en)
     {
-        NVIC_EnableIRQ(enIrq);
+        NVIC_EnableIRQ(enIrq);                   /* 使能中断 */
     }
 }

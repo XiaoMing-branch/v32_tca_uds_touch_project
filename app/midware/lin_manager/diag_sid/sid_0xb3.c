@@ -1,9 +1,9 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $B3 条件改变节点地址处理模块（ConditionalChangeNAD）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0xb3.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

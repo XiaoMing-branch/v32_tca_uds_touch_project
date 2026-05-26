@@ -50,31 +50,54 @@
 #include "diagnosticIII.h"
 #endif
 
+/** @brief 日志标签，用于模块日志输出 */
 STATIC const char *TAG = "APP";
 
-static void AppTask(uint32_t msg, void *param);    //App Task
-static void FreeIoSet(void);        //No need to set IO, prevents low-power leakage
-static void FreePerSet(void);       //Turn off unused peripherals to reduce power consumption
+/** @brief 应用任务处理函数声明 */
+static void AppTask(uint32_t msg, void *param);
+/** @brief 释放未使用的IO口，防止低功耗漏电 */
+static void FreeIoSet(void);
+/** @brief 关闭未使用的外设以降低功耗 */
+static void FreePerSet(void);
 
+/** @brief 门控GPIO初始化声明 */
 static void DoorGpioInit(void);
+/** @brief 执行Flash例程27服务 */
 extern void SysDoFlashRoutine27Service(void);
 
+/** @brief 门状态结构体全局变量 */
 extern DoorSt_T door_st;
 
-static void HandleDoorPwm(void);      //Handle PWM output
+/** @brief 处理PWM输出声明 */
+static void HandleDoorPwm(void);
+/** @brief 启动PWM输出声明 */
 static void DoorPwmStart(void);
+/** @brief 停止PWM输出声明 */
 static void DoorPwmStop(void);
+/**
+ * @brief PWM控制结构体
+ * @note 包含按键掩码、状态变化标志、状态机状态和计时起始时间
+ */
 static struct
 {
-    uint8_t keymask;
-    uint8_t changed;
-    uint8_t fsm;
-    uint32_t begin_t;
+    uint8_t keymask;    /**< 按键掩码 */
+    uint8_t changed;    /**< 状态变化标志 */
+    uint8_t fsm;        /**< 状态机当前状态 */
+    uint32_t begin_t;   /**< 计时起始时间(ms) */
 } pwmCtrl = {0};
 
+/** @brief 软件版本号字符串 */
 extern const char g_seres_app_software_version[21];
+/** @brief LIN序列号版本字符串 */
 extern const char g_lin_sequence_num_version[24];
 
+/**
+ * @brief 设置硬件和软件版本信息到door_st结构体
+ * @note 从Flash读取硬件版本号，从软件版本字符串和LIN序列号字符串中解析各版本字段，
+ *       包括：软件主版本号/次版本号、硬件主版本号/次版本号/阶段版本号、
+ *       LIN节点主序列号/次序列号/供应商代码
+ * @retval 无
+ */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void SetHwSwVersion(void)
@@ -133,6 +156,23 @@ void SetHwSwVersion(void)
     }
 }
 
+/**
+ * @brief 系统主函数，执行硬件初始化并创建应用任务
+ * @note 系统初始化流程：
+ *       1. Flash重映射配置（APP_MATCH_BOOT模式）或延时等待
+ *       2. 门控GPIO初始化
+ *       3. 看门狗初始化（WATCH_DOG_EN使能时）
+ *       4. 日志接口初始化（DEBUG_PRINT_EN && LOG_INTERFACE_UART）
+ *       5. 小OS端口初始化(TcPortInit)
+ *       6. 使能全局中断
+ *       7. 低功耗任务初始化（LOW_POWER_EN使能时）
+ *       8. 触摸功能初始化（TOUCH_FUNC_EN使能时）
+ *       9. 存储管理器初始化
+ *       10. LIN初始化（LIN_FUNC_EN使能时）
+ *       11. 创建应用任务AppTask（优先级TC_TASK_PRIO_MID）
+ *       12. 进入任务调度循环(TcTaskExec)
+ * @retval 无（死循环，永不返回）
+ */
 /* PRQA S 1503 2 #3214 - Unused function defined for future extension and module completeness */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void TcMain(void)
@@ -203,6 +243,17 @@ void TcMain(void)
     }
 }
 
+/**
+ * @brief 应用任务处理函数
+ * @param msg 消息类型
+ *        - MSG_TASK_INIT：任务初始化，创建循环定时器、设置版本信息、初始化GPIO
+ *        - MSG_TASK_TIMER：定时触发，执行LIN控制、诊断会话检查和PWM处理
+ *        - MSG_TASK_ENTER_HALT：进入低功耗，恢复默认会话模式并关闭LDO5V
+ *        - MSG_TASK_WAKE_UP：唤醒，重新使能LDO5V并调整低功耗超时
+ * @param param 参数指针（当前未使用）
+ * @note 使用TcTimerCreate创建2ms周期循环定时器驱动定时任务
+ * @retval 无
+ */
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 static void AppTask(uint32_t msg, void *param)    //App Task
 {
@@ -268,6 +319,13 @@ static void AppTask(uint32_t msg, void *param)    //App Task
     }
 }
 
+/**
+ * @brief 触摸按键回调函数
+ * @param keyNo 按键编号
+ * @param status 按键状态（SI_KEY_PRESS按下 / SI_KEY_RELEASE释放）
+ * @note 按键按下时设置pwmCtrl.keymask为1，释放时清0，并标记changed标志触发PWM状态机
+ * @retval 无
+ */
 /* PRQA S 1503 2 #3214 - Unused function defined for future extension and module completeness */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
@@ -289,16 +347,31 @@ void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
     pwmCtrl.changed = 1;
 }
 
+/**
+ * @brief 关闭未使用的外设模块以降低功耗
+ * @note 关闭未使用的外设时钟，减少系统运行时的功耗
+ * @retval 无
+ */
 /* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
 static void FreePerSet(void)       //Turn off unused peripherals to reduce power consumption
 {
 }
 
+/**
+ * @brief 释放未使用的IO口配置
+ * @note 将未使用的IO口设置为合适状态，防止低功耗模式下的漏电
+ * @retval 无
+ */
 /* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
 static void FreeIoSet(void)     //No need to set IO, prevents low-power leakage
 {
 }
 
+/**
+ * @brief 门控GPIO初始化配置
+ * @note 配置PWM时钟使能、LDO5V电源使能，并将UNLOCK_PIN初始化为推挽输出模式
+ * @retval 无
+ */
 STATIC void DoorGpioInit(void)
 {
     //PWM CLK CFG
@@ -326,6 +399,15 @@ STATIC void DoorGpioInit(void)
     ll_gpio_output(UNLOCK_PIN, false);
 }
 
+/**
+ * @brief 处理门控PWM输出状态机
+ * @note 状态机包含4个状态：
+ *       0-等待按键变化触发PWM输出
+ *       1-等待最小信号时间(OPEN_DOOR_MIN_TIMEMS)
+ *       2-正常响应阶段，超时或按键释放时停止PWM
+ *       default-异常处理
+ * @retval 无
+ */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 static void HandleDoorPwm(void)   //Handle PWM output
 {
@@ -380,6 +462,11 @@ break;
     }
 }
 
+/**
+ * @brief 启动PWM输出，驱动门把手电机
+ * @note 使能LDO5V电源并拉高UNLOCK_PIN以输出PWM驱动信号
+ * @retval 无
+ */
 STATIC void DoorPwmStart(void)
 {
 /* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
@@ -388,11 +475,22 @@ STATIC void DoorPwmStart(void)
     ll_gpio_output(UNLOCK_PIN, true);
 }
 
+/**
+ * @brief 停止PWM输出，关闭门把手电机驱动
+ * @note 将UNLOCK_PIN拉低以停止PWM信号输出
+ * @retval 无
+ */
 STATIC void DoorPwmStop(void)
 {
     ll_gpio_output(UNLOCK_PIN, false);
 }
 
+/**
+ * @brief 检查LIN是否可进入休眠模式
+ * @note 根据PWM停止后的空闲时间判断是否允许进入低功耗模式
+ * @retval 1 可以进入低功耗模式
+ * @retval 0 不可进入低功耗模式
+ */
 //Returning 1 indicates that after receiving the lin sleep command, it can enter low power mode, and 0 indicates that it cannot.
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 int32_t LinCanEnterSleep(void)

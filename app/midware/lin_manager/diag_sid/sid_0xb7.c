@@ -1,9 +1,9 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $B7 分配帧ID范围（AssignFrameIDRange）处理源文件（LIN 2.1）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0xb7.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

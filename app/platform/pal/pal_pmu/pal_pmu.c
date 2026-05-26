@@ -23,10 +23,10 @@
 
 /**
  * @brief  进入低功耗睡眠模式
- * @note   关闭PWM中断、GPIO低功耗配置、禁能自动寻址和ADC传感器、
- *         关闭偏置电流、使能LIN唤醒、AFE和MCU进入睡眠
- * @param  mode - 睡眠模式选择
- * @retval None
+ * @note   关闭PWM中断、配置GPIO低功耗、禁能自动寻址和ADC温度传感器、
+ *         关闭偏置电流、使能LIN唤醒、AFE和MCU依次进入睡眠
+ * @param  mode - 睡眠模式选择（休眠/深度休眠/待机）
+ * @retval 无
  */
 void pmu_lpm_enter(sleep_mode_e mode)
 {
@@ -42,10 +42,10 @@ void pmu_lpm_enter(sleep_mode_e mode)
 #else
 #endif
 
-    /* change gpio function */
+    /* GPIO低功耗模式配置 */
     ll_pmu_gpio_lowpower();
 
-    /* Auto addressing  ana disable */
+    /* Auto addressing disable */
     ll_lin_aa_disable(LL_SCI_BUS_1);
 
     /* disable adc t-sensor */
@@ -71,14 +71,14 @@ void pmu_lpm_enter(sleep_mode_e mode)
     /* Enable lin Wake up control */
     ll_lin_wakeup_enable(LL_SCI_BUS_1, true);
 
-    /* AFE enter sleep mode */
+    /* AFE进入睡眠，切换电源模式 */
     ll_lpm_afe_enter(mode);
 
 #if defined (__TCPL03X__) || defined(__TCAE10__)
     ll_pmu_ldo_dummy_enable(true);
 #endif
 
-    /* MCU enter sleep mode */
+    /* MCU进入睡眠，切换电源模式 */
     ll_lpm_mcu_enter(mode, false);
 
     __NOP();
@@ -92,9 +92,9 @@ void pmu_lpm_enter(sleep_mode_e mode)
 
 /**
  * @brief  退出低功耗睡眠模式
- * @note   恢复看门狗、使能ADC温度传感器和偏置电流、关闭LDO dummy负载
- * @param  None
- * @retval None
+ * @note   恢复看门狗、使能ADC温度传感器和偏置电流、关闭LDO dummy负载，恢复系统正常工作
+ * @param  无
+ * @retval 无
  */
 void pmu_lpm_exit(void)
 {
@@ -118,12 +118,13 @@ void pmu_lpm_exit(void)
 
 /**
  * @brief  低功耗模式初始化
- * @note   配置GPIO低功耗模式、关闭LDO dummy负载、禁能自动寻址
- * @param  None
- * @retval None
+ * @note   配置GPIO低功耗模式、关闭LDO dummy负载、禁能自动寻址，进入低功耗前的准备工作
+ * @param  无
+ * @retval 无
  */
 void pmu_lpm_init(void)
 {
+    /* GPIO低功耗模式配置 */
     ll_pmu_gpio_lowpower();
 
 #if defined (__TCPL03X__) || defined(__TCAE10__)

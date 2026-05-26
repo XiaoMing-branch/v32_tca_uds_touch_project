@@ -44,11 +44,24 @@ static const char *TAG = "LIN FRAME";
 
 /* PRQA S 1514 2 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
+/**
+ * LIN帧结构说明：
+ *   PID（Protected Identifier，保护标识符）：由硬件/LLD层根据LDF配置自动生成，标识帧类型和方向。
+ *   数据字节（Data Bytes）：承载具体信号值，每个信号映射到特定数据字节中的特定位域。
+ *   校验和（Checksum）：符合LIN 2.1规范，采用增强型校验和算法，覆盖PID和数据字节。
+ * 以下 door_st 和 door_cmd 结构体封装了LIN帧中传输的信号数据。
+ */
 DoorSt_T door_st = {0};   // Door handle status feedback signal, initialized to 0
 DoorCmd_T door_cmd = {0}; // The ECU controls the door handle signal, initialized to 0
 extern user_cfg_t g_user_info;
 extern volatile uint8_t lin_error;
 
+/**
+ * @brief 根据NAD值设置对应车门的LIN响应错误标志
+ * @param err_flag 错误标志：0=无错误，1=响应错误
+ * @retval 无
+ * @note 通过g_user_info.config_word判断当前配置的车门位置，分别设置FL/RL/FR/RR的响应错误信号
+ */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void AppSetLinErrByNad(uint8_t err_flag)
@@ -82,8 +95,11 @@ void AppSetLinErrByNad(uint8_t err_flag)
 }
 
 /**
- * @description: Send signals to the host via LIN
- * @return [void]
+ * @brief 通过LIN总线向主机发送门把手状态信号（故障状态、开关状态、软硬件版本号）
+ * @param 无
+ * @retval 无
+ * @note 各车门的状态标志位由底层驱动（LLD）根据LIN帧接收结果置位，本函数轮询标志并发送对应信号。
+ *       LIN帧中的PID由硬件/LLD自动封装，校验和由LIN控制器硬件自动计算。
  */
 /* PRQA S 2985 ++ #2985 - Redundant operation is intentional (e.g., to satisfy coding style or generate specific assembly). */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
@@ -120,6 +136,8 @@ void App_LinSendDoorState(void)
         l_u8_wr_LI0_EHIS_FL_SN_MajorVersB(door_st.SN_MajorVersB);
         l_u8_wr_LI0_EHIS_FL_SN_MinorVersB(door_st.SN_MinorVersB);
         l_u8_wr_LI0_EHIS_FL_SN_SupplierCod(door_st.SN_SupplierCod);
+        /* l_u8_wr_xx / l_bool_wr_xx 宏通过LDF生成的PID将信号写入对应LIN帧数据字节，
+           校验和由LIN硬件控制器在发送时自动计算并附加。 */
         lin_error = 0;
 
         if ((uint8_t)LEFT_FRONT_DOOR != g_user_info.config_word)
@@ -214,6 +232,14 @@ void App_LinSendDoorState(void)
     }
 }
 
+/**
+ * @brief 从LIN总线接收主机下发的门把手控制信号（工作模式、车速有效标志、车速值）
+ * @param 无
+ * @retval 无
+ * @note 根据g_user_info.config_word解析不同车门位置的LIN信号映射。
+ *       l_u8_rd_xx / l_bool_rd_xx 宏通过LDF生成的PID从对应LIN帧数据字节中提取特定位域信号，
+ *       校验和由硬件在接收时自动验证。
+ */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void App_LinReceiveDoorState(void)
@@ -289,8 +315,11 @@ void App_LinReceiveDoorState(void)
 /* PRQA S 2985 -- */
 
 /**
- * @description: Receive signals sent by the host and send signals to the host
- * @return [void]
+ * @brief LIN控制报文处理入口，依次执行发送门状态信号和接收主机控制信号
+ * @param 无
+ * @retval 无
+ * @note 该函数在主循环中周期调用，先后执行App_LinSendDoorState和App_LinReceiveDoorState。
+ *       LIN帧的PID、数据字节和校验和遵循LIN 2.1协议规范。
  */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void App_LinControlMsg(void)

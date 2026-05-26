@@ -1,7 +1,7 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   bootloader example source file.
+ * @brief   bootloader 示例应用源文件。
  *
  * @file    app.c
  * @author  AE/FAE team
@@ -28,6 +28,12 @@
 #include "dfu_uds_manager.h"
 
 /* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
+/**
+ * @brief   门 GPIO 初始化。
+ *          配置 GPIO_PIN_1 为推挽输出模式，初始输出低电平。
+ *
+ * @retval  无
+ */
 static void DoorGpioInit(void)
 {
     ll_gpio_output(GPIO_PIN_1, false);
@@ -43,6 +49,12 @@ static void DoorGpioInit(void)
 /* PRQA S 3469 8 #3258 - Function-like macro used for performance and compiler optimization requirements */
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
+/**
+ * @brief   bootloader 主入口函数。
+ *          关闭全局中断，初始化 DFU 管理器，重新使能中断，然后进入主循环。
+ *
+ * @retval  0  正常返回（实际不会返回，在 while(1) 中循环运行）
+ */
 int32_t TcMain(void)
 {
     interrupt_disable();

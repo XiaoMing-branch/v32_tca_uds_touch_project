@@ -1,6 +1,6 @@
 /**
 *****************************************************************************
-* @brief  si touch port source
+* @brief  touch端口适配层，提供触摸初始化、任务调度、低功耗管理及中断处理
 * @file   si_touch_port.c
 * @author AE/FAE team
 * @date   28/JUL/2023
@@ -29,23 +29,40 @@
 #include "tc_halt.h"
 #include "app.h"
 
+/** @brief 日志标签 */
 static const char *TAG = "TOUCH_PORT";
 
-TOUCH_HalDispatch_Type *touchDispatch = NULL;           //touch分发器
+/** @brief touch分发器指针 */
+TOUCH_HalDispatch_Type *touchDispatch = NULL;
 
+/** @brief touch任务句柄 */
 T_TcTask *touchTaskHandle = NULL;
 
-static uint8_t enableSamp = 1;       //使能采集touch数据
-static uint8_t forceWakeup = 0;     //强制从低功耗唤醒
-static uint8_t forceSetTaskBitFlag = 0; //强制设置任务标志
+/** @brief 使能采集touch数据标志，1表示开启，0表示关闭 */
+static uint8_t enableSamp = 1;
 
-//触摸任务
+/** @brief 强制从低功耗唤醒标志 */
+static uint8_t forceWakeup = 0;
+
+/** @brief 强制设置任务标志位 */
+static uint8_t forceSetTaskBitFlag = 0;
+
+/**
+ * @brief  触摸任务处理函数
+ * @param[in] msg  消息类型
+ * @param[in] param 消息参数指针
+ */
 static void TouchTask(uint32_t msg, void *param);
 
-//touch低功耗监控器
+/**
+ * @brief  touch低功耗监控器回调函数
+ */
 static void TouchHaltMonitorCallback(void);
 
-//触摸初始化
+/**
+ * @brief  触摸初始化
+ * @note   初始化算法对象、配置参数、使能NVIC中断，并创建触摸检测任务
+ */
 void TouchInit(void)
 {
     SiGetTimeMs = TouchGetTime;
@@ -68,7 +85,12 @@ void TouchInit(void)
     }
 }
 
-//低功耗唤醒源过滤回调函数
+/**
+ * @brief  低功耗唤醒源过滤回调函数
+ * @retval 0 不需要唤醒（touch采集关闭或无需运行）
+ * @retval 1 需要唤醒（快扫模式或强制唤醒）
+ * @note   当enableSamp为0时，增加延迟等待TIM_LITE指令生效，防止死机
+ */
 __WEAK int TouchHaltFilterWakeupCallback(void)
 {
     if (!enableSamp)     //不采集touch
@@ -96,27 +118,42 @@ __WEAK int TouchHaltFilterWakeupCallback(void)
     return 0;
 }
 
-//锁定管理低功耗的T_SiObject
+/**
+ * @brief  锁定管理低功耗的T_SiObject
+ * @note   弱函数，由用户自行实现低功耗对象锁定
+ */
 __WEAK void TouchHaltLockLpSiObject(void)
 {
 }
 
-//解锁管理低功耗的T_SiObject
+/**
+ * @brief  解锁管理低功耗的T_SiObject
+ * @note   弱函数，由用户自行实现低功耗对象解锁
+ */
 __WEAK void TouchHaltUnlockLpSiObject(void)
 {
 }
 
-//锁定常规的T_SiObject
+/**
+ * @brief  锁定常规的T_SiObject
+ * @note   弱函数，由用户自行实现常规对象锁定
+ */
 __WEAK void TouchHaltLockSiObject(void)
 {
 }
 
-//解锁常规的T_SiObject
+/**
+ * @brief  解锁常规的T_SiObject
+ * @note   弱函数，由用户自行实现常规对象解锁
+ */
 __WEAK void TouchHaltUnlockSiObject(void)
 {
 }
 
-//touch低功耗监控器
+/**
+ * @brief  touch低功耗监控器回调函数
+ * @note   在低功耗模式下周期性检查touch模块运行状态，超时则复位touch
+ */
 static void TouchHaltMonitorCallback(void)
 {
 #if WATCH_DOG_EN
@@ -137,6 +174,12 @@ static void TouchHaltMonitorCallback(void)
     }
 }
 
+/**
+ * @brief  触摸任务处理函数
+ * @param[in] msg  消息类型（MSG_TASK_INIT / MSG_TASK_TIMER / MSG_TASK_BITFLAG / MSG_TASK_ENTER_HALT / MSG_TASK_WAKE_UP）
+ * @param[in] param 消息参数指针
+ * @note   根据消息类型执行初始化、快慢扫切换、低功耗进入/唤醒等操作
+ */
 static void TouchTask(uint32_t msg, void *param)    //触摸任务
 {
 #if TOUCH_FAST2SLOW_SWITCHTIMEOUT     //快慢扫功能打开
@@ -265,19 +308,28 @@ static void TouchTask(uint32_t msg, void *param)    //触摸任务
     }
 }
 
-//使能touch采集，1表示开启，0表示关闭
+/**
+ * @brief  使能touch采集
+ * @param[in] enable 使能标志，1表示开启，0表示关闭
+ */
 void TouchEnableSamp(uint8_t enable)
 {
     enableSamp = enable;
 }
 
-//强制将touch从低功耗唤醒
+/**
+ * @brief  强制将touch从低功耗唤醒
+ * @note   设置forceWakeup标志，下次唤醒过滤时将触发唤醒
+ */
 void TouchForceWakeup(void)
 {
     forceWakeup = 1;
 }
 
-//强制touch扫描并运行一次算法
+/**
+ * @brief  强制touch扫描并运行一次算法
+ * @note   切换到touch任务上下文中执行一次算法运行，执行后恢复原任务上下文
+ */
 void TouchForceRunAlgoOnce(void)
 {
     T_TcTask *bkupContex = currentTask;
@@ -290,6 +342,10 @@ void TouchForceRunAlgoOnce(void)
 #endif
 }
 
+/**
+ * @brief  touch中断处理函数
+ * @note   处理采样溢出和触发完成中断，非低功耗或强制设置时置位任务标志
+ */
 void TOUCH_IRQHandler()
 {
     if (CAPTOUCH->ISR & CAPTOUCH_SAMP_OVF)
@@ -310,7 +366,10 @@ void TOUCH_IRQHandler()
     }
 }
 
-//touch中断强制设置MSG_TASK_BITFLAG，1表示强制设置，0表示不强制
+/**
+ * @brief  touch中断强制设置MSG_TASK_BITFLAG
+ * @param[in] force 强制标志，1表示强制设置，0表示不强制
+ */
 void TouchSetTaskBitForce(uint8_t force)
 {
     forceSetTaskBitFlag = force;

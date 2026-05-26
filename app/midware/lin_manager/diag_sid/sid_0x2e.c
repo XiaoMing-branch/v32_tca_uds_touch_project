@@ -1,9 +1,9 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $2E 通过标识符写数据处理模块（WriteDataByIdentifier）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0x2e.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

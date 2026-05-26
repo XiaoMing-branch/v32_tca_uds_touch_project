@@ -21,10 +21,13 @@
 #include "tc.h"
 #include "system_tcae10.h"
 
-/*任务系统时钟*/
-volatile uint32_t TcSystick = TC_SYSTICK_INIT_VALUE;                    //1000Hz心跳，预计在10秒后发生溢出，可用于排查由于systick溢出导致的逻辑bug
+/** @brief 系统心跳计数值（1000Hz），约10秒溢出，可排查systick溢出导致的逻辑bug */
+volatile uint32_t TcSystick = TC_SYSTICK_INIT_VALUE;
 
-/*每Tick调用一次，驱动定时器运行，需要放到定时中断中运行*/
+/** @brief 系统定时器心跳处理（每Tick调用一次，需放入定时中断）
+ *  @note 驱动TcSystick递增，供任务调度和时间管理使用
+ *  @retval 无
+ */
 void TcTimerTickHandler(void)
 {
     TcSystick++;
@@ -37,7 +40,10 @@ void TcTimerTickHandler(void)
 #endif
 }
 
-/*延迟函数，忙等待延迟，单位为tick*/
+/** @brief 忙等待延迟（单位为tick）
+ *  @param[in] dly 需要延迟的tick数（1tick=1ms @ 1000Hz系统时钟）
+ *  @retval 无
+ */
 void TcTimeDly(uint32_t dly)
 {
     uint32_t beginTick;
@@ -49,7 +55,10 @@ void TcTimeDly(uint32_t dly)
     }
 }
 
-/*获取当前时间，单位为us*/
+/** @brief 获取当前时间（微秒）
+ *  @detail 基于TcSystick和SysTick当前计数值计算出高精度微秒时间，精度取决于内核时钟频率
+ *  @retval 当前系统运行时间，单位为微秒（us）
+ */
 uint64_t TcGetTimeUS(void)
 {
     uint64_t usTime = ((uint64_t)g_TcSystickIntCnt * 1000);
@@ -58,7 +67,9 @@ uint64_t TcGetTimeUS(void)
     return usTime;
 }
 
-/*获取当前时间，单位为ms*/
+/** @brief 获取当前时间（毫秒）
+ *  @retval 当前系统运行时间，单位为毫秒（ms）
+ */
 uint32_t TcGetTimeMS(void)
 {
 	return g_TcSystickIntCnt;

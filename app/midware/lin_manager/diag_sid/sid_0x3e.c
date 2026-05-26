@@ -1,9 +1,9 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $3E 诊断仪在线处理模块（TesterPresent）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0x3e.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

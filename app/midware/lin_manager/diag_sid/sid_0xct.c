@@ -1,8 +1,8 @@
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $AD/$AE/$AF LIN一致性测试命令处理源文件
  *
- * @file    diagnosticiii.c
+ * @file    sid_0xct.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

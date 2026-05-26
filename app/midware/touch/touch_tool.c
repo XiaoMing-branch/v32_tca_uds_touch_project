@@ -28,19 +28,18 @@
 
 //const static char *TAG = "TOUCH_TOOL";
 
+/** @brief 触摸通道总数 */
 #define TOUCH_CHANNEL_NUM       5
 
 /**
  ******************************************************************************
- ** \brief Touch_IOConfig
- **
- ** \param [in]:channel:        CAPTOUCH_CHANNEL_0
-                                CAPTOUCH_CHANNEL_1
-                                CAPTOUCH_CHANNEL_2
-                                CAPTOUCH_CHANNEL_3
-                                CAPTOUCH_CHANNEL_4
- ** \retval void
- **
+ * @brief  触摸IO引脚配置
+ *
+ * @param[in]  channel  触摸通道号
+ *                       - CAPTOUCH_CHANNEL_0 ~ CAPTOUCH_CHANNEL_4
+ * @retval void          无返回值
+ *
+ * @note 配置指定通道的IO引脚为触摸功能，同时配置GPIO_PIN_3为参考电容引脚
  ******************************************************************************/
 void Touch_IOConfig(uint8_t channel)
 {
@@ -66,6 +65,18 @@ void Touch_IOConfig(uint8_t channel)
     GPIO->DATAOUT_F.DATAOUT &= ~(1 << touchPins[channel].pin);
 }
 
+/**
+ ******************************************************************************
+ * @brief  触摸通道使能控制
+ *
+ * @param[in]  channel  触摸通道号 (CAPTOUCH_CHANNEL_0 ~ CAPTOUCH_CHANNEL_4)
+ * @param[in]  enable   使能标志
+ *                       - 1: 切换为触摸功能IO
+ *                       - 0: 切回GPIO功能
+ * @retval void          无返回值
+ *
+ * @note 使能时配置IO引脚为触摸功能，关闭时恢复为GPIO功能
+ ******************************************************************************/
 void Touch_IOEnable(uint8_t channel, uint8_t enable)
 {
     static const struct
@@ -95,6 +106,14 @@ void Touch_IOEnable(uint8_t channel, uint8_t enable)
     }
 }
 
+/**
+ ******************************************************************************
+ * @brief  复位触摸模块
+ *
+ * @retval void  无返回值
+ *
+ * @note 通过CRG控制触摸模块硬件复位，流程：解锁→置位复位位→延时→清除复位位→加锁
+ ******************************************************************************/
 void Touch_Reset(void)
 {
     CRG_CONFIG_UNLOCK();
@@ -107,7 +126,18 @@ void Touch_Reset(void)
     CRG_CONFIG_LOCK();
 }
 
-//RTC触发touch配置，sw:1开0关
+/**
+ ******************************************************************************
+ * @brief  RTC触发触摸配置
+ *
+ * @param[in]  freq  触发频率(Hz)，用于计算TIM_LITE定时器装载值
+ * @param[in]  sw    开关控制
+ *                   - 1: 开启TIM_LITE定时器触发
+ *                   - 0: 关闭TIM_LITE定时器触发
+ * @retval void      无返回值
+ *
+ * @note 使用TIM_LITE定时器以32K时钟驱动触摸采样，实现RTC触发触摸功能
+ ******************************************************************************/
 void TouchRtcTrigConfig(uint8_t freq, uint8_t sw)
 {
     ll_timer_deinit();
@@ -141,7 +171,14 @@ void TouchRtcTrigConfig(uint8_t freq, uint8_t sw)
     }
 }
 
-//获取当前时间，单位ms
+/**
+ ******************************************************************************
+ * @brief  获取当前系统时间（毫秒）
+ *
+ * @retval uint32_t  当前时间(ms)
+ *
+ * @note 根据 TC_SYSTICK_HZ 配置进行时间基准换算
+ ******************************************************************************/
 uint32_t TouchGetTime(void)
 {
     uint32_t curTick = TcTimeGet();
@@ -152,7 +189,17 @@ uint32_t TouchGetTime(void)
 #endif
 }
 
-uint32_t lpParaAdjusterSelectCallback(void)    //低功耗参数调节选择器回调接口，非低功耗返回0，低功耗返回1
+/**
+ ******************************************************************************
+ * @brief  低功耗参数调节选择器回调接口
+ *
+ * @retval uint32_t  选择结果
+ *                   - 0: 非低功耗模式
+ *                   - 1: 低功耗模式
+ *
+ * @note 用于判断当前是否处于低功耗模式，以选择低功耗参数调节策略
+ ******************************************************************************/
+uint32_t lpParaAdjusterSelectCallback(void)
 {
     if (Touch_HalDispatch_GetInSleep(touchDispatch))            //处在低功耗模式
     {

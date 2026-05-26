@@ -22,46 +22,51 @@ defined in linker script */
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
+/* @brief 复位中断处理程序，系统上电或复位后首先执行
+ *        执行流程：初始化堆栈指针 → 复制data段到SRAM → BSS段清零
+ *        → 调用SystemInit系统初始化 → 调用C++静态构造函数
+ *        → 跳转至主函数TcMain */
 Reset_Handler:
+   @ @brief 从链接器符号获取栈顶地址，初始化堆栈指针SP
    ldr   r0, =_estack
    mov   sp, r0          /* set stack pointer */
 
-/* Copy the data segment initializers from flash to SRAM */
-  ldr r0, =_sdata
-  ldr r1, =_edata
-  ldr r2, =_sidata
-  movs r3, #0
+/* @brief 将.data段（已初始化全局变量）从Flash复制到SRAM运行区 */
+  ldr r0, =_sdata      @ @brief data段起始地址（SRAM）
+  ldr r1, =_edata      @ @brief data段结束地址（SRAM）
+  ldr r2, =_sidata     @ @brief data段加载地址（Flash）
+  movs r3, #0          @ @brief 偏移量初始为0
   b LoopCopyDataInit
 
 CopyDataInit:
-  ldr r4, [r2, r3]
-  str r4, [r0, r3]
-  adds r3, r3, #4
+  ldr r4, [r2, r3]     @ @brief 从Flash读取数据
+  str r4, [r0, r3]     @ @brief 写入SRAM
+  adds r3, r3, #4      @ @brief 偏移量+4
 
 LoopCopyDataInit:
-  adds r4, r0, r3
-  cmp r4, r1
-  bcc CopyDataInit
+  adds r4, r0, r3      @ @brief 当前SRAM写入地址
+  cmp r4, r1           @ @brief 比较是否到达段尾
+  bcc CopyDataInit     @ @brief 未完成则继续复制
 
-/* Zero fill the bss segment. */
-  ldr r2, =_sbss
-  ldr r4, =_ebss
-  movs r3, #0
+/* @brief BSS段（未初始化全局变量区）清零 */
+  ldr r2, =_sbss       @ @brief BSS段起始地址
+  ldr r4, =_ebss       @ @brief BSS段结束地址
+  movs r3, #0          @ @brief 写入值0
   b LoopFillZerobss
 
 FillZerobss:
-  str  r3, [r2]
-  adds r2, r2, #4
+  str  r3, [r2]        @ @brief 写入0
+  adds r2, r2, #4      @ @brief 地址+4
 
 LoopFillZerobss:
-  cmp r2, r4
-  bcc FillZerobss
+  cmp r2, r4           @ @brief 比较是否到达段尾
+  bcc FillZerobss      @ @brief 未完成则继续清零
 
-/* Call the clock system intitialization function.*/
+/* @brief 调用SystemInit，配置系统时钟及相关外设初始化 */
   bl  SystemInit
-/* Call static constructors */
+/* @brief 调用C++静态构造函数（__libc_init_array） */
     bl __libc_init_array
-/* Call the application's entry point.*/
+/* @brief 跳转到主应用程序入口TcMain */
   bl  TcMain
 
 LoopForever:
@@ -78,10 +83,12 @@ LoopForever:
  * @param  None
  * @retval : None
 */
+/* @brief 默认中断处理程序（弱定义），所有未实现的中断默认跳转到此
+ *        无限循环等待调试器介入，便于捕获未预期中断 */
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
-  b  Infinite_Loop
+  b  Infinite_Loop    @ @brief 无限循环
   .size  Default_Handler, .-Default_Handler
 /******************************************************************************
 *
@@ -96,54 +103,76 @@ Infinite_Loop:
 
 
 g_pfnVectors:
-  .word  _estack
-  .word  Reset_Handler
-  .word  NMI_Handler
-  .word  HardFault_Handler
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  SVC_Handler
-  .word  0
-  .word  0
-  .word  PendSV_Handler
-  .word  SysTick_Handler
-  .word     FLASH_IRQHandler
-  .word     ADC_IRQHandler
-  .word     PWM_IRQHandler
-  .word     TIMER_IRQHandler
-  .word     IWDG_IRQHandler
-  .word     SCI_IRQHandler
-  .word     AON_IRQHandler
-  .word     GPIO_IRQHandler
-  .word     SPI_IRQHandler
-  .word     RESERVED_T_IRQHandler
-  .word     UART_IRQHandler
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
-  .word     0
+  .word  _estack        @ @brief 初始堆栈指针（栈顶地址）
+  .word  Reset_Handler  @ @brief 复位中断，系统上电或复位后入口
+  .word  NMI_Handler    @ @brief NMI不可屏蔽中断
+  .word  HardFault_Handler @ @brief HardFault硬件错误异常
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  SVC_Handler    @ @brief SVC系统服务调用异常
+  .word  0              @ @brief 保留（未使用）
+  .word  0              @ @brief 保留（未使用）
+  .word  PendSV_Handler @ @brief PendSV可挂起系统服务异常
+  .word  SysTick_Handler @ @brief SysTick系统节拍定时器中断
+  .word     FLASH_IRQHandler  @ @brief FLASH闪存控制器中断
+  .word     ADC_IRQHandler    @ @brief ADC模数转换完成中断
+  .word     PWM_IRQHandler    @ @brief PWM脉冲宽度调制中断
+  .word     TIMER_IRQHandler  @ @brief TIMER通用定时器中断
+  .word     IWDG_IRQHandler   @ @brief IWDG独立看门狗中断
+  .word     SCI_IRQHandler    @ @brief SCI串行通信接口中断
+  .word     AON_IRQHandler    @ @brief AON常开模块（Always-On）中断
+  .word     GPIO_IRQHandler   @ @brief GPIO通用输入输出外部中断
+  .word     SPI_IRQHandler    @ @brief SPI串行外设接口中断
+  .word     RESERVED_T_IRQHandler @ @brief 保留中断T（未使用）
+  .word     UART_IRQHandler   @ @brief UART通用异步收发器中断
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
+  .word     0              @ @brief 保留（未使用）
 
 /*******************************************************************************
 *

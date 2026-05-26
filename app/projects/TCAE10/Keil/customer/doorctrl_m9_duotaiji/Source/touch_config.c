@@ -1,3 +1,13 @@
+/**
+ * @file touch_config.c
+ * @brief 触摸配置与算法初始化实现
+ *
+ * 本文件实现触摸功能的硬件参数配置、算法模块初始化（滤波器、基线追踪器、判决器）、
+ * 低功耗模式切换、噪音检测等功能。适用于门把手电容触摸方案（泰稀微方案）。
+ *
+ * @note 本文件为门把手多项目（doorctrl_m9_duotaiji）的触摸配置实现。
+ *       配置参数需根据具体硬件设计进行调整。
+ */
 #include "si_include.h"
 #include "touch_config.h"
 #include "app.h"
@@ -7,8 +17,10 @@
 #include "tc_log.h"
 #include "custom_diagnosticIII.h"
 
+/** @brief 日志标签，用于模块日志输出 */
 static const char *TAG = "TOUCH_CONFIG";
 
+/** @brief 外部触摸数据结构体引用 */
 extern lin_touch_data touch_data;
 
 //diff峰值记录：690，650
@@ -17,7 +29,7 @@ extern lin_touch_data touch_data;
 //***IOTouch配置
 
 #if IOTOUCH_KEY1NUM
-//门把手滤波器
+/** @brief 门把手滤波器配置参数（按键组1） */
 const static T_SiFilterParaExtDoorctrl iotouchFilterParaDoorctrl1 =
 {
     .gainers = {
@@ -32,10 +44,15 @@ const static T_SiFilterParaExtDoorctrl iotouchFilterParaDoorctrl1 =
     },
     .kfr = 4000,                            /*!< 跳频通道方差值，单位0.01--需要用户指定 */
 };
+/** @brief 门把手滤波器实例（按键组1） */
 static T_SiFilterExtDoorctrl iotouchFilterDoorctrl1;
-static T_SiData iotouchFilterBufDoorctrl1[IOTOUCH_KEY1NUM];          //iotouch滤波值缓冲区
+/** @brief 滤波值缓冲区（按键组1） */
+static T_SiData iotouchFilterBufDoorctrl1[IOTOUCH_KEY1NUM];
 
-//基线追踪器
+/**
+ * @brief 基线追踪器配置参数（按键组1，常规模式）
+ * @note 使用双通道强平均基线追踪算法
+ */
 const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara1 =
 {
     {
@@ -72,7 +89,11 @@ const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara1 =
             }
         }
     }
-}; //iotouch基线追踪算法参数
+}; /*!< iotouch基线追踪算法参数 */
+/**
+ * @brief 基线追踪器配置参数（按键组1，低功耗模式）
+ * @note 快速步进参数，用于低功耗模式下快速追踪基线变化
+ */
 const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara12 =
 {
     {
@@ -109,11 +130,18 @@ const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara12 =
             }
         }
     }
-}; //iotouch基线追踪算法参数
-static T_SiBaselineDoorctrl2MtStrongAvg iotouchBaseline1;        //iotouch基线追踪器
-static T_SiBaselineDataDoorctrl2MtStrongAvg iotouchBaselineTempData1[IOTOUCH_KEY1NUM];     //iotouch基线追踪器缓冲区
-static T_SiData iotouchBaselineBuf1[IOTOUCH_KEY1NUM];        //iotouch基线值缓冲区
+}; /*!< iotouch基线追踪算法参数 */
+/** @brief 基线追踪器实例（按键组1） */
+static T_SiBaselineDoorctrl2MtStrongAvg iotouchBaseline1;
+/** @brief 基线追踪器临时数据缓冲区（按键组1） */
+static T_SiBaselineDataDoorctrl2MtStrongAvg iotouchBaselineTempData1[IOTOUCH_KEY1NUM];
+/** @brief 基线值缓冲区（按键组1） */
+static T_SiData iotouchBaselineBuf1[IOTOUCH_KEY1NUM];
 
+/**
+ * @brief 判决器配置参数（按键组1，双通道跳频）
+ * @note 含检测通道、跳频通道、合并通道参数
+ */
 const static T_SiArbiterParaFreq10Doorctrl iotouchArbiterPara1 =
 {
     .detectChannelNo = 0,                         /*!< 检测通道编号--需要用户指定 */
@@ -170,32 +198,44 @@ const static T_SiArbiterParaFreq10Doorctrl iotouchArbiterPara1 =
     .releaseLockBaselineMs = 500,                 /*!< 释放后锁定baseline一段时间不更新，单位Ms--需要用户指定 */
     .threshold1ForceReleaseTimeS = 2,             /*!< 阈值1强制释放时间，单位为秒，设为0时表示永不释放--需要用户指定 */
     .threshold2ForceReleaseTimeS = 5              /*!< 阈值2强制释放时间，单位为秒，设为0时表示永不释放--需要用户指定 */
-}; //iotouch判决器算法参数
-static T_SiArbiterFreq10Doorctrl iotouchArbiter1;     //iotouch判决器
+}; /*!< iotouch判决器算法参数 */
+/** @brief 判决器实例（按键组1） */
+static T_SiArbiterFreq10Doorctrl iotouchArbiter1;
 
-const static uint8_t iotouchKeyMap1[IOTOUCH_KEY1NUM] = {1, 0}; //iotouch按键映射表
+/** @brief 按键逻辑通道映射表（按键组1） */
+const static uint8_t iotouchKeyMap1[IOTOUCH_KEY1NUM] = {1, 0};
 
-static T_SiObject iotouchObjectKey1;           //iotouch触摸按键对象
-static T_SiData iotouchKeyRawDataBuf1[IOTOUCH_KEY1NUM];        //iotouch原始值缓冲区
+/** @brief IOTouch触摸按键对象（按键组1） */
+static T_SiObject iotouchObjectKey1;
+/** @brief 原始值缓冲区（按键组1） */
+static T_SiData iotouchKeyRawDataBuf1[IOTOUCH_KEY1NUM];
 
-//当IOTouch按键状态改变时，被调用
+/**
+ * @brief IOTouch按键状态改变回调函数（按键组1）
+ * @param[in] keyNo    按键编号
+ * @param[in] status   按键状态
+ */
 static void IOtouchKeyValueChanged1(uint8_t keyNo, T_SiKeyStatus status);
 
-//IOTouch判决器钩子函数
+/**
+ * @brief IOTouch判决器钩子函数（按键组1）
+ * @param[in] obj  IOTouch对象指针
+ */
 static void IOtouchKeyArbiterHook1(T_SiObject *obj);
 
 #if LOW_POWER_EN
-//**************************************************************************************************
-//***IOTouch参数调节器配置
-static T_SiParaAdjusterComposite iotouchBaselineParaAdjComp1 = {0};        //基线低功耗模式下更新
-static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafNormal1 = {0};       //常规模式下参数
-static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafLp1 = {0};           //低功耗模式下参数
+/** @brief 基线参数调节器复合节点（按键组1）：低功耗模式下切换参数 */
+static T_SiParaAdjusterComposite iotouchBaselineParaAdjComp1 = {0};
+/** @brief 基线参数调节器叶子节点（按键组1）：常规模式参数 */
+static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafNormal1 = {0};
+/** @brief 基线参数调节器叶子节点（按键组1）：低功耗模式参数 */
+static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafLp1 = {0};
 #endif
 
 #endif
 
 #if IOTOUCH_KEY2NUM
-//门把手滤波器
+/** @brief 门把手滤波器配置参数（按键组2） */
 const static T_SiFilterParaExtDoorctrl iotouchFilterParaDoorctrl2 =
 {
     .gainers = {
@@ -210,10 +250,15 @@ const static T_SiFilterParaExtDoorctrl iotouchFilterParaDoorctrl2 =
     },
     .kfr = 4000,                            /*!< 跳频通道方差值，单位0.01--需要用户指定 */
 };
+/** @brief 门把手滤波器实例（按键组2） */
 static T_SiFilterExtDoorctrl iotouchFilterDoorctrl2;
-static T_SiData iotouchFilterBufDoorctrl2[IOTOUCH_KEY2NUM];          //iotouch滤波值缓冲区
+/** @brief 滤波值缓冲区（按键组2） */
+static T_SiData iotouchFilterBufDoorctrl2[IOTOUCH_KEY2NUM];
 
-//基线追踪器
+/**
+ * @brief 基线追踪器配置参数（按键组2，常规模式）
+ * @note 使用双通道强平均基线追踪算法
+ */
 const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara2 =
 {
     {
@@ -250,7 +295,11 @@ const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara2 =
             }
         }
     }
-}; //iotouch基线追踪算法参数
+}; /*!< iotouch基线追踪算法参数 */
+/**
+ * @brief 基线追踪器配置参数（按键组2，低功耗模式）
+ * @note 快速步进参数，用于低功耗模式下快速追踪基线变化
+ */
 const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara22 =
 {
     {
@@ -287,11 +336,18 @@ const static T_SiBaselineParaDoorctrl2MtStrongAvg iotouchBaselinePara22 =
             }
         }
     }
-}; //iotouch基线追踪算法参数
-static T_SiBaselineDoorctrl2MtStrongAvg iotouchBaseline2;        //iotouch基线追踪器
-static T_SiBaselineDataDoorctrl2MtStrongAvg iotouchBaselineTempData2[IOTOUCH_KEY2NUM];     //iotouch基线追踪器缓冲区
-static T_SiData iotouchBaselineBuf2[IOTOUCH_KEY2NUM];        //iotouch基线值缓冲区
+}; /*!< iotouch基线追踪算法参数 */
+/** @brief 基线追踪器实例（按键组2） */
+static T_SiBaselineDoorctrl2MtStrongAvg iotouchBaseline2;
+/** @brief 基线追踪器临时数据缓冲区（按键组2） */
+static T_SiBaselineDataDoorctrl2MtStrongAvg iotouchBaselineTempData2[IOTOUCH_KEY2NUM];
+/** @brief 基线值缓冲区（按键组2） */
+static T_SiData iotouchBaselineBuf2[IOTOUCH_KEY2NUM];
 
+/**
+ * @brief 判决器配置参数（按键组2，双通道跳频）
+ * @note 含检测通道、跳频通道、合并通道参数
+ */
 const static T_SiArbiterParaFreq10Doorctrl iotouchArbiterPara2 =
 {
     .detectChannelNo = 0,                         /*!< 检测通道编号--需要用户指定 */
@@ -348,62 +404,92 @@ const static T_SiArbiterParaFreq10Doorctrl iotouchArbiterPara2 =
     .releaseLockBaselineMs = 500,                 /*!< 释放后锁定baseline一段时间不更新，单位Ms--需要用户指定 */
     .threshold1ForceReleaseTimeS = 2,             /*!< 阈值1强制释放时间，单位为秒，设为0时表示永不释放--需要用户指定 */
     .threshold2ForceReleaseTimeS = 5              /*!< 阈值2强制释放时间，单位为秒，设为0时表示永不释放--需要用户指定 */
-}; //iotouch判决器算法参数
-static T_SiArbiterFreq10Doorctrl iotouchArbiter2;     //iotouch判决器
+}; /*!< iotouch判决器算法参数 */
+/** @brief 判决器实例（按键组2） */
+static T_SiArbiterFreq10Doorctrl iotouchArbiter2;
 
-const static uint8_t iotouchKeyMap2[IOTOUCH_KEY2NUM] = {3, 2}; //iotouch按键映射表
+/** @brief 按键逻辑通道映射表（按键组2） */
+const static uint8_t iotouchKeyMap2[IOTOUCH_KEY2NUM] = {3, 2};
 
-static T_SiObject iotouchObjectKey2;           //iotouch触摸按键对象
-static T_SiData iotouchKeyRawDataBuf2[IOTOUCH_KEY2NUM];        //iotouch原始值缓冲区
+/** @brief IOTouch触摸按键对象（按键组2） */
+static T_SiObject iotouchObjectKey2;
+/** @brief 原始值缓冲区（按键组2） */
+static T_SiData iotouchKeyRawDataBuf2[IOTOUCH_KEY2NUM];
 
-//当IOTouch按键状态改变时，被调用
+/**
+ * @brief IOTouch按键状态改变回调函数（按键组2）
+ * @param[in] keyNo    按键编号
+ * @param[in] status   按键状态
+ */
 static void IOtouchKeyValueChanged2(uint8_t keyNo, T_SiKeyStatus status);
 
-//IOTouch判决器钩子函数
+/**
+ * @brief IOTouch判决器钩子函数（按键组2）
+ * @param[in] obj  IOTouch对象指针
+ */
 static void IOtouchKeyArbiterHook2(T_SiObject *obj);
 
 #if LOW_POWER_EN
-//**************************************************************************************************
-//***IOTouch参数调节器配置
-static T_SiParaAdjusterComposite iotouchBaselineParaAdjComp2 = {0};        //基线低功耗模式下更新
-static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafNormal2 = {0};       //常规模式下参数
-static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafLp2 = {0};           //低功耗模式下参数
+/** @brief 基线参数调节器复合节点（按键组2）：低功耗模式下切换参数 */
+static T_SiParaAdjusterComposite iotouchBaselineParaAdjComp2 = {0};
+/** @brief 基线参数调节器叶子节点（按键组2）：常规模式参数 */
+static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafNormal2 = {0};
+/** @brief 基线参数调节器叶子节点（按键组2）：低功耗模式参数 */
+static T_SiParaAdjusterLeaf iotouchBaselineParaAdjLeafLp2 = {0};
 #endif
 
 #endif
 
 #if LOW_POWER_EN
 
-//**************************************************************************************************
-//***IOTouch低功耗配置
-static T_SiFilterNone iotouchLpFilter;                      //iotouch滤波器
-static T_SiData iotouchLpFilterBuf[IOTOUCH_LP_KEYNUM];          //iotouch滤波值缓冲区
+/** @brief IOTouch低功耗滤波器（无滤波模式） */
+static T_SiFilterNone iotouchLpFilter;
+/** @brief IOTouch低功耗滤波值缓冲区 */
+static T_SiData iotouchLpFilterBuf[IOTOUCH_LP_KEYNUM];
 
+/**
+ * @brief 低功耗基线追踪器配置参数
+ * @note 使用快速唤醒基线追踪算法（quickdrop）
+ */
 const static T_SiBaselineParaKeyWkupQuickdrop iotouchLpBaselinePara =
 {
     .firstSkipDataCount = 0,
     .firstCntThreshold = 1,
-    .quickDropHoldCnt = 6, //建议不低于500ms
+    .quickDropHoldCnt = 6, /**< 建议不低于500ms */
     .quickDropThreshold = 20,
     .cntThreshold = 10,
     .step = 5
-};        //iotouch基线追踪算法参数
-static T_SiBaselineKeyWkupQuickdrop iotouchLpBaseline;                      //iotouch基线追踪器
-static T_SiBaselineDataKeyWkupQuickdrop iotouchLpBaselineTempData[IOTOUCH_LP_KEYNUM];     //iotouch基线追踪器缓冲区
-static T_SiData iotouchLpBaselineBuf[IOTOUCH_LP_KEYNUM];        //iotouch基线值缓冲区
+}; /*!< iotouch基线追踪算法参数 */
+/** @brief 低功耗基线追踪器实例 */
+static T_SiBaselineKeyWkupQuickdrop iotouchLpBaseline;
+/** @brief 低功耗基线追踪器临时数据缓冲区 */
+static T_SiBaselineDataKeyWkupQuickdrop iotouchLpBaselineTempData[IOTOUCH_LP_KEYNUM];
+/** @brief 低功耗基线值缓冲区 */
+static T_SiData iotouchLpBaselineBuf[IOTOUCH_LP_KEYNUM];
 
+/**
+ * @brief 低功耗判决器配置参数
+ * @note 使用绝对值唤醒判决算法
+ */
 const static T_SiArbiterParaKeyMtAbsWkup iotouchLpArbiterPara =
 {
     .wkupThresholds = {30, 30}
-}; //iotouch判决器算法参数
-static T_SiArbiterKeyMtAbsWkup iotouchLpArbiter;     //iotouch判决器
+}; /*!< iotouch判决器算法参数 */
+/** @brief 低功耗判决器实例 */
+static T_SiArbiterKeyMtAbsWkup iotouchLpArbiter;
 
-const static uint8_t iotouchLpKeyMap[IOTOUCH_LP_KEYNUM] = {0, 2}; //iotouch低功耗按键映射表
+/** @brief 低功耗按键逻辑通道映射表 */
+const static uint8_t iotouchLpKeyMap[IOTOUCH_LP_KEYNUM] = {0, 2};
 
-static T_SiObject iotouchLpObjectKey;                                //iotouch触摸按键对象
-static T_SiData iotouchLpKeyRawDataBuf[IOTOUCH_LP_KEYNUM];     //iotouch原始值缓冲区
+/** @brief 低功耗IOTouch触摸按键对象 */
+static T_SiObject iotouchLpObjectKey;
+/** @brief 低功耗原始值缓冲区 */
+static T_SiData iotouchLpKeyRawDataBuf[IOTOUCH_LP_KEYNUM];
 
-//IOTouch判决器钩子函数
+/**
+ * @brief IOTouch低功耗判决器钩子函数
+ * @param[in] obj  IOTouch对象指针
+ */
 static void IOtouchLpKeyArbiterHook(T_SiObject *obj);
 
 #endif
@@ -412,7 +498,7 @@ static void IOtouchLpKeyArbiterHook(T_SiObject *obj);
 //***噪音检测器配置
 
 #if NOISE_DETECT_VARIANCE_KEYNUM
-//退出条件
+/** @brief 噪音检测退出条件配置参数（快速方差检测） */
 const static T_SiNoiseExitConditionParaFastVariance noiseExitConditionVariancePara =
 {
     .channelNo = 2,                                /*!< 逻辑通道编号，--需要用户指定 */
@@ -420,9 +506,12 @@ const static T_SiNoiseExitConditionParaFastVariance noiseExitConditionVariancePa
     .eliminateTimeMs = 2000,                         /*!< 消抖时间，持续一段时间低于阈值，认为可以退出--需要用户指定 */
     .threshold = 250                          /*!< 噪音检测阈值--需要用户指定 */
 };
+/** @brief 噪音检测退出条件实例 */
 static T_SiNoiseExitConditionFastVariance noiseExitConditionVariance = {0};
 
-//算法参数
+/**
+ * @brief 噪音检测算法参数（轻量级差分检测）
+ */
 const static T_SiNoiseParaLiteDiff noiseDetectVariancePara =
 {
     .thresholdSign = 0,                   /*!< 阈值的符号，取-1，0，1，当为0时取diff的绝对值，否则diff值乘以thresholdSign后再与detectThreshold比较--需要用户指定 */
@@ -443,21 +532,35 @@ const static T_SiNoiseParaLiteDiff noiseDetectVariancePara =
     .forceReleaseTimeS = 2             /*!< 强制释放时间，单位为秒，设为0时表示永不释放--需要用户指定 */
 };
 
+/** @brief 噪音检测算法实例 */
 static T_SiNoiseLiteDiff noiseDetectVariance = {0};
+/** @brief 噪音检测临时数据缓冲区 */
 static T_SiNoiseDataLiteDiff noiseDetectVarianceTempData[NOISE_DETECT_VARIANCE_KEYNUM] = {0};
-
+/** @brief 噪音检测数据缓冲区 */
 static T_SiNoiseData noiseDetectVarianceBuf[NOISE_DETECT_VARIANCE_KEYNUM] = {0};
+/** @brief 噪音检测逻辑通道映射表 */
+const static uint8_t noiseDetectVarianceKeyMap[NOISE_DETECT_VARIANCE_KEYNUM] = {4};
+/** @brief 噪音检测对象 */
+static T_SiNoiseObject noiseDetectVarianceObject = {0};
+/** @brief 噪音检测原始值缓冲区 */
+static T_SiData noiseDetectVarianceRawDataBuf[NOISE_DETECT_VARIANCE_KEYNUM] = {0};
 
-const static uint8_t noiseDetectVarianceKeyMap[NOISE_DETECT_VARIANCE_KEYNUM] = {4};    //噪声检测通道表
-
-static T_SiNoiseObject noiseDetectVarianceObject = {0};         //噪音检测对象
-static T_SiData noiseDetectVarianceRawDataBuf[NOISE_DETECT_VARIANCE_KEYNUM] = {0};        //原始值缓冲区
-
-//噪声检测器钩子函数
+/**
+ * @brief 噪声检测器钩子函数
+ * @param[in] obj       噪音检测对象指针
+ * @param[in] keyNum    按键编号
+ * @param[in] noiseBuf  噪音数据缓冲区
+ */
 static void NoiseDetectVarianceHook(T_SiNoiseObject *obj, uint8_t keyNum, const T_SiNoiseData *noiseBuf);
 
+/**
+ * @brief 噪音检测状态变化回调函数
+ * @param[in] status 噪音状态，非0表示检测到噪音，0表示噪音消失
+ */
 static void DoorCtrlNoiseDetectVarianceStatusChanged(uint8_t status);
+/** @brief 噪音退出条件数组 */
 static T_SiNoiseExitConditionBase *noiseExitConditions[] = {(T_SiNoiseExitConditionBase *) &noiseExitConditionVariance};
+/** @brief 受噪音影响的信号集对象数组 */
 static T_SiObject *noiseSiObjs[] =
 {
 #if IOTOUCH_KEY1NUM
@@ -467,7 +570,10 @@ static T_SiObject *noiseSiObjs[] =
     &iotouchObjectKey2,
 #endif
 };
-//**噪音检测器描述符
+/**
+ * @brief 噪音检测器描述符
+ * @note 定义噪音检测的匹配类型、动作、退出条件等完整配置
+ */
 static T_SiNoiseDetect doorctrlNoiseDetectVariance =
 {
     .matchType = SI_NOISE_DETECT_MATCH_ANY,             /*!< 匹配类型，所有或任意--需要用户指定 */
@@ -491,259 +597,281 @@ static T_SiNoiseDetect doorctrlNoiseDetectVariance =
 
 //**************************************************************************************************
 
-//配置触摸功能和算法参数
+/**
+ * @brief 配置触摸功能和算法参数
+ *
+ * 本函数完成触摸算法的完整初始化流程，包括：
+ * - 硬件时序参数配置（touchcfg, adccfg）
+ * - 触摸通道配置（touchChannels）
+ * - 增益器配置（touchGainers, touchSleepGainers）
+ * - 扫描调度器创建
+ * - 噪音检测器初始化与注册
+ * - IOTouch按键组（KEY1/KEY2）的滤波器、基线追踪器、判决器初始化与注册
+ * - 低功耗模式下的参数调节器配置
+ *
+ * @param[in] algo  算法对象指针，由上层传入的算法管理对象
+ * @retval 无返回值（void）
+ *
+ * @note 函数内部包含多个条件编译块（#if），实际初始化的模块取决于编译宏配置。
+ *       初始化失败时会通过 TC_LOGE 输出错误日志，但不会 halt 系统。
+ */
 void TouchConfig(T_SiAlgoObject *algo)
 {
     uint8_t keyNum;
     T_SiErrRt rt;
 
+    /** @brief 触摸硬件通用配置 */
     static const TOUCH_HalConfig_Type touchcfg =
     {
-        .init_time = 0xFF,                 //初始时间，0x0-0xFFF，对低功耗影响大
-        .hop_period = 7,                   //跳频，0-7
-        .clock_divider = TOUCH_CLK_DIV,    //时钟分频
+        .init_time = 0xFF,                 /**< 初始时间，0x0-0xFFF，对低功耗影响大 */
+        .hop_period = 7,                   /**< 跳频，0-7 */
+        .clock_divider = TOUCH_CLK_DIV,    /**< 时钟分频 */
     };
+    /** @brief ADC 配置参数 */
     static const TOUCH_HalAdcConfig_Type adccfg =
     {
-        .clock_divider = TOUCH_ADC_DIV, //时钟分频
-        .vcm_sel = ADC_VCM_SEL_NULL,   //VCM，共模输入电压
-        .i_sel = ADC_IBIAS_0p5x,       //ibias
-        .vref_sel = ADC_VREF_1500,     //Vref参考电压选择
-        .samp_cycle = 0x7,              //采样周期
-        .init_cycle = 0x0               //init周期
+        .clock_divider = TOUCH_ADC_DIV, /**< 时钟分频 */
+        .vcm_sel = ADC_VCM_SEL_NULL,   /**< VCM，共模输入电压 */
+        .i_sel = ADC_IBIAS_0p5x,       /**< ibias */
+        .vref_sel = ADC_VREF_1500,     /**< Vref参考电压选择 */
+        .samp_cycle = 0x7,              /**< 采样周期 */
+        .init_cycle = 0x0               /**< init周期 */
     };
     static TOUCH_HalCharge_Type touchNode;
+    /** @brief 触摸通道配置表 */
     static const TOUCH_HalChConfig_Type touchChannels[] =
     {
         {
-            .channel = CAPTOUCH_CHANNEL_3,      // UnLock   //通道编号，CHANNEL_0 - CHANNEL_4
-            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     //电荷转移方向选择，0表示cref->pad（cref电容<pad电容时使用），1相反
-            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  //充放电模式，支持CHARGE_MODE - CHARGE_DISCHARGE_BALANCE_MODE
+            .channel = CAPTOUCH_CHANNEL_3,      /**< 通道编号，CHANNEL_0 - CHANNEL_4 (UnLock) */
+            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     /**< 电荷转移方向选择，0表示cref->pad，1相反 */
+            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  /**< 充放电模式 */
             .shield = {
-                .shld_en = 0,              //防护开关
-                .shld_sel = SOURCE_FOLLOW_SHIELD,            //防护通道，CHANNEL_0_AS_SHIELD - SOURCE_FOLLOW_SHIELD
-                .shld_i = 0x3                                //防护电流，0 - 7，Iout = bit2*320u + bit1*160u+bit0*80u，仅在SOURCE_FOLLOW_SHIELD有用
-            },                                               //防护通道配置
+                .shld_en = 0,              /**< 防护开关 */
+                .shld_sel = SOURCE_FOLLOW_SHIELD,            /**< 防护通道选择 */
+                .shld_i = 0x3                                /**< 防护电流，0-7 */
+            },                                               /**< 防护通道配置 */
             .compensate = {
-                .cmp_en = 1,                                 //补偿总开关
-                .idac_inp = 0xFF,                            //充电补偿电流，0x0-0xFF
-                .idac_p_en = 1,                              //充电补偿开关
-                .idac_inn = 0xFF,                            //放电补偿电流，0x0-0xFF
-                .idac_n_en = 1,                              //放电补偿开关
-                .idac_time = 0x8                             //补偿时间，0x0-0xFF
-            }                                                //寄生电容补偿，补偿电容=补偿时间*补偿电流
+                .cmp_en = 1,                                 /**< 补偿总开关 */
+                .idac_inp = 0xFF,                            /**< 充电补偿电流，0x0-0xFF */
+                .idac_p_en = 1,                              /**< 充电补偿开关 */
+                .idac_inn = 0xFF,                            /**< 放电补偿电流，0x0-0xFF */
+                .idac_n_en = 1,                              /**< 放电补偿开关 */
+                .idac_time = 0x8                             /**< 补偿时间，0x0-0xFF */
+            }                                                /**< 寄生电容补偿：补偿电容 = 补偿时间 * 补偿电流 */
         },
         {
-            .channel = CAPTOUCH_CHANNEL_3,      // UnLock   //通道编号，CHANNEL_0 - CHANNEL_4
-            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     //电荷转移方向选择，0表示cref->pad（cref电容<pad电容时使用），1相反
-            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  //充放电模式，支持CHARGE_MODE - CHARGE_DISCHARGE_BALANCE_MODE
+            .channel = CAPTOUCH_CHANNEL_3,      /**< 通道编号，CHANNEL_0 - CHANNEL_4 (UnLock) */
+            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     /**< 电荷转移方向选择 */
+            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  /**< 充放电模式 */
             .shield = {
-                .shld_en = 0,              //防护开关
-                .shld_sel = SOURCE_FOLLOW_SHIELD,            //防护通道，CHANNEL_0_AS_SHIELD - SOURCE_FOLLOW_SHIELD
-                .shld_i = 0x3                                //防护电流，0 - 7，Iout = bit2*320u + bit1*160u+bit0*80u，仅在SOURCE_FOLLOW_SHIELD有用
-            },                                               //防护通道配置
+                .shld_en = 0,              /**< 防护开关 */
+                .shld_sel = SOURCE_FOLLOW_SHIELD,            /**< 防护通道选择 */
+                .shld_i = 0x3                                /**< 防护电流，0-7 */
+            },                                               /**< 防护通道配置 */
             .compensate = {
-                .cmp_en = 1,                                 //补偿总开关
-                .idac_inp = 0xFF,                            //充电补偿电流，0x0-0xFF
-                .idac_p_en = 1,                              //充电补偿开关
-                .idac_inn = 0xFF,                            //放电补偿电流，0x0-0xFF
-                .idac_n_en = 1,                              //放电补偿开关
-                .idac_time = 0x8                             //补偿时间，0x0-0xFF
-            }                                                //寄生电容补偿，补偿电容=补偿时间*补偿电流
+                .cmp_en = 1,                                 /**< 补偿总开关 */
+                .idac_inp = 0xFF,                            /**< 充电补偿电流 */
+                .idac_p_en = 1,                              /**< 充电补偿开关 */
+                .idac_inn = 0xFF,                            /**< 放电补偿电流 */
+                .idac_n_en = 1,                              /**< 放电补偿开关 */
+                .idac_time = 0x8                             /**< 补偿时间 */
+            }                                                /**< 寄生电容补偿 */
         },
         {
-            .channel = CAPTOUCH_CHANNEL_2,      // Lock     //通道编号，CHANNEL_0 - CHANNEL_4
-            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     //电荷转移方向选择，0表示cref->pad（cref电容<pad电容时使用），1相反
-            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  //充放电模式，支持CHARGE_MODE - CHARGE_DISCHARGE_BALANCE_MODE
+            .channel = CAPTOUCH_CHANNEL_2,      /**< 通道编号，CHANNEL_0 - CHANNEL_4 (Lock) */
+            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     /**< 电荷转移方向选择 */
+            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  /**< 充放电模式 */
             .shield = {
-                .shld_en = 0,              //防护开关
-                .shld_sel = SOURCE_FOLLOW_SHIELD,            //防护通道，CHANNEL_0_AS_SHIELD - SOURCE_FOLLOW_SHIELD
-                .shld_i = 0x3                                //防护电流，0 - 7，Iout = bit2*320u + bit1*160u+bit0*80u，仅在SOURCE_FOLLOW_SHIELD有用
-            },                                               //防护通道配置
+                .shld_en = 0,              /**< 防护开关 */
+                .shld_sel = SOURCE_FOLLOW_SHIELD,            /**< 防护通道选择 */
+                .shld_i = 0x3                                /**< 防护电流，0-7 */
+            },                                               /**< 防护通道配置 */
             .compensate = {
-                .cmp_en = 1,                                 //补偿总开关
-                .idac_inp = 0xFF,                            //充电补偿电流，0x0-0xFF
-                .idac_p_en = 1,                              //充电补偿开关
-                .idac_inn = 0xFF,                            //放电补偿电流，0x0-0xFF
-                .idac_n_en = 1,                              //放电补偿开关
-                .idac_time = 0x8                             //补偿时间，0x0-0xFF
-            }                                                //寄生电容补偿，补偿电容=补偿时间*补偿电流
+                .cmp_en = 1,                                 /**< 补偿总开关 */
+                .idac_inp = 0xFF,                            /**< 充电补偿电流 */
+                .idac_p_en = 1,                              /**< 充电补偿开关 */
+                .idac_inn = 0xFF,                            /**< 放电补偿电流 */
+                .idac_n_en = 1,                              /**< 放电补偿开关 */
+                .idac_time = 0x8                             /**< 补偿时间 */
+            }                                                /**< 寄生电容补偿 */
         },
         {
-            .channel = CAPTOUCH_CHANNEL_2,      // Lock     //通道编号，CHANNEL_0 - CHANNEL_4
-            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     //电荷转移方向选择，0表示cref->pad（cref电容<pad电容时使用），1相反
-            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  //充放电模式，支持CHARGE_MODE - CHARGE_DISCHARGE_BALANCE_MODE
+            .channel = CAPTOUCH_CHANNEL_2,      /**< 通道编号，CHANNEL_0 - CHANNEL_4 (Lock) */
+            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     /**< 电荷转移方向选择 */
+            .captouch_mode = CHARGE_DISCHARGE_BALANCE_MODE,  /**< 充放电模式 */
             .shield = {
-                .shld_en = 0,              //防护开关
-                .shld_sel = SOURCE_FOLLOW_SHIELD,            //防护通道，CHANNEL_0_AS_SHIELD - SOURCE_FOLLOW_SHIELD
-                .shld_i = 0x3                                //防护电流，0 - 7，Iout = bit2*320u + bit1*160u+bit0*80u，仅在SOURCE_FOLLOW_SHIELD有用
-            },                                               //防护通道配置
+                .shld_en = 0,              /**< 防护开关 */
+                .shld_sel = SOURCE_FOLLOW_SHIELD,            /**< 防护通道选择 */
+                .shld_i = 0x3                                /**< 防护电流，0-7 */
+            },                                               /**< 防护通道配置 */
             .compensate = {
-                .cmp_en = 1,                                 //补偿总开关
-                .idac_inp = 0xFF,                            //充电补偿电流，0x0-0xFF
-                .idac_p_en = 1,                              //充电补偿开关
-                .idac_inn = 0xFF,                            //放电补偿电流，0x0-0xFF
-                .idac_n_en = 1,                              //放电补偿开关
-                .idac_time = 0x8                             //补偿时间，0x0-0xFF
-            }                                                //寄生电容补偿，补偿电容=补偿时间*补偿电流
+                .cmp_en = 1,                                 /**< 补偿总开关 */
+                .idac_inp = 0xFF,                            /**< 充电补偿电流 */
+                .idac_p_en = 1,                              /**< 充电补偿开关 */
+                .idac_inn = 0xFF,                            /**< 放电补偿电流 */
+                .idac_n_en = 1,                              /**< 放电补偿开关 */
+                .idac_time = 0x8                             /**< 补偿时间 */
+            }                                                /**< 寄生电容补偿 */
         },
         {
-            .channel = CAPTOUCH_CHANNEL_4,                   //通道编号，CHANNEL_0 - CHANNEL_4
-            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     //电荷转移方向选择，0表示cref->pad（cref电容<pad电容时使用），1相反
-            .captouch_mode = CHARGE_MODE,  //充放电模式，支持CHARGE_MODE - CHARGE_DISCHARGE_BALANCE_MODE
+            .channel = CAPTOUCH_CHANNEL_4,                   /**< 通道编号，CHANNEL_0 - CHANNEL_4 */
+            .cref_sel = CHARGE_DISCHARGE_REFERENCE_CAP,     /**< 电荷转移方向选择 */
+            .captouch_mode = CHARGE_MODE,  /**< 充放电模式 */
             .shield = {
-                .shld_en = 0,                                //防护开关
-                .shld_sel = SOURCE_FOLLOW_SHIELD,            //防护通道，CHANNEL_0_AS_SHIELD - SOURCE_FOLLOW_SHIELD
-                .shld_i = 0x7                                //防护电流，0 - 7，Iout = bit2*320u + bit1*160u+bit0*80u，仅在SOURCE_FOLLOW_SHIELD有用
-            },                                               //防护通道配置
+                .shld_en = 0,                                /**< 防护开关 */
+                .shld_sel = SOURCE_FOLLOW_SHIELD,            /**< 防护通道选择 */
+                .shld_i = 0x7                                /**< 防护电流，0-7 */
+            },                                               /**< 防护通道配置 */
             .compensate = {
-                .cmp_en = 0,                                 //补偿总开关
-                .idac_inp = 0x7,                             //充电补偿电流，0x0-0xFF
-                .idac_p_en = 0,                              //充电补偿开关
-                .idac_inn = 0x7,                             //放电补偿电流，0x0-0xFF
-                .idac_n_en = 0,                              //放电补偿开关
-                .idac_time = 0x15                            //补偿时间，0x0-0xFF
-            }                                                //寄生电容补偿，补偿电容=补偿时间*补偿电流
+                .cmp_en = 0,                                 /**< 补偿总开关 */
+                .idac_inp = 0x7,                             /**< 充电补偿电流 */
+                .idac_p_en = 0,                              /**< 充电补偿开关 */
+                .idac_inn = 0x7,                             /**< 放电补偿电流 */
+                .idac_n_en = 0,                              /**< 放电补偿开关 */
+                .idac_time = 0x15                            /**< 补偿时间 */
+            }                                                /**< 寄生电容补偿 */
         }
     };
+    /** @brief 增益器配置表（正常工作模式） */
     static const TOUCH_HalGainer_Type touchGainers[] =
     {
         {
-            .tran_loop = 255,        //电荷转移次数
-            .tran_time = 0x3F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x3F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 255,       /**< 电荷转移次数 */
+            .tran_time = 0x3F,      /**< 电荷转移时间，0x0-0xFF，对低功耗影响大 */
+            .chg_time = 0x3F,       /**< 充放电时间，0x0-0xFF，对低功耗影响大 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数，0-15 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
-            .tran_loop = 255,        //电荷转移次数
-            .tran_time = 0x6,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x6,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 255,       /**< 电荷转移次数 */
+            .tran_time = 0x6,       /**< 电荷转移时间，0x0-0xFF */
+            .chg_time = 0x6,        /**< 充放电时间，0x0-0xFF */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
-            .tran_loop = 255,        //电荷转移次数
-            .tran_time = 0x3F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x3F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 255,       /**< 电荷转移次数 */
+            .tran_time = 0x3F,      /**< 电荷转移时间，0x0-0xFF */
+            .chg_time = 0x3F,       /**< 充放电时间，0x0-0xFF */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
-            .tran_loop = 255,        //电荷转移次数
-            .tran_time = 0x6,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x6,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 255,       /**< 电荷转移次数 */
+            .tran_time = 0x6,       /**< 电荷转移时间，0x0-0xFF */
+            .chg_time = 0x6,        /**< 充放电时间，0x0-0xFF */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
-            .tran_loop = 196,        //电荷转移次数
-            .tran_time = 0x17,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x17,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 196,       /**< 电荷转移次数 */
+            .tran_time = 0x17,      /**< 电荷转移时间，0x0-0xFF */
+            .chg_time = 0x17,       /**< 充放电时间，0x0-0xFF */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             }
         }
     };
+    /** @brief 增益器配置表（休眠模式） */
     static const TOUCH_HalGainer_Type touchSleepGainers[] =
     {
         {
             .init_time = 0x3F,
-            .tran_loop = 31,        //电荷转移次数
-            .tran_time = 0x1F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x1F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 31,        /**< 电荷转移次数 */
+            .tran_time = 0x1F,      /**< 电荷转移时间，0x0-0xFF，对低功耗影响大 */
+            .chg_time = 0x1F,       /**< 充放电时间，0x0-0xFF，对低功耗影响大 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数，0-15 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
             .init_time = 0x3F,
-            .tran_loop = 31,        //电荷转移次数
-            .tran_time = 0x1F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x1F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 31,        /**< 电荷转移次数 */
+            .tran_time = 0x1F,      /**< 电荷转移时间 */
+            .chg_time = 0x1F,       /**< 充放电时间 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
             .init_time = 0x3F,
-            .tran_loop = 31,        //电荷转移次数
-            .tran_time = 0x1F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x1F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 31,        /**< 电荷转移次数 */
+            .tran_time = 0x1F,      /**< 电荷转移时间 */
+            .chg_time = 0x1F,       /**< 充放电时间 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
             .init_time = 0x3F,
-            .tran_loop = 31,        //电荷转移次数
-            .tran_time = 0x1F,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0x1F,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 31,        /**< 电荷转移次数 */
+            .tran_time = 0x1F,      /**< 电荷转移时间 */
+            .chg_time = 0x1F,       /**< 充放电时间 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             },
         },
         {
             .init_time = 0x3F,
-            .tran_loop = 15,        //电荷转移次数
-            .tran_time = 0xF,                               //电荷转移时间，0x0-0xFF，对低功耗影响大
-            .chg_time = 0xF,                                //充放电时间，0x0-0xFF，对低功耗影响大
+            .tran_loop = 15,        /**< 电荷转移次数 */
+            .tran_time = 0xF,       /**< 电荷转移时间 */
+            .chg_time = 0xF,        /**< 充放电时间 */
             .pga =
             {
-                .enable = 0,       //pga使能
-                .pga_gain_sel = ADC_GAIN_X1, //pga运放倍数，0 - 15
-                .buf_en = 0,       //buffer开关
-                .vcr_en = 0,       //VCR开关
-                .vcr_sel = ADC_VCR_SEL_236_7 //VCR电压选择
+                .enable = 0,        /**< PGA使能 */
+                .pga_gain_sel = ADC_GAIN_X1, /**< PGA运放倍数 */
+                .buf_en = 0,        /**< Buffer开关 */
+                .vcr_en = 0,        /**< VCR开关 */
+                .vcr_sel = ADC_VCR_SEL_236_7 /**< VCR电压选择 */
             }
         }
     };
@@ -754,6 +882,7 @@ void TouchConfig(T_SiAlgoObject *algo)
 //        0x0,
 //        0x0
 //    };
+    /** @brief 低通滤波器配置表 */
     static TOUCH_HalLowPassFilter_Type lowPassTable[] =
     {
         {.gain = 1},
@@ -762,6 +891,7 @@ void TouchConfig(T_SiAlgoObject *algo)
         {.gain = 1},
         {.gain = 0},
     };
+    /** @brief 双边采样配置表 */
     static TOUCH_HalDoubleSamp_Type doubleSampTable[] =
     {
         {.enable = 1},
@@ -770,64 +900,67 @@ void TouchConfig(T_SiAlgoObject *algo)
         {.enable = 1},
         {.enable = 1}
     };
+    /** @brief 噪音规避配置表（正常工作模式） */
     static TOUCH_HalNoiseAvoid_Type noiseAvoidTable[] =
     {
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 0,                      //粗调
-            .fineTune = 0,                         //微调
-            .fineStep = 0                          //微调步进，建议为1
+            .coarseTune = 0,                      /**< 粗调 */
+            .fineTune = 0,                         /**< 微调 */
+            .fineStep = 0                          /**< 微调步进 */
         }
     };
+    /** @brief 噪音规避配置表（休眠模式） */
     static TOUCH_HalNoiseAvoid_Type sleepNoiseAvoidTable[] =
     {
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 10,                      //粗调
-            .fineTune = 1,                         //微调
-            .fineStep = 1                          //微调步进，建议为1
+            .coarseTune = 10,                      /**< 粗调 */
+            .fineTune = 1,                         /**< 微调 */
+            .fineStep = 1                          /**< 微调步进，建议为1 */
         },
         {
-            .coarseTune = 0,                      //粗调
-            .fineTune = 0,                         //微调
-            .fineStep = 0                          //微调步进，建议为1
+            .coarseTune = 0,                      /**< 粗调 */
+            .fineTune = 0,                         /**< 微调 */
+            .fineStep = 0                          /**< 微调步进 */
         }
     };
 
     static TOUCH_HalDispatch_OnlyTouch_Type dispatch;
+    /** @brief 扫描调度器参数配置 */
     static const TOUCH_HalDispatch_OnlyTouchPara_Type dispatchPara =
     {
         .fast_freq = TOUCH_FAST_FREQ,
@@ -836,28 +969,28 @@ void TouchConfig(T_SiAlgoObject *algo)
         .sleep_mask_freq = TOUCH_SLEEP_MASK_FREQ,
         .skip_poweron_datas = TOUCH_SKIP_STARTUP_DATAS,
         .fast_remove_residues_enable = TRUE,
-        .scan_type = TOUCH_SCAN_MANY,     //扫描类型
-        .scan_many_num = 2, //当scan_type配置为TOUCH_SCAN_MANY时，一次扫描几个通道
+        .scan_type = TOUCH_SCAN_MANY,     /**< 扫描类型 */
+        .scan_many_num = 2,               /**< 每次扫描通道数（TOUCH_SCAN_MANY模式） */
     };
     TOUCH_HalInterface_Type *touchInterface;
     TOUCH_HalScanerTable_Type dispatchScaner;
 
     memset(&dispatchScaner, 0x0, sizeof(dispatchScaner));
-    dispatchScaner.scaner_len = 1;
+    dispatchScaner.scaner_len = 1;                           /**< 扫描器个数 */
     touchInterface = Touch_HalChargeCreate(&touchNode, &touchcfg, &adccfg);
-    dispatchScaner.scaners[0].touch_node = touchInterface;
-    dispatchScaner.scaners[0].channel_len = sizeof(touchChannels) / sizeof(touchChannels[0]);
-    dispatchScaner.scaners[0].channel_table = touchChannels;
-    dispatchScaner.scaners[0].gainer_table = touchGainers;
-    dispatchScaner.scaners[0].sleep_gainer_table = touchSleepGainers;
-    dispatchScaner.scaners[0].noise_avoid_table = noiseAvoidTable;
-    dispatchScaner.scaners[0].sleep_noise_avoid_table = sleepNoiseAvoidTable;
+    dispatchScaner.scaners[0].touch_node = touchInterface;                    /**< 触摸硬件接口 */
+    dispatchScaner.scaners[0].channel_len = sizeof(touchChannels) / sizeof(touchChannels[0]); /**< 通道数量 */
+    dispatchScaner.scaners[0].channel_table = touchChannels;                 /**< 通道配置表 */
+    dispatchScaner.scaners[0].gainer_table = touchGainers;                  /**< 增益器配置表 */
+    dispatchScaner.scaners[0].sleep_gainer_table = touchSleepGainers;       /**< 休眠增益器配置表 */
+    dispatchScaner.scaners[0].noise_avoid_table = noiseAvoidTable;          /**< 噪音规避表 */
+    dispatchScaner.scaners[0].sleep_noise_avoid_table = sleepNoiseAvoidTable; /**< 休眠噪音规避表 */
 //    dispatchScaner.scaners[0].remove_residues_enable_table = removeResiduesEnableTable;
-    dispatchScaner.scaners[0].iodisable_channelmask = (0x1 << sizeof(touchChannels) / sizeof(touchChannels[0])) - 1;
-    dispatchScaner.scaners[0].sleep_iodisable_channelmask = (0x1 << sizeof(touchChannels) / sizeof(touchChannels[0])) - 1;
-    dispatchScaner.scaners[0].low_pass_table = lowPassTable;
-    dispatchScaner.scaners[0].double_samp_table = doubleSampTable;
-    dispatchScaner.scaners[0].sleep_channelmask = 0x2 | 0x8 | 0x10;
+    dispatchScaner.scaners[0].iodisable_channelmask = (0x1 << sizeof(touchChannels) / sizeof(touchChannels[0])) - 1;  /**< IO禁用通道掩码 */
+    dispatchScaner.scaners[0].sleep_iodisable_channelmask = (0x1 << sizeof(touchChannels) / sizeof(touchChannels[0])) - 1;  /**< 休眠IO禁用通道掩码 */
+    dispatchScaner.scaners[0].low_pass_table = lowPassTable;                /**< 低通滤波器表 */
+    dispatchScaner.scaners[0].double_samp_table = doubleSampTable;          /**< 双边采样表 */
+    dispatchScaner.scaners[0].sleep_channelmask = 0x2 | 0x8 | 0x10;        /**< 休眠通道掩码 */
 
     touchDispatch = Touch_HalDispatchOnlyTouchCreate(&dispatch, &dispatchScaner, &dispatchPara);
 
@@ -1024,7 +1157,18 @@ void TouchConfig(T_SiAlgoObject *algo)
 #endif
 }
 
-//当IOTouch按键状态改变时，被调用
+/**
+ * @brief IOTouch按键状态改变公共回调函数
+ *
+ * 管理按键掩码（keyMask），当任意按键按下时置位对应位，释放时清除对应位。
+ * 当按键掩码从0变非0或从非0变0时（即所有按键都释放时），触发门状态变化回调。
+ *
+ * @param[in] keyNo    按键编号（0基）
+ * @param[in] status   按键状态（SI_KEY_PRESS / SI_KEY_RELEASE）
+ *
+ * @note 本函数维护 keyMask 状态，仅在整体状态发生变化时调用 TouchKeyCallback。
+ *       按键状态变化通过 TC_LOGI 输出日志。
+ */
 static void IOtouchKeyValueChanged(uint8_t keyNo, T_SiKeyStatus status)
 {
     static uint8_t keyMask = 0;
@@ -1060,6 +1204,17 @@ static void IOtouchKeyValueChanged(uint8_t keyNo, T_SiKeyStatus status)
     }
 }
 
+/**
+ * @brief 触摸按键回调函数（弱符号，可被用户重写）
+ *
+ * 当门状态发生变化时被 IOtouchKeyValueChanged 调用。
+ * 默认实现为空函数，用户可在其它文件中定义同名函数覆盖。
+ *
+ * @param[in] keyNo    按键编号
+ * @param[in] status   按键状态
+ *
+ * @note 本函数使用 __WEAK 属性声明，允许用户在外部覆盖实现。
+ */
 __WEAK void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
 {
     (void)keyNo;
@@ -1067,6 +1222,15 @@ __WEAK void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
 }
 
 #if IOTOUCH_KEY1NUM
+/**
+ * @brief IOTouch按键状态改变回调函数（按键组1）
+ *
+ * 更新 touch_data.key_val 中按键组1对应的位（bit0），
+ * 并调用公共回调 IOtouchKeyValueChanged。
+ *
+ * @param[in] keyNo    按键编号
+ * @param[in] status   按键状态（SI_KEY_PRESS / SI_KEY_RELEASE）
+ */
 static void IOtouchKeyValueChanged1(uint8_t keyNo, T_SiKeyStatus status)
 {
     if (status == SI_KEY_PRESS)
@@ -1079,7 +1243,21 @@ static void IOtouchKeyValueChanged1(uint8_t keyNo, T_SiKeyStatus status)
     }
     IOtouchKeyValueChanged(0, status);
 }
-//IOTouch判决器钩子函数
+
+/**
+ * @brief IOTouch判决器钩子函数（按键组1）
+ *
+ * 在每个采样周期被判决器回调，执行以下功能：
+ * - 低功耗模式下检测按键触发以复位休眠超时或强制唤醒
+ * - 计算滤波值与基线的差分值（diffValues）
+ * - 更新 touch_data 中的原始值、基线值、差分值（+32768 转为无符号存储）
+ * - 调试模式下周期性输出 diff 日志
+ *
+ * @param[in] obj  IOTouch对象指针，用于查询基线状态等
+ *
+ * @note diffValues = 滤波值 - 基线值
+ *       存储时 +32768 转换为 uint16 范围存储，避免负数
+ */
 static void IOtouchKeyArbiterHook1(T_SiObject *obj)
 {
 #if LOW_POWER_EN
@@ -1150,6 +1328,15 @@ static void IOtouchKeyArbiterHook1(T_SiObject *obj)
 #endif
 
 #if IOTOUCH_KEY2NUM
+/**
+ * @brief IOTouch按键状态改变回调函数（按键组2）
+ *
+ * 更新 touch_data.key_val 中按键组2对应的位（bit1），
+ * 并调用公共回调 IOtouchKeyValueChanged。
+ *
+ * @param[in] keyNo    按键编号
+ * @param[in] status   按键状态（SI_KEY_PRESS / SI_KEY_RELEASE）
+ */
 static void IOtouchKeyValueChanged2(uint8_t keyNo, T_SiKeyStatus status)
 {
     if (status == SI_KEY_PRESS)
@@ -1162,7 +1349,21 @@ static void IOtouchKeyValueChanged2(uint8_t keyNo, T_SiKeyStatus status)
     }
     IOtouchKeyValueChanged(1, status);
 }
-//IOTouch判决器钩子函数
+
+/**
+ * @brief IOTouch判决器钩子函数（按键组2）
+ *
+ * 在每个采样周期被判决器回调，执行以下功能：
+ * - 低功耗模式下检测按键触发以复位休眠超时或强制唤醒
+ * - 计算滤波值与基线的差分值（diffValues）
+ * - 更新 touch_data 中的原始值、基线值、差分值（+32768 转为无符号存储）
+ * - 调试模式下周期性输出 diff 日志
+ *
+ * @param[in] obj  IOTouch对象指针，用于查询基线状态等
+ *
+ * @note diffValues = 滤波值 - 基线值
+ *       存储时 +32768 转换为 uint16 范围存储，避免负数
+ */
 static void IOtouchKeyArbiterHook2(T_SiObject *obj)
 {
 #if LOW_POWER_EN
@@ -1232,7 +1433,17 @@ static void IOtouchKeyArbiterHook2(T_SiObject *obj)
 #endif
 
 #if LOW_POWER_EN
-//IOTouch判决器钩子函数
+/**
+ * @brief IOTouch低功耗判决器钩子函数
+ *
+ * 在低功耗模式下每个采样周期被回调，当基线就绪时
+ * 可输出调试日志（仅在 DEBUG_PRINT_EN 使能时生效）。
+ *
+ * @param[in] obj  IOTouch对象指针
+ *
+ * @note 当前实现中仅在基线就绪时做空检查，实际业务逻辑为空。
+ *       调试日志已被注释掉，需要时可取消注释。
+ */
 static void IOtouchLpKeyArbiterHook(T_SiObject *obj)
 {
     if (SiBaselineIsReady(obj, 0))
@@ -1245,7 +1456,19 @@ static void IOtouchLpKeyArbiterHook(T_SiObject *obj)
 }
 #endif
 
-//触摸准备进入低功耗
+/**
+ * @brief 触摸准备进入低功耗钩子函数
+ *
+ * 在系统进入低功耗前被调用，执行以下操作：
+ * - 锁定噪音检测对象
+ * - 锁定常规模式 IOTouch 对象（KEY1/KEY2）
+ * - 开启低功耗模式 IOTouch 对象
+ * - 复位低功耗滤波器、基线追踪器、仲裁器
+ * - 切换到低功耗调度器
+ *
+ * @note 仅在 LOW_POWER_EN 使能时执行低功耗相关逻辑。
+ *       调度器切换通过 SiSetScheduler 完成。
+ */
 void TouchEnterHaltHook(void)
 {
     T_SiErrRt rt;
@@ -1290,7 +1513,18 @@ void TouchEnterHaltHook(void)
     }
 }
 
-//触摸从低功耗唤醒
+/**
+ * @brief 触摸从低功耗唤醒钩子函数
+ *
+ * 在系统从低功耗唤醒后被调用，执行以下操作：
+ * - 开启噪音检测对象
+ * - 开启常规模式 IOTouch 对象（KEY1/KEY2）
+ * - 锁定低功耗模式 IOTouch 对象
+ * - 切换回运行时调度器
+ *
+ * @note 与 TouchEnterHaltHook 成对使用，完成低功耗状态的逆操作。
+ *       调度器切换通过 SiSetScheduler 完成。
+ */
 void TouchWakeupHook(void)
 {
     T_SiErrRt rt;
@@ -1320,7 +1554,14 @@ void TouchWakeupHook(void)
     }
 }
 
-//锁定管理低功耗的T_SiObject
+/**
+ * @brief 锁定管理低功耗的 T_SiObject
+ *
+ * 将低功耗 IOTouch 对象状态设为 SI_OBJECT_STATUS_LOCK，
+ * 禁止其在低功耗模式下运行。
+ *
+ * @note 仅在 LOW_POWER_EN 使能时生效。
+ */
 void TouchHaltLockLpSiObject(void)
 {
 #if LOW_POWER_EN
@@ -1328,7 +1569,14 @@ void TouchHaltLockLpSiObject(void)
 #endif
 }
 
-//解锁管理低功耗的T_SiObject
+/**
+ * @brief 解锁管理低功耗的 T_SiObject
+ *
+ * 将低功耗 IOTouch 对象状态设为 SI_OBJECT_STATUS_RUN，
+ * 允许其在低功耗模式下运行。
+ *
+ * @note 仅在 LOW_POWER_EN 使能时生效。
+ */
 void TouchHaltUnlockLpSiObject(void)
 {
 #if LOW_POWER_EN
@@ -1336,7 +1584,14 @@ void TouchHaltUnlockLpSiObject(void)
 #endif
 }
 
-//锁定常规的T_SiObject
+/**
+ * @brief 锁定常规模式的 T_SiObject
+ *
+ * 将常规 IOTouch 对象（KEY1/KEY2）和噪音检测对象状态设为 LOCK，
+ * 暂停其在正常运行模式下的处理。
+ *
+ * @note 同时锁定噪音检测对象（NOISE_DETECT_VARIANCE_KEYNUM 使能时）。
+ */
 void TouchHaltLockSiObject(void)
 {
 #if IOTOUCH_KEY1NUM
@@ -1351,7 +1606,14 @@ void TouchHaltLockSiObject(void)
 #endif
 }
 
-//解锁常规的T_SiObject
+/**
+ * @brief 解锁常规模式的 T_SiObject
+ *
+ * 将常规 IOTouch 对象（KEY1/KEY2）和噪音检测对象状态设为 RUN，
+ * 恢复其在正常运行模式下的处理。
+ *
+ * @note 同时解锁噪音检测对象（NOISE_DETECT_VARIANCE_KEYNUM 使能时）。
+ */
 void TouchHaltUnlockSiObject(void)
 {
 #if IOTOUCH_KEY1NUM
@@ -1367,6 +1629,17 @@ void TouchHaltUnlockSiObject(void)
 }
 
 #if NOISE_DETECT_VARIANCE_KEYNUM
+/**
+ * @brief 噪音检测状态变化回调函数
+ *
+ * 当噪音检测状态发生变化时被调用：
+ * - 检测到噪音时输出 "Variance Noise detected!" 日志并延长休眠超时周期
+ * - 噪音消失时输出 "Variance Noise release!" 日志并恢复休眠超时周期
+ *
+ * @param[in] status 噪音状态，非0表示检测到噪音，0表示噪音消失
+ *
+ * @note 低功耗模式下通过 HaltTimeoutChgPeriod 调整休眠超时周期。
+ */
 static void DoorCtrlNoiseDetectVarianceStatusChanged(uint8_t status)
 {
     if (status)
@@ -1389,7 +1662,21 @@ static void DoorCtrlNoiseDetectVarianceStatusChanged(uint8_t status)
 #endif
 
 #if NOISE_DETECT_VARIANCE_KEYNUM
-//噪声检测器钩子函数
+/**
+ * @brief 噪声检测器钩子函数
+ *
+ * 在每个噪音检测周期被回调，执行以下功能：
+ * - 低功耗模式下检测到噪音时复位休眠超时，阻止进入低功耗
+ * - 更新 touch_data.noise_raw 噪音原始值
+ * - 调试模式下周期性输出噪音检测数据
+ *
+ * @param[in] obj      噪音检测对象指针
+ * @param[in] keyNum   按键编号
+ * @param[in] noiseBuf 噪音数据缓冲区指针
+ *
+ * @note 噪音原始值 +32768 转为无符号存储。
+ *       通过 SiNoiseIsDetect3 判断是否检测到噪音。
+ */
 static void NoiseDetectVarianceHook(T_SiNoiseObject *obj, uint8_t keyNum, const T_SiNoiseData *noiseBuf)
 {
 #if LOW_POWER_EN
@@ -1423,7 +1710,16 @@ static void NoiseDetectVarianceHook(T_SiNoiseObject *obj, uint8_t keyNum, const 
 }
 #endif
 
-void TouchKeyForceSyncBaseline(void)        //强制拉升baseline为raw值
+/**
+ * @brief 强制同步基线值为当前滤波值
+ *
+ * 遍历所有按键组（KEY1/KEY2），将每个通道的基线值
+ * 强制设置为当前滤波值（raw值），用于基线校准场景。
+ *
+ * @note 通过 SiBaselineSet 接口设置基线值。
+ *       仅在对应按键组使能时执行。
+ */
+void TouchKeyForceSyncBaseline(void)
 {
 #if IOTOUCH_KEY1NUM
     for (int i = 0; i < IOTOUCH_KEY1NUM; ++i)

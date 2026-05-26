@@ -1,8 +1,8 @@
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $B4 数据转储控制（DataDump）处理源文件
  *
- * @file    diagnosticiii.c
+ * @file    sid_0xb4.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************

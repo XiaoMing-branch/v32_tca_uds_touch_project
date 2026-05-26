@@ -24,6 +24,7 @@
 
 /**
  * @brief  日志模块初始化
+ * @param[in]  无
  * @note   初始化底层串口日志（波特率115200），注册日志输出回调函数
  * @retval 无
  */
@@ -38,6 +39,7 @@ void logging_init(void)
 
 /**
  * @brief  日志模块去初始化
+ * @param[in]  无
  * @note   反初始化底层串口日志，清除日志输出回调函数
  * @retval 无
  */

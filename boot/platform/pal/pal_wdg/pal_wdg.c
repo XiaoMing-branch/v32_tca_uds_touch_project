@@ -23,9 +23,10 @@
 
 /**
  * @brief  看门狗初始化
- * @param  cnt_ms - 看门狗超时时间(毫秒)
- * @note   TCPL01X和TCPL03X的分频计算方式不同
+ *
+ * @param[in] cnt_ms 看门狗超时时间(毫秒)，TCPL01X和TCPL03X的分频计算方式不同
  * @retval 无
+ * @note   根据芯片型号自动选择分频系数：TCPL01X使用 (cnt_ms / 5)，TCPL03X使用 (cnt_ms << 5)
  */
 void wdg_init(uint16_t cnt_ms)
 {
@@ -56,8 +57,10 @@ void wdg_init(uint16_t cnt_ms)
 
 /**
  * @brief  看门狗喂狗(重载计数器)
- * @param  无
+ *
+ * @param[in] 无
  * @retval 无
+ * @note   调用底层 ll_wdg_reload() 刷新看门狗定时器，防止系统复位
  */
 void wdg_reload(void)
 {
@@ -66,8 +69,10 @@ void wdg_reload(void)
 
 /**
  * @brief  看门狗使能/禁能
- * @param  enable - true:使能, false:禁能
+ *
+ * @param[in] enable true: 使能看门狗, false: 禁能看门狗
  * @retval 无
+ * @note   通过调用 ll_wdg_enable() 控制看门狗外设的启停
  */
 void wdg_enable(bool enable)
 {

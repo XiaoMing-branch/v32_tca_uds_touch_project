@@ -24,14 +24,14 @@
 
 static ISR_FUNC_CALLBACK wdg_callback = NULL;
 
-/********************************************************
-** \brief   ll_wdg_init
-**
-** \param   wdg_config_t*       config
-** \param   ISR_FUNC_CALLBACK   callback
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   初始化看门狗
+ *
+ * @param   config      看门狗配置结构体指针，包含时钟、中断和溢出行为等配置参数
+ * @param   callback    看门狗中断回调函数指针（仅在使能中断时有效）
+ *
+ * @retval  None
+ */
 void ll_wdg_init(wdg_config_t *config, ISR_FUNC_CALLBACK callback)
 {
     ll_wdg_deinit();
@@ -57,13 +57,11 @@ void ll_wdg_init(wdg_config_t *config, ISR_FUNC_CALLBACK callback)
     }
 }
 
-/********************************************************
-** \brief   ll_wdg_deinit
-**
-** \param   None
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   反初始化看门狗
+ *
+ * @retval  None
+ */
 void ll_wdg_deinit(void)
 {
     NVIC_DisableIRQ(IWDG_IRQn);
@@ -79,13 +77,14 @@ void ll_wdg_deinit(void)
     CRG_CONFIG_LOCK();
 }
 
-/********************************************************
-** \brief   ll_wdg_isr_enable
-**
-** \param   bool            enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   使能或禁止看门狗中断
+ *
+ * @param   enable  true  - 使能看门狗中断（使能 NVIC）
+ *                  false - 禁止看门狗中断（禁止 NVIC）
+ *
+ * @retval  None
+ */
 void ll_wdg_isr_enable(bool enable)
 {
     NVIC_ClearPendingIRQ(IWDG_IRQn);
@@ -100,13 +99,14 @@ void ll_wdg_isr_enable(bool enable)
     }
 }
 
-/********************************************************
-** \brief   ll_wdg_enable
-**
-** \param   bool            enable
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   使能或禁止看门狗计数器
+ *
+ * @param   enable  true  - 启动看门狗计数
+ *                  false - 停止看门狗计数
+ *
+ * @retval  None
+ */
 void ll_wdg_enable(bool enable)
 {
     WDG_UNLCOK();
@@ -114,11 +114,13 @@ void ll_wdg_enable(bool enable)
     WDG_LCOK();
 }
 
-/********************************************************
-** \brief   ll_wdg_reload
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   刷新看门狗计数器（喂狗）
+ *
+ * @note    向 CCR 寄存器写入 1 以重载计数器，防止看门狗溢出复位/中断
+ *
+ * @retval  None
+ */
 void ll_wdg_reload(void)
 {
     WDG_UNLCOK();
@@ -126,11 +128,13 @@ void ll_wdg_reload(void)
     WDG_LCOK();
 }
 
-/********************************************************
-** \brief   ll_wdg_interrupt_clear
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   清除看门狗中断标志
+ *
+ * @note    向 ICR 寄存器写入 1 以清除挂起的中断标志位
+ *
+ * @retval  None
+ */
 void ll_wdg_interrupt_clear(void)
 {
     WDG_UNLCOK();
@@ -138,11 +142,16 @@ void ll_wdg_interrupt_clear(void)
     WDG_LCOK();
 }
 
-/********************************************************
-** \brief   IWDG_IRQHandler
-**
-** \retval  None
-*********************************************************/
+/**
+ * @brief   看门狗中断服务函数
+ *
+ * @note    该函数由硬件中断向量自动调用，执行以下操作：
+ *          - 清除看门狗中断标志
+ *          - 刷新看门狗计数器
+ *          - 调用用户注册的回调函数（若已注册）
+ *
+ * @retval  None
+ */
 void IWDG_IRQHandler(void)
 {
     ll_wdg_interrupt_clear();

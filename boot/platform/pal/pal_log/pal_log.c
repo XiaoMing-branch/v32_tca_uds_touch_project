@@ -22,9 +22,9 @@
 #include "pal_log.h"
 
 /**
- * @brief  日志打印一个字符(串口发送)
- * @param  ch - 待打印字符
- * @retval 无
+ * @brief  日志打印一个字符(通过串口发送)
+ * @param  ch - 待打印的 ASCII 字符
+ * @retval 无返回值
  */
 void pal_log_print(uint8_t ch)
 {
@@ -32,9 +32,9 @@ void pal_log_print(uint8_t ch)
 }
 
 /**
- * @brief  日志模块初始化(串口配置)
- * @param  baudrate - 串口波特率
- * @retval 无
+ * @brief  日志模块初始化(配置并初始化串口)
+ * @param  baudrate - 串口通信波特率，如 115200
+ * @retval 无返回值
  */
 void pal_log_init(uint32_t baudrate)
 {
@@ -48,9 +48,9 @@ void pal_log_init(uint32_t baudrate)
 }
 
 /**
- * @brief  日志模块去初始化
+ * @brief  日志模块去初始化(释放串口资源)
  * @param  无
- * @retval 无
+ * @retval 无返回值
  */
 void pal_log_deinit(void)
 {

@@ -1,9 +1,9 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   SID $32 获取可追溯性消息处理模块（DataDownload）
  *
- * @file    diagnosticiii.c
+ * @file    sid_0x32.c
  * @author  AE/FAE team
  * @date    2024.01.01
  *****************************************************************************
