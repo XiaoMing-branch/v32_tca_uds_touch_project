@@ -101,11 +101,13 @@ uint8_t diagnostic_session_overtime_flag = AS_FALSE;
 extern void lin_lld_isr_callback(uint32_t isr);
 
 /********************************************************
-** \brief   JumpToApp
+** @brief   跳转到用户应用程序
 **
-** \param   None
+** @note    跳转前禁用 TIMER、LINSCI 和 SysTick 中断，
+**          并取消 LIN 总线初始化。从 FLASH_APP_ADDR + 0x100
+**          处读取应用程序入口地址并跳转。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 STATIC void JumpToApp(void)
 {
@@ -129,11 +131,9 @@ STATIC void JumpToApp(void)
 }
 
 /********************************************************
-** \brief   queue_lin_empty
+** @brief   检查 LIN 队列是否为空
 **
-** \param   None
-**
-** \retval  uint8_t
+** @retval  uint8_t  队列为空返回 1，否则返回 0
 *********************************************************/
 /* PRQA S 3219 1 #3254 - Unused static function, reserved for future extension */
 STATIC uint8_t queue_lin_empty(void)
@@ -142,11 +142,12 @@ STATIC uint8_t queue_lin_empty(void)
 }
 
 /********************************************************
-** \brief   dfu_image_erase
+** @brief   擦除 DFU 固件存储区域
 **
-** \param   None
+** @note    擦除范围包括 DFU 信息区域和应用程序镜像区域，
+**          总大小为 FLASH_DFU_INFO_SIZE + FLASH_APP_IMAGE_SIZE。
 **
-** \retval  uint8_t
+** @retval  uint8_t  擦除成功返回 DFU_MSG_SUCCESS，失败返回 DFU_MSG_ERASE_ERROR
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC uint8_t dfu_image_erase(void)
@@ -160,13 +161,13 @@ STATIC uint8_t dfu_image_erase(void)
 }
 
 /********************************************************
-** \brief   dfu_image_program
+** @brief   编程固件数据到应用程序存储区
 **
-** \param   uint32_t            addr
-** \param   packet_unit_t*      buffer
-** \param   uint32_t            length
+** @param   addr    目标写入地址
+** @param   data    待写入数据缓冲区指针
+** @param   length  待写入数据长度
 **
-** \retval  uint8_t
+** @retval  uint8_t  编程成功返回 DFU_MSG_SUCCESS，地址超出范围返回 DFU_MSG_PROGRA_ERROR
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
@@ -183,14 +184,14 @@ STATIC uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
     return (res);
 }
 /********************************************************
-** \brief   dfu_do_notify_cp
+** @brief   发送 UDS 正响应到 LIN 总线（带子功能参数）
 **
-** \param   uint8_t     sid
-** \param   uint8_t     sub_func
-** \param   uint8_t*    data
-** \param   uint16_t    length
+** @param   sid       服务标识符
+** @param   sub_func  子功能参数
+** @param   data      附加响应数据缓冲区指针
+** @param   length    附加响应数据长度
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
@@ -210,6 +211,15 @@ STATIC void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint1
     lin_uds_send(lin_configured_NAD, response, len);
 }
 
+/********************************************************
+** @brief   发送 UDS 正响应到 LIN 总线（不含子功能参数）
+**
+** @param   sid     服务标识符
+** @param   data    附加响应数据缓冲区指针
+** @param   length  附加响应数据长度
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
 {
@@ -228,13 +238,13 @@ STATIC void dfu_do_notify_cp_ex(uint8_t sid, uint8_t *data, uint16_t length)
 }
 
 /********************************************************
-** \brief   dfu_do_notify_response
+** @brief   发送 UDS 响应（正响应或负响应）
 **
-** \param   uint8_t     resp_type
-** \param   uint8_t     sid
-** \param   uint8_t     resp_value
+** @param   resp_type   响应类型（POSITIVE / NEGATIVE）
+** @param   sid         服务标识符
+** @param   resp_value  响应值（正响应时为子功能，负响应时为 NRC 码）
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 STATIC void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_value)
 {
@@ -250,12 +260,13 @@ STATIC void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_
 }
 
 /********************************************************
-** \brief   session control response (SID=0x10)
+** @brief   发送会话控制响应（SID = 0x10）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   sessiontype  会话类型
 **
-** \retval  None
+** @note    响应中包含 P2 和 P2E 超时参数。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -270,11 +281,13 @@ void dfu_session_parameter_resp(uint8_t sessiontype)
 }
 
 /********************************************************
-** \brief   last_dfu_info_get
+** @brief   获取上次 DFU 升级信息
 **
-** \param   last_dfu_info_t*        info
+** @note    从 Flash 中读取 DFU 信息并检查魔数有效性。
+**          如果 APP 请求扩展编程标志有效，则切换到编程会话。
+**          如果魔数无效，返回错误。
 **
-** \retval  uint8_t
+** @retval  uint8_t  成功返回 DFU_MSG_SUCCESS，失败返回 DFU_MSG_ERROR
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC uint8_t last_dfu_info_get(void)
@@ -303,6 +316,17 @@ STATIC uint8_t last_dfu_info_get(void)
     return (uint8_t)DFU_MSG_SUCCESS;
 }
 
+/********************************************************
+** @brief   检查 UDS 数据标识符（DID）是否有效
+**
+** @param   ucSess  DID 值
+**
+** @note    0xF189（序列号）和 0x0216（软件版本）需要 APP
+**          标志有效才能访问。
+**
+** @retval  1   DID 有效
+** @retval  0   DID 无效
+*********************************************************/
 STATIC uint8_t uds_diag_DID_chk(uint16_t ucSess)
 {
     uint8_t ucRet;
@@ -341,6 +365,14 @@ STATIC uint8_t uds_diag_DID_chk(uint16_t ucSess)
     return ucRet;
 }
 
+/********************************************************
+** @brief   根据配置字重新映射 LIN NAD 地址
+**
+** @note    从用户配置信息中读取 NAD 值，验证其合法性后更新
+**          LIN 通信使用的 NAD 地址。同时校验锁定失败计数器的合理性。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void uds_diagnostic_configword_remap_nad(void)
@@ -365,11 +397,11 @@ void uds_diagnostic_configword_remap_nad(void)
 }
 
 /********************************************************
-** \brief   last_dfu_info_update
+** @brief   更新上次 DFU 升级信息到 Flash
 **
-** \param   last_dfu_info_t*        info
+** @param   info  指向 DFU 信息结构体的指针
 **
-** \retval  uint8_t
+** @retval  uint8_t  始终返回 DFU_MSG_SUCCESS
 *********************************************************/
 STATIC uint8_t last_dfu_info_update(last_dfu_info_t *info)
 {
@@ -379,11 +411,14 @@ STATIC uint8_t last_dfu_info_update(last_dfu_info_t *info)
 }
 
 /********************************************************
-** \brief   dfu_process_exit
+** @brief   DFU 处理流程退出
 **
-** \param   uint8_t     reason
+** @param   reason  退出原因（成功时更新 DFU 信息标志）
 **
-** \retval  None
+** @note    如果退出原因为成功，则在 Flash 中更新 DFU 信息
+**          并写入魔数以标记 APP 有效。
+**
+** @retval  无
 *********************************************************/
 STATIC void dfu_process_exit(uint8_t reason)
 {
@@ -395,12 +430,16 @@ STATIC void dfu_process_exit(uint8_t reason)
     }
 }
 /********************************************************
-** \brief   session_control_handle
+** @brief   处理 UDS 会话控制服务（SID = 0x10）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    支持默认会话、扩展会话和编程会话的切换。
+**          编程会话需要先通过例程预编程检查。
+**          根据不同的 NAD 地址和子功能决定是否发送响应。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void session_control_handle(uint8_t *param, uint16_t length)
@@ -555,12 +594,14 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   cpmpare_key
+** @brief   比较两个密钥/种子值是否相等
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   _seed   种子值缓冲区指针
+** @param   _key    密钥值缓冲区指针
+** @param   length  比较长度（字节数）
 **
-** \retval  None
+** @retval  1   比较相等
+** @retval  0   比较不相等
 *********************************************************/
 /* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
@@ -578,6 +619,17 @@ STATIC uint8_t cpmpare_key(uint8_t *_seed, uint8_t *_key, uint8_t length)
     return 1u;
 }
 
+/********************************************************
+** @brief   根据配置的 NAD 地址重新设置密钥
+**
+** @note    根据 g_user_info.nad_info 的值选择对应的密钥：
+**          - 0x68：左前（key_lf）
+**          - 0x69：右前（key_rf）
+**          - 0x6A：左后（key_lr）
+**          - 0x6B：右后（key_rr）
+**
+** @retval  无
+*********************************************************/
 STATIC void key_reset_by_nad(void)
 {
     const uint8_t key_lf[16] = {
@@ -638,12 +690,16 @@ STATIC void key_reset_by_nad(void)
 }
 
 /********************************************************
-** \brief   security_access_handle
+** @brief   处理 UDS 安全访问服务（SID = 0x27）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    支持种子请求（子功能 0x01/0x09/0x89）和
+**          密钥验证（子功能 0x0A）。使用 AES-CMAC 算法进行
+**          密钥验证。连续 3 次解锁失败后将锁定 10 秒。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void security_access_handle(uint8_t *param, uint16_t length)
@@ -813,12 +869,15 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   firmware_info_sync_handle
+** @brief   处理固件信息同步服务（SID = 0x2E）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    用于写入指纹信息（DID 0xF184），需要在安全访问
+**          通过后才能操作。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void firmware_info_sync_handle(uint8_t *param, uint16_t length)
@@ -877,12 +936,16 @@ STATIC void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   request_download_handle
+** @brief   处理请求下载服务（SID = 0x34）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    处理 Flash 驱动下载和应用程序下载的请求。
+**          根据当前操作码（op_code）判断是下载 Flash 驱动
+**          还是应用程序镜像，并初始化相应传输上下文。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
@@ -1000,12 +1063,16 @@ STATIC void request_download_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   transfer_data_handle
+** @brief   处理数据传输服务（SID = 0x36）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    支持 Flash 驱动数据和应用程序数据的传输。
+**          使用队列机制管理接收数据块索引，当接收长度达到
+**          DFU_PROGRAM_LENGTH 或镜像大小时进行流控。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
@@ -1109,12 +1176,15 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   pal_lin_init
+** @brief   处理请求传输退出服务（SID = 0x37）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    根据当前操作码确认退出 Flash 驱动传输或
+**          应用程序传输阶段。
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
@@ -1163,12 +1233,18 @@ STATIC void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 }
 
 /********************************************************
-** \brief   routine_control_handle
+** @brief   处理例程控制服务（SID = 0x31）
 **
-** \param   uint8_t*        param
-** \param   uint16_t        length
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
 **
-** \retval  None
+** @note    支持以下例程：
+**          - 0x0203：预编程检查（扩展会话）
+**          - 0xDD02：签名验证（Flash 驱动/应用程序 CMAC 校验）
+**          - 0xFF00：擦除 Flash
+**          - 0xFF01：应用程序兼容性检查
+**
+** @retval  无
 *********************************************************/
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void routine_control_handle(uint8_t *param, uint16_t length)
@@ -1368,6 +1444,17 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理 ECU 复位服务（SID = 0x11）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    支持硬件复位和软件复位，根据子功能决定
+**          是否发送正响应。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void reset_handle(uint8_t *param, uint16_t length)
 {
@@ -1429,6 +1516,16 @@ STATIC void reset_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理清除 DTC 信息服务（SID = 0x14）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度（本函数未使用）
+**
+** @note    当前实现中仅返回服务不支持响应（NRC 0x7F）。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void clear_dtc_info_handle(uint8_t *param, uint16_t length)
 {
@@ -1446,12 +1543,34 @@ STATIC void clear_dtc_info_handle(uint8_t *param, uint16_t length)
 }
 #ifdef ENABLE_TEST_MODE
 #else
+/********************************************************
+** @brief   启用 SWD 调试接口
+**
+** @note    配置 GPIO_PIN_0 和 GPIO_PIN_1 为 SWCLK 和 SWDIO
+**          复用功能，供调试使用。
+**
+** @retval  无
+*********************************************************/
     STATIC void enable_swd(void) // Enable SWD interface
     {
         ll_gpio_afio_config(GPIO_PIN_0, AFIO_MUX_0); // SWCLK
         ll_gpio_afio_config(GPIO_PIN_1, AFIO_MUX_0); // SWDIO
     }
 #endif
+/********************************************************
+** @brief   处理配置字分配服务（SID = 0xB5）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    支持配置字的状态机管理：
+**          - 开始（0x01）
+**          - 分配（0x02）：设置车门位置
+**          - 保存（0x03）：写入 Flash 并根据 NAD 使能 SWD
+**          - 结束（0x04）
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void assign_config_word_handle(uint8_t *param, uint16_t length)
@@ -1562,6 +1681,17 @@ STATIC void assign_config_word_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理通过标识符读取服务（SID = 0xB2）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    用于读取指定车门位置的配置字信息，验证
+**          当前配置是否与请求一致。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 2 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void read_by_identify_handle(uint8_t *param, uint16_t length)
@@ -1618,6 +1748,26 @@ STATIC void read_by_identify_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   用户自定义读取数据标识符（DID）处理函数
+**
+** @param   mul_flag  多 DID 读取标志（0：单 DID，非 0：多 DID）
+** @param   mul_len   多 DID 模式下数据偏移长度
+** @param   did       DID 标识符
+** @param   len       输出参数，返回数据长度
+**
+** @note    支持以下 DID：
+**          - 0xF187：Seres 零件号
+**          - 0xF18A：Seres 供应商代码
+**          - 0xF197：ECU 名称
+**          - 0xF189：序列号
+**          - 0x0216：软件版本
+**          - 0xF184：指纹信息
+**          - 0xF089：硬件版本
+**          - 0xF180：Bootloader 版本
+**
+** @retval  无
+*********************************************************/
 STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did, uint16_t *len)
 {
     uint8_t loc;
@@ -1814,6 +1964,18 @@ STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
     }
 }
 
+/********************************************************
+** @brief   处理读取数据标识符服务（SID = 0x22）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    支持单 DID 和多 DID（最多 5 个）读取模式。
+**          通过 uds_diag_DID_chk 验证 DID 有效性后，
+**          调用 user_read_data_by_id 获取数据。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 4 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 2889 3 #3257 - Multiple return statements for logical clarity and efficiency */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
@@ -1905,6 +2067,17 @@ void read_data_by_identify_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理通信控制服务（SID = 0x28）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    在扩展会话模式下处理通信类型和使能/禁用控制。
+**          支持子功能 0x00-0x03（物理寻址）和 0x80-0x83（功能寻址）。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -1998,6 +2171,17 @@ void communcation_control_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理 DTC 控制服务（SID = 0x85）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    在扩展会话模式下处理 DTC 控制。
+**          子功能 0x01：清除 DTC，0x02：设置 DTC。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -2070,6 +2254,16 @@ void dtc_control_handle(uint8_t *param, uint16_t length)
     }
 }
 
+/********************************************************
+** @brief   处理诊断会话保持服务（SID = 0x3E，Tester Present）
+**
+** @param   param   UDS 请求报文指针
+** @param   length  UDS 请求报文长度
+**
+** @note    子功能 0x00 发送正响应，0x80 抑制正响应。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 3673 3 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -2138,6 +2332,14 @@ const dfu_process_context_t dfu_process_ctx[] = {
 
 #define DFU_PROCESS_STEP_MAX (sizeof(dfu_process_ctx) / sizeof(dfu_process_context_t))
 
+/********************************************************
+** @brief   更新 LIN 随机种子值
+**
+** @note    循环更新 seed 数组的每个字节，使用当前会话超时
+**          计数器和自增计数器增加随机性。用于安全访问的种子生成。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_update_random_value(void)
@@ -2156,6 +2358,15 @@ void lin_update_random_value(void)
     auto_add_cnt++;
 }
 
+/********************************************************
+** @brief   LIN 异常处理函数
+**
+** @note    在主循环中调用，处理以下异常：
+**          - 保存解锁失败计数到 Flash
+**          - 诊断会话超时时重置系统（如果 APP 标志有效）
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_exception_handle(void)
@@ -2180,11 +2391,12 @@ void lin_exception_handle(void)
 }
 
 /********************************************************
-** \brief   lin_diag_service_handle
+** @brief   LIN 诊断服务分发处理
 **
-** \param   None
+** @note    接收 LIN 报文并根据 SID 查找对应的服务处理函数
+**          进行分发。未识别的 SID 返回服务不支持响应（NRC 0x11）。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -2229,11 +2441,12 @@ void lin_diag_service_handle(void)
 }
 
 /********************************************************
-** \brief   dfu_timeout_handle
+** @brief   DFU 超时处理
 **
-** \param   None
+** @note    递增超时计数器，当连续未收到诊断报文时间超过
+**          LIN_UDS_TIMEOUT 时，设置诊断会话超时标志。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 void dfu_timeout_handle(void)
@@ -2247,6 +2460,14 @@ void dfu_timeout_handle(void)
     }
 }
 
+/********************************************************
+** @brief   DFU 系统数据初始化
+**
+** @note    从 Flash 中读取配置字信息和 OTA 系统参数，
+**          并根据 NAD 值重新映射 LIN 通信地址。
+**
+** @retval  无
+*********************************************************/
 /* PRQA S 1505 2 #3219 - Function used only in the defining translation unit, intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void dfu_store_system_data_init(void)
@@ -2258,11 +2479,12 @@ void dfu_store_system_data_init(void)
 }
 
 /********************************************************
-** \brief   dfu_manager_init
+** @brief   DFU 管理器初始化
 **
-** \param   None
+** @note    初始化看门狗、生成 CMAC 密钥、初始化日志、
+**          加载系统配置数据、清空 DFU 上下文并初始化 LIN 总线。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void dfu_manager_init(void)
@@ -2281,11 +2503,13 @@ void dfu_manager_init(void)
 }
 
 /********************************************************
-** \brief   main_loops
+** @brief   主循环处理
 **
-** \param   None
+** @note    喂狗、处理 LIN 诊断服务、异常处理、更新随机种子。
+**          在空闲状态下周期性检查 DFU 信息以决定跳转到 APP
+**          或进入升级模式。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
@@ -2330,11 +2554,13 @@ void main_loops(void)
 }
 
 /********************************************************
-** \brief   os_task_update
+** @brief   操作系统任务更新
 **
-** \param   None
+** @note    处理 DFU 超时检测。当计算 APP CMAC 时，每 1.8 秒
+**          发送 NRC 0x78 响应。解锁失败 3 次后，每 10 秒
+**          释放一次锁定计数。
 **
-** \retval  None
+** @retval  无
 *********************************************************/
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */

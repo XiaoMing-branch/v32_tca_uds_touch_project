@@ -981,8 +981,8 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>1</RunUserProg1>
-            <RunUserProg2>1</RunUserProg2>
+            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg2>0</RunUserProg2>
             <UserProg1Name>fromelf -c ./Objects/@H.axf -o ./Objects/@H.txt</UserProg1Name>
             <UserProg2Name>"C:\Program Files\srecord\bin\srec_cat.exe" Objects\doorctrl_lin.hex -intel -fill 0xFF 0x4000 0xE400 -o Objects\output_full.hex -intel</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>

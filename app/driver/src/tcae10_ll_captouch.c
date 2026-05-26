@@ -95,8 +95,6 @@ void CapTouch_Hopping(uint8_t period)
     }
     CAPTOUCH->CTRL4_F.HOP_PERIOD = period;                  /* 设置跳变周期 */
 }
-    CAPTOUCH->CTRL4_F.HOP_PERIOD = period;
-}
 
 /**
  * @brief   获取电容触摸中断状态
