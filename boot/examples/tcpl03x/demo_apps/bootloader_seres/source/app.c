@@ -36,14 +36,14 @@
  */
 static void DoorGpioInit(void)
 {
-    ll_gpio_output(GPIO_PIN_1, false);
+    ll_gpio_output(GPIO_PIN_1, false);          /* 初始输出低电平 */
 
-    gpio_config_t cfg;
-    cfg.gpio_pin = GPIO_PIN_1;
-    cfg.mode = GPIO_MODE_OUT_PP;
-    cfg.afio = AFIO_MUX_1;
-    ll_gpio_init(&cfg, NULL);
-    ll_gpio_output(GPIO_PIN_1, false);
+    gpio_config_t cfg;                          /* 声明 GPIO 配置结构体 */
+    cfg.gpio_pin = GPIO_PIN_1;                  /* 配置引脚号为 GPIO_PIN_1 */
+    cfg.mode = GPIO_MODE_OUT_PP;                /* 配置为推挽输出模式 */
+    cfg.afio = AFIO_MUX_1;                      /* 配置复用功能选择 */
+    ll_gpio_init(&cfg, NULL);                   /* 执行 GPIO 初始化 */
+    ll_gpio_output(GPIO_PIN_1, false);          /* 再次确保输出为低电平 */
 }
 
 /* PRQA S 3469 8 #3258 - Function-like macro used for performance and compiler optimization requirements */
@@ -57,13 +57,15 @@ static void DoorGpioInit(void)
  */
 int32_t TcMain(void)
 {
-    interrupt_disable();
-    // DoorGpioInit()_;
-    dfu_manager_init();
-    interrupt_enable();
+    interrupt_disable();                        /* 关闭全局中断，防止初始化过程被中断打扰 */
 
-    while (1)
+    // DoorGpioInit()_;                         /* 门 GPIO 初始化（预留功能，当前未启用） */
+    dfu_manager_init();                         /* 初始化 DFU 管理器：看门狗启动、密钥生成、系统配置加载、LIN 总线初始化 */
+    interrupt_enable();                         /* 重新使能全局中断，进入正常运行模式 */
+
+    while (1)                                   /* 超级循环：bootloader 主状态机持续运行，永不退出 */
     {
-        main_loops();
+        main_loops();                           /* 执行主循环处理：喂狗 → LIN 诊断服务分发 → 异常处理 → 随机种子更新 */
+                                                /* 状态机：IDLE 状态下定期检测 DFU 信息 → 决策跳转 USER_APP 或进入 UPGRADE 模式 */
     }
 }

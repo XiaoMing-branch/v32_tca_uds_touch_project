@@ -30,11 +30,11 @@
  */
 void logging_init(void)
 {
-#if 1 == CFG_SUPPORT_LOG
-    pal_log_init(115200);
+#if 1 == CFG_SUPPORT_LOG                                            /* 日志功能全局使能开关，由CFG_SUPPORT_LOG控制 */
+    pal_log_init(115200);                                           /**< 初始化底层UART日志模块，波特率设为115200bps */
 
-    log_out_func(pal_log_print);
-#endif
+    log_out_func(pal_log_print);                                    /**< 注册日志输出回调函数，将日志定向到UART输出 */
+#endif                                                              /* CFG_SUPPORT_LOG条件编译结束 */
 }
 
 /**
@@ -45,10 +45,10 @@ void logging_init(void)
  */
 void logging_deinit(void)
 {
-#if 1 == CFG_SUPPORT_LOG
-    pal_log_deinit();
+#if 1 == CFG_SUPPORT_LOG                                            /* 日志功能全局使能开关，与logging_init保持一致 */
+    pal_log_deinit();                                               /**< 反初始化底层UART日志模块，释放占用的硬件资源 */
 
-    log_out_func(NULL);
-#endif
+    log_out_func(NULL);                                             /**< 清除日志输出回调函数，防止悬空指针调用 */
+#endif                                                              /* CFG_SUPPORT_LOG条件编译结束 */
 }
 

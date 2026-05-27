@@ -178,34 +178,34 @@ void SetHwSwVersion(void)
 void TcMain(void)
 {
 #if defined APP_MATCH_BOOT
-    ll_syscfg_remap_config(FLASH_APP_ADDR, true);
+    ll_syscfg_remap_config(FLASH_APP_ADDR, true);    /* 配置Flash地址重映射到APP区域 */
 #else
-    delay1ms(5000);
+    delay1ms(5000);                                   /* 未匹配BOOT时等待5s确保系统稳定 */
 #endif
 
-    DoorGpioInit();
+    DoorGpioInit();                                   /* 初始化门控GPIO引脚 */
 
 #if WATCH_DOG_EN
-    WdgInit();
+    WdgInit();                    /* 初始化看门狗定时器，防止系统复位 */
 #endif
 
 #if ((DEBUG_PRINT_EN == 1) && (LOG_INTERFACE_TYPE == LOG_INTERFACE_UART))
-    TC_LOG_Init(1000000);
-    TC_LOG_SetPin(PRINT_GPIO6);
+    TC_LOG_Init(1000000);         /* 初始化UART日志接口，波特率1Mbps */
+    TC_LOG_SetPin(PRINT_GPIO6);   /* 设置日志输出的UART引脚 */
 #endif
 
-    TcPortInit();      //little os port initialization
+    TcPortInit();                 //little os port initialization
 
-    __enable_irq();
+    __enable_irq();                /* 使能全局中断，允许RTOS调度和硬件中断响应 */
 
 #if LOW_POWER_EN
     HaltInit();                             //Low-power task initialization
 #endif
 
 #if TOUCH_FUNC_EN
-    TouchInit();
+    TouchInit();                  /* 初始化触摸传感功能 */
 #endif
-    store_manager_init();
+    store_manager_init();         /* 初始化存储管理器，加载配置参数 */
 #if LIN_FUNC_EN
     LinInit();          //Lin Initialization
 #endif
@@ -215,7 +215,7 @@ void TcMain(void)
 /* PRQA S 1036 3 #1036 - Comma before ## in variadic macro (GNU extension) is used to swallow comma when no variable args, supported by compiler. */
 /* PRQA S 1035 2 #1035 - Macro with variable arguments called without variable arguments (GNU extension), accepted by toolchain. */
 /* PRQA S 3432 1 #3267 - Macro arguments are safely used without unintended operator precedence issues */
-    TC_LOGI(TAG, "duotaiji m9 door ctrl project");
+    TC_LOGI(TAG, "duotaiji m9 door ctrl project");    /* 打印项目标识日志：多态M9门控 */
 
     if (TcTaskCreate("app", &AppTask, NULL, TC_TASK_PRIO_MID)==NULL)   //Create APP Task
     {
@@ -237,9 +237,9 @@ void TcMain(void)
         TC_LOGI(TAG, "AppTask create ok");
     }
 
-    while (1)
+    while (1)                     /* 主循环：持续调用任务调度器处理就绪任务 */
     {
-        TcTaskExec();
+        TcTaskExec();             /* 执行LiteTask任务调度，分发消息到各任务 */
     }
 }
 
@@ -260,8 +260,8 @@ static void AppTask(uint32_t msg, void *param)    //App Task
     (void)param;
     static T_TcTimer *appTimer = NULL;            //Timer
 
-    if (msg == (uint32_t)MSG_TASK_INIT)
-    {appTimer = TcTimerCreate(TC_TIMER_TYPE_CIRCLE, 2, NULL, currentTask, NULL);
+    if (msg == (uint32_t)MSG_TASK_INIT)           /* MSG_TASK_INIT：任务初始化分支 */
+    {appTimer = TcTimerCreate(TC_TIMER_TYPE_CIRCLE, 2, NULL, currentTask, NULL);  /* 创建2ms周期循环定时器 */
         if (appTimer == NULL)
         {
 /* PRQA S 2880 6 #2880 - Code is unreachable due to constant false condition, which is intentional for log level control. */
@@ -277,44 +277,44 @@ static void AppTask(uint32_t msg, void *param)    //App Task
             TcTimerStart(appTimer);
         }
 
-        SetHwSwVersion();
-        DoorGpioInit();
+        SetHwSwVersion();       /* 从Flash和版本字符串中解析软硬件版本信息 */
+        DoorGpioInit();         /* 重新初始化门控GPIO，配置PWM时钟和LDO5V使能 */
 
 #if DEBUG_PRINT_EN && LOG_INTERFACE_TYPE==LOG_INTERFACE_UART
-        PWM->LED_CTRL_F.LED_LDO5V_EN = 1;
+        PWM->LED_CTRL_F.LED_LDO5V_EN = 1;    /* 调试模式下使能LDO5V输出 */
 #endif
     }
 
-    if (msg == (uint32_t)MSG_TASK_TIMER)
+    if (msg == (uint32_t)MSG_TASK_TIMER)           /* MSG_TASK_TIMER：定时触发分支（2ms周期） */
     {
 #if WATCH_DOG_EN
-        ll_wdg_reload();
+        ll_wdg_reload();          /* 喂狗，防止看门狗超时复位 */
 #endif
 
 #if LIN_FUNC_EN
-        App_LinControlMsg();
+        App_LinControlMsg();      /* LIN通信控制消息处理 */
 #endif
-        LinDiagnosticSessionCheck();
-        SysDoFlashRoutine27Service();
-        HandleDoorPwm();
+        LinDiagnosticSessionCheck();   /* 检查诊断会话状态 */
+        SysDoFlashRoutine27Service();  /* 处理Flash例程27安全访问服务 */
+        HandleDoorPwm();          /* 处理门控PWM输出状态机 */
     }
 
-    if (msg == (uint32_t)MSG_TASK_ENTER_HALT)
+    if (msg == (uint32_t)MSG_TASK_ENTER_HALT)      /* MSG_TASK_ENTER_HALT：系统进入低功耗分支 */
     {
-        session_mode = SESSION_MODE_DEFAULT;
+        session_mode = SESSION_MODE_DEFAULT;   /* 恢复默认诊断会话模式 */
 /* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
 /* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
         PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)DISABLE;     //Ensure LDO5 is turned off
     }
 
-    if (msg == (uint32_t)MSG_TASK_WAKE_UP)
+    if (msg == (uint32_t)MSG_TASK_WAKE_UP)         /* MSG_TASK_WAKE_UP：系统唤醒分支 */
     {
 /* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
 /* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
-        PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;     //Ensure LDO5 is turned off
+        PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;      /* 唤醒后重新使能LDO5V电源 */
 
 #if LOW_POWER_EN
-        HaltTimeoutChgPeriod(5000);
+        HaltTimeoutChgPeriod(5000);   /* 将低功耗超时调整为5s，防止唤醒后立即再次休眠 */
 #endif
     }
 }
@@ -331,20 +331,20 @@ static void AppTask(uint32_t msg, void *param)    //App Task
 void TouchKeyCallback(uint8_t keyNo, T_SiKeyStatus status)
 {
     (void)keyNo;
-    if (status == SI_KEY_PRESS)
+    if (status == SI_KEY_PRESS)           /* 按键按下：设置按键掩码标志，触发PWM输出 */
     {
         pwmCtrl.keymask = 1;
     }
-    else if (status == SI_KEY_RELEASE)
+    else if (status == SI_KEY_RELEASE)    /* 按键释放：清除按键掩码标志 */
     {
         pwmCtrl.keymask = 0;
     }
     else
     {
-        return;
+        return;                           /* 非预期的按键状态，直接返回 */
     }
 
-    pwmCtrl.changed = 1;
+    pwmCtrl.changed = 1;                  /* 标记PWM状态变化，触发状态机处理 */
 }
 
 /**
@@ -378,25 +378,25 @@ STATIC void DoorGpioInit(void)
 /* PRQA S 0662 5 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
 /* PRQA S 0306 4 #3271 - Cast between object pointer and integer for hardware address access */
 /* PRQA S 3469 3 #3258 - Function-like macro used for performance and compiler optimization requirements */
-    CRG_CONFIG_UNLOCK();
-    CRG->PWM_CLKRST_CTRL_F.PCLK_EN_PWM = (uint32_t)ENABLE;
-    CRG_CONFIG_LOCK();
+    CRG_CONFIG_UNLOCK();                                    /* 解锁时钟寄存器配置 */
+    CRG->PWM_CLKRST_CTRL_F.PCLK_EN_PWM = (uint32_t)ENABLE; /* 使能PWM模块时钟 */
+    CRG_CONFIG_LOCK();                                      /* 锁定时钟寄存器配置 */
 
 /* PRQA S 0662 2 #0662 - Accessing member of unnamed struct/union for hardware register definition. */
 /* PRQA S 0306 1 #3271 - Cast between object pointer and integer for hardware address access */
     PWM->LED_CTRL_F.LED_LDO5V_EN = (uint32_t)ENABLE;        //Turn it on only when you need to send a wave
 
-    ll_gpio_output(UNLOCK_PIN, false);
-    gpio_config_t cfg =
+    ll_gpio_output(UNLOCK_PIN, false);    /* 初始将解锁引脚输出低电平 */
+    gpio_config_t cfg =           /* GPIO配置：解锁引脚配置为推挽输出 */
     {
-        .gpio_pin = UNLOCK_PIN,
-        .mode = GPIO_MODE_OUT_PP,
-        .pull_mode = GPIO_PULL_NONE,
-        .afio = AFIO_MUX_3,
-        .trigger_flag = GPIO_TRIGGER_NULL
+        .gpio_pin = UNLOCK_PIN,         /* 解锁引脚号 */
+        .mode = GPIO_MODE_OUT_PP,       /* 推挽输出模式 */
+        .pull_mode = GPIO_PULL_NONE,    /* 无内部上拉/下拉 */
+        .afio = AFIO_MUX_3,            /* 复用功能选择MUX3 */
+        .trigger_flag = GPIO_TRIGGER_NULL  /* 无触发中断 */
     };
-    ll_gpio_init(&cfg, NULL);
-    ll_gpio_output(UNLOCK_PIN, false);
+    ll_gpio_init(&cfg, NULL);     /* 应用GPIO初始化配置 */
+    ll_gpio_output(UNLOCK_PIN, false);    /* 再次确保解锁引脚为低电平 */
 }
 
 /**
@@ -411,48 +411,44 @@ STATIC void DoorGpioInit(void)
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 static void HandleDoorPwm(void)   //Handle PWM output
 {
-    switch (pwmCtrl.fsm)
+    switch (pwmCtrl.fsm)          /* PWM输出状态机：0-等待按键变化 / 1-最小信号延时 / 2-正常响应 */
     {
-    case 0:
+    case 0:                       /* 状态0：等待按键按下或释放事件触发PWM变化 */
         if (pwmCtrl.changed!=0u)
         {
-            pwmCtrl.changed = 0;
-            if (pwmCtrl.keymask!=0u)
+            pwmCtrl.changed = 0;  /* 清除状态变化标志 */
+            if (pwmCtrl.keymask!=0u)          /* 按键按下：启动PWM输出 */
             {
-                DoorPwmStart();     //On
-                door_st.SwtSt = 1;
+                DoorPwmStart();               /* 打开PWM驱动信号 */
+                door_st.SwtSt = 1;            /* 设置门状态为：正在开锁 */
 
 /* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
-                pwmCtrl.begin_t = TcTimeGet();
-                pwmCtrl.fsm = 1;
+                pwmCtrl.begin_t = TcTimeGet();   /* 记录PWM启动时间戳 */
+                pwmCtrl.fsm = 1;                  /* 进入状态1：等待最小信号持续时间 */
             }
-            else
+            else                              /* 按键释放：关闭PWM输出 */
             {
                 //Off pwm
-                DoorPwmStop();
-/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+                DoorPwmStop();                /* 停止PWM驱动信号 */
                 pwmCtrl.begin_t = TcTimeGet();              //Used for LinCanEnterSleep
-                door_st.SwtSt = 2;
+                door_st.SwtSt = 2;            /* 设置门状态为：已关闭（空闲） */
             }
         }
         break;
-    case 1:             //Wait for the minimum signal time
-/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
-        if ((TcTimeGet() - pwmCtrl.begin_t) >= (uint16_t)OPEN_DOOR_MIN_TIMEMS)
+    case 1:                       /* 状态1：等待最小信号时间，确保门控信号有效持续 */
+        if ((TcTimeGet() - pwmCtrl.begin_t) >= (uint16_t)OPEN_DOOR_MIN_TIMEMS)   /* 达到最小持续时间 */
         {
-            pwmCtrl.fsm = 2;
+            pwmCtrl.fsm = 2;      /* 进入状态2：正常响应阶段 */
         }
         break;
-    case 2:     //Normal response
-/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+    case 2:                       /* 状态2：正常响应阶段，超时或按键释放时停止PWM */
         if (((TcTimeGet() - pwmCtrl.begin_t) >= (uint16_t)OPEN_DOOR_MAX_TIMEMS) || (pwmCtrl.changed!=0u))
         {
             //Off pwm
-            DoorPwmStop();
-/* PRQA S 3469 1 #3258 - Function-like macro used for performance and compiler optimization requirements */
+            DoorPwmStop();        /* 超时或按键变化：停止PWM输出 */
             pwmCtrl.begin_t = TcTimeGet();              //Used for LinCanEnterSleep
-            door_st.SwtSt = 2;
-            pwmCtrl.fsm = 0;
+            door_st.SwtSt = 2;    /* 设置门状态为：已关闭 */
+            pwmCtrl.fsm = 0;      /* 回到状态0，等待下次触发 */
             return;
         }
         break;

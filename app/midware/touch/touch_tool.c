@@ -45,8 +45,8 @@ void Touch_IOConfig(uint8_t channel)
 {
     static const struct
     {
-        gpio_pin_e pin;
-        uint8_t mux;
+        gpio_pin_e pin;         /**< 触摸引脚号 */
+        uint8_t mux;            /**< 触摸功能复用选择 */
     } touchPins[TOUCH_CHANNEL_NUM] =
     {
         {GPIO_PIN_1, GPIO1_SOFTWARE_INPUT_FUNCTION_CAP0}, {GPIO_PIN_0, GPIO0_SOFTWARE_INPUT_FUNCTION_CAP1}, {GPIO_PIN_2, GPIO2_SOFTWARE_INPUT_FUNCTION_CAP2},
@@ -58,11 +58,12 @@ void Touch_IOConfig(uint8_t channel)
         return;
     }
 
+    /* 配置GPIO_PIN_3为触摸参考电容引脚 */
     ll_gpio_afio_config(GPIO_PIN_3, (gpio_afio_mux_e)GPIO3_SOFTWARE_INPUT_FUNCTION_CAP_REF);
 
     ll_gpio_afio_config(touchPins[channel].pin, (gpio_afio_mux_e)touchPins[channel].mux);
-    GPIO->OUTEN_SET_F.OUTEN_SET |= 1 << touchPins[channel].pin;
-    GPIO->DATAOUT_F.DATAOUT &= ~(1 << touchPins[channel].pin);
+    GPIO->OUTEN_SET_F.OUTEN_SET |= 1 << touchPins[channel].pin;     /* 使能触摸引脚输出 */
+    GPIO->DATAOUT_F.DATAOUT &= ~(1 << touchPins[channel].pin);      /* 触摸引脚输出低电平 */
 }
 
 /**
@@ -81,9 +82,9 @@ void Touch_IOEnable(uint8_t channel, uint8_t enable)
 {
     static const struct
     {
-        gpio_pin_e pin;
-        uint8_t mux;
-        uint8_t mux_gpio;
+        gpio_pin_e pin;         /**< 触摸引脚号 */
+        uint8_t mux;            /**< 触摸功能复用选择 */
+        uint8_t mux_gpio;       /**< GPIO功能复用选择 */
     } touchPins[TOUCH_CHANNEL_NUM] =
     {
         {GPIO_PIN_1, GPIO1_SOFTWARE_INPUT_FUNCTION_CAP0, GPIO1_SOFTWARE_INPUT_FUNCTION_GPIO}, {GPIO_PIN_0, GPIO0_SOFTWARE_INPUT_FUNCTION_CAP1, GPIO0_SOFTWARE_INPUT_FUNCTION_GPIO},
@@ -96,11 +97,11 @@ void Touch_IOEnable(uint8_t channel, uint8_t enable)
         return;
     }
 
-    if (enable)
+    if (enable)     /* 使能：切换为触摸功能IO */
     {
         ll_gpio_afio_config(touchPins[channel].pin, (gpio_afio_mux_e)touchPins[channel].mux);
     }
-    else
+    else            /* 关闭：恢复为GPIO功能IO */
     {
         ll_gpio_afio_config(touchPins[channel].pin, (gpio_afio_mux_e)touchPins[channel].mux_gpio);
     }
@@ -116,14 +117,14 @@ void Touch_IOEnable(uint8_t channel, uint8_t enable)
  ******************************************************************************/
 void Touch_Reset(void)
 {
-    CRG_CONFIG_UNLOCK();
-    CRG->CAPTOUCH_CLKRST_CTRL_F.RST_CAPTOUCH = 1;
+    CRG_CONFIG_UNLOCK();                                    /* 解锁CRG配置寄存器 */
+    CRG->CAPTOUCH_CLKRST_CTRL_F.RST_CAPTOUCH = 1;           /* 置位触摸模块复位位 */
+    __NOP();                                                /* 等待复位生效 */
     __NOP();
+    CRG->CAPTOUCH_CLKRST_CTRL_F.RST_CAPTOUCH = 0;           /* 清除触摸模块复位位 */
+    __NOP();                                                /* 等待复位释放 */
     __NOP();
-    CRG->CAPTOUCH_CLKRST_CTRL_F.RST_CAPTOUCH = 0;
-    __NOP();
-    __NOP();
-    CRG_CONFIG_LOCK();
+    CRG_CONFIG_LOCK();                                      /* 锁定CRG配置寄存器 */
 }
 
 /**
@@ -142,32 +143,33 @@ void TouchRtcTrigConfig(uint8_t freq, uint8_t sw)
 {
     ll_timer_deinit();
 
-    CRG_CONFIG_UNLOCK();
-    CRG->TIM_LITE_CLKRST_CTRL_F.PCLK_EN_TIM_LITE = 1;
-    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_SEL_TIM_LITE = FCLK_SRC_32K;
-    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_DIV_TIM_LITE = 0;
-    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_EN_TIM_LITE = 0x1;
-    CRG_CONFIG_LOCK();
+    CRG_CONFIG_UNLOCK();                                    /* 解锁CRG配置寄存器 */
+    CRG->TIM_LITE_CLKRST_CTRL_F.PCLK_EN_TIM_LITE = 1;       /* 使能TIM_LITE外设时钟 */
+    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_SEL_TIM_LITE = FCLK_SRC_32K; /* 选择32KHz低频时钟源 */
+    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_DIV_TIM_LITE = 0;      /* 功能时钟不分频 */
+    CRG->TIM_LITE_CLKRST_CTRL_F.FCLK_EN_TIM_LITE = 0x1;     /* 使能功能时钟输出 */
+    CRG_CONFIG_LOCK();                                      /* 锁定CRG配置寄存器 */
 
-    TIM_LITE->CTRL_F.TRIG_EN = 0;
-    TIM_LITE->CTRL_F.PAUSE = 0;
-    TIM_LITE->CTRL_F.STP = 0;
-    TIM_LITE->CTRL_F.LOOP_DIS = 0;
+    /* 配置TIM_LITE定时器控制寄存器 */
+    TIM_LITE->CTRL_F.TRIG_EN = 0;                           /* 禁用外部触发模式 */
+    TIM_LITE->CTRL_F.PAUSE = 0;                             /* 禁用暂停功能 */
+    TIM_LITE->CTRL_F.STP = 0;                               /* 禁用停止功能 */
+    TIM_LITE->CTRL_F.LOOP_DIS = 0;                          /* 允许循环计数（非单次模式） */
 
-    TIM_LITE->INIT_VAL = (32768 / freq);
+    TIM_LITE->INIT_VAL = (32768 / freq);                    /* 设置定时器装载值：32KHz时钟 / 目标频率 */
 
-    if (sw)
+    if (sw)     /* 开启RTC触发触摸功能 */
     {
-        TIM_LITE->ICR = 0xFFFFFFFF;
-        TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 0;    //TIMERLITE_INTERRUPT_ENABLE();
-        EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, ENABLE);
-        TIM_LITE->CTRL_F.EN = 1; //TIMERLITE_ENABLE();
+        TIM_LITE->ICR = 0xFFFFFFFF;                         /* 清除所有中断标志 */
+        TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 0;                /* 使能定时器溢出中断 */  //TIMERLITE_INTERRUPT_ENABLE();
+        EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, ENABLE);   /* 使能NVIC定时器中断 */
+        TIM_LITE->CTRL_F.EN = 1;                            /* 启动TIM_LITE定时器 */  //TIMERLITE_ENABLE();
     }
-    else
+    else        /* 关闭RTC触发触摸功能 */
     {
-        TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 1;    //TIMERLITE_INTERRUPT_DISABLE();
-        EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, DISABLE);
-        TIM_LITE->CTRL_F.EN = 0;        //TIMERLITE_DISABLE();
+        TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 1;                /* 禁用定时器溢出中断 */  //TIMERLITE_INTERRUPT_DISABLE();
+        EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, DISABLE);  /* 禁用NVIC定时器中断 */
+        TIM_LITE->CTRL_F.EN = 0;                            /* 停止TIM_LITE定时器 */  //TIMERLITE_DISABLE();
     }
 }
 
@@ -181,11 +183,11 @@ void TouchRtcTrigConfig(uint8_t freq, uint8_t sw)
  ******************************************************************************/
 uint32_t TouchGetTime(void)
 {
-    uint32_t curTick = TcTimeGet();
-#if (TC_SYSTICK_HZ==1000)
-    return curTick;
-#else
-    return (uint64_t)curTick * 1000 / TC_SYSTICK_HZ;
+    uint32_t curTick = TcTimeGet();                             /* 获取当前系统tick值 */
+#if (TC_SYSTICK_HZ==1000)                                       /* 系统节拍为1000Hz时tick即毫秒 */
+    return curTick;                                             /* tick值即为毫秒数 */
+#else                                                           /* 其他节拍频率需换算 */
+    return (uint64_t)curTick * 1000 / TC_SYSTICK_HZ;            /* tick * 1000 / 节拍频率 = 毫秒 */
 #endif
 }
 
@@ -201,9 +203,9 @@ uint32_t TouchGetTime(void)
  ******************************************************************************/
 uint32_t lpParaAdjusterSelectCallback(void)
 {
-    if (Touch_HalDispatch_GetInSleep(touchDispatch))            //处在低功耗模式
+    if (Touch_HalDispatch_GetInSleep(touchDispatch))            /* 检测是否处于低功耗模式 */  //处在低功耗模式
     {
-        return 1;
+        return 1;                                               /* 低功耗模式，选择低功耗参数 */
     }
-    return 0;
+    return 0;                                                   /* 非低功耗模式 */
 }

@@ -84,23 +84,43 @@ static __INLINE T_SiData adc_get_data(void)
     return ((int16_t)(ADC->FIFO_DATA << 2)) >> 2;
 }
 
-/** @brief 底层初始化（触摸与ADC寄存器） */
+/** @brief 底层初始化（触摸与ADC寄存器）
+ *  @param[in] self HAL接口实例指针
+ */
 static void touch_charge_low_init(struct TOUCH_HalInterface_Type *self);
-/** @brief 设置当前采集通道参数 */
+/** @brief 设置当前采集通道参数
+ *  @param[in] self HAL接口实例指针
+ *  @param[in] channel_cfg 通道配置参数（通道号、充放电模式、Shield、补偿等）
+ */
 static void touch_charge_set_channel(struct TOUCH_HalInterface_Type *self, const TOUCH_HalChConfig_Type *channel_cfg);
-/** @brief 设置增益器参数 */
+/** @brief 设置增益器参数
+ *  @param[in] self HAL接口实例指针
+ *  @param[in] gainer 增益器配置参数（转移次数、PGA增益、Buffer开关等）
+ */
 static void touch_charge_set_gainer(struct TOUCH_HalInterface_Type *self, const TOUCH_HalGainer_Type *gainer);
 /** @brief 设置对应touch通道IO的使能/接地
+ *  @param[in] self HAL接口实例指针
+ *  @param[in] channel 通道编号
  *  @param[in] enable 1:正常touch模式, 0:接地模式
  */
 static void touch_charge_set_ioenable(struct TOUCH_HalInterface_Type *self, uint8_t channel, uint8_t enable);
-/** @brief 触发触摸采集 */
+/** @brief 触发触摸采集
+ *  @param[in] self HAL接口实例指针
+ *  @param[in] t 触发类型（TOUCH_TRIG_SOFTWARE:软件触发, TOUCH_TRIG_TINYWORK:定时器触发）
+ *  @param[in] para 附加参数（bit0:是否触发ADC采集, 0:不触发, 1:触发）
+ */
 static void touch_charge_trig(struct TOUCH_HalInterface_Type *self, TOUCH_HALTRIG_TYPE t, uint32_t para);
-/** @brief 获取触摸原始数据 */
+/** @brief 获取触摸原始数据
+ *  @param[in] self HAL接口实例指针
+ *  @retval T_SiData 触摸原始数据（采集超时时返回0）
+ */
 static T_SiData touch_charge_get_data(struct TOUCH_HalInterface_Type *self);
 
 #if TOUCH_VAON_DENOISE
-    /** @brief 计算VAON降噪补偿值 */
+    /** @brief 计算VAON降噪补偿值
+     *  @param[out] code_vaon_trim 经过OTP校准后的VAON编码值
+     *  @retval float 当前温度下VAON电压值（单位：uV）
+     */
     static float touch_calc_vaon(int *code_vaon_trim);
 #endif
 
@@ -615,15 +635,15 @@ static float touch_calc_vaon(int *code_vaon_trim)
     /** @brief ADC通道配置联合体，用于构造CTRL_SCAN01寄存器值 */
     typedef union
     {
-        uint16_t    ChannelCfg;
+        uint16_t    ChannelCfg;                             /**< 原始通道配置字（16位） */
         struct
         {
-            uint16_t                ADC_Channel_Sel     : 5;
-            uint16_t                PGA_Bypass          : 1;
-            uint16_t                PGA_Bufn_Bypass     : 1;
-            uint16_t                PGA_Bufp_Bypass     : 1;
-            uint16_t                ADC_PGA_GainSel     : 4;
-            uint16_t                reserved            : 4;
+            uint16_t                ADC_Channel_Sel     : 5;    /**< ADC通道选择（0~31） */
+            uint16_t                PGA_Bypass          : 1;    /**< PGA旁路使能（1:旁路PGA, 直通模式） */
+            uint16_t                PGA_Bufn_Bypass     : 1;    /**< PGA负端Buffer旁路（1:旁路） */
+            uint16_t                PGA_Bufp_Bypass     : 1;    /**< PGA正端Buffer旁路（1:旁路） */
+            uint16_t                ADC_PGA_GainSel     : 4;    /**< PGA增益档位选择（0~15） */
+            uint16_t                reserved            : 4;    /**< 保留位 */
         } ChannelCfg_f;
 
     } ADC_ChannelConfig_t;
@@ -714,7 +734,7 @@ static float touch_calc_vaon(int *code_vaon_trim)
     int ostrim = ((* (volatile uint32_t *)(0x00800084)) >> 16) & 0x3FFF;   //偏移校准
     int gain_trim = (* (volatile uint32_t *)(0x00800084)) & 0x3FFF;        //增益校准
 
-    /* 应用校准并计算 */
+    /* 应用OTP校准：减去偏移量后乘以增益系数，得到修正后的温度传感器编码和VAON编码 */
     int code_t_trim = (tsensor_code - ostrim) * (((float)gain_trim) / 4096);
     *code_vaon_trim = (vaon_code - ostrim) * (((float)gain_trim) / 4096);
 

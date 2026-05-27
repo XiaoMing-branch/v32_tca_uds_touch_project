@@ -22,7 +22,7 @@
 #include "pal_pmu.h"
 #include "lin_wakeup.h"
 
-extern uint8_t g_lighting_init;
+extern uint8_t g_lighting_init; /**< 照明初始化完成标志，非零表示LIN模块初始化已完成 */
 extern void meas_manager_value_clear(void);
 extern void led_color_wakeup_recovery_handle(void);
 
@@ -48,7 +48,7 @@ __attribute__((weak)) void led_color_wakeup_recovery_handle(void)
 
 /**
  * @brief  设置LIN休眠模式并执行低功耗进入/退出流程
- * @param  mode - 休眠模式选择
+ * @param[in] mode 休眠模式选择
  * @note   支持模式：
  *         - DEEPSLEEP_MODE: 深度睡眠，约580uA
  *         - SLEEPWALK_MODE: 浅睡眠，约23uA
@@ -82,18 +82,18 @@ void system_low_power_init(void)
  * @retval 无
  */
 #ifdef CFG_LIN_CONFORM_TEST
-    extern volatile uint8_t bus_wake_flag;
-    extern uint32_t bus_wake_cnts;
+    extern volatile uint8_t bus_wake_flag; /**< 总线唤醒事件标志，检测到唤醒脉冲时由中断置位 */
+    extern uint32_t bus_wake_cnts; /**< 总线唤醒累计次数，记录MCU被LIN总线唤醒的总次数 */
 #endif
 void sleep_mode_enter(void)
 {
-    if (lin_goto_sleep_flg == 1)
+    if (lin_goto_sleep_flg == 1) /* 检查LIN休眠标志是否置位，置位则执行休眠流程 */
     {
-        lin_goto_sleep_flg = 0;
+        lin_goto_sleep_flg = 0; /* 清零休眠标志，避免重复进入休眠流程 */
 
 #ifdef CFG_LIN_CONFORM_TEST
-        bus_wake_flag = 0;
-        bus_wake_cnts = 0;
+        bus_wake_flag = 0; /* 清零唤醒标志，准备下一次唤醒检测 */
+        bus_wake_cnts = 0; /* 清零唤醒计数，重新统计一致性测试期间的唤醒次数 */
 #endif
 
         lin_sleep_mode_set(DEEPSLEEP_MODE);  /* 进入深度睡眠（包含唤醒后的退出） */

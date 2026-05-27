@@ -3,6 +3,11 @@
  *****************************************************************************
  * @brief   SID $2F IO控制通过标识符处理模块（InputOutputControlByIdentifier）
  *
+ * 本模块实现了UDS协议SID $2F（InputOutputControlByIdentifier）服务的处理逻辑。
+ * 该服务用于诊断仪控制ECU上指定数据标识符（DID）对应的输入/输出信号，
+ * 如强制输出特定值、短接输入信号等。当前实现为存根函数，直接返回正响应，
+ * 未执行实际的IO控制操作。后续可根据具体DID实现对应的输入输出控制逻辑。
+ *
  * @file    sid_0x2f.c
  * @author  AE/FAE team
  * @date    2024.01.01
@@ -42,6 +47,6 @@
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_io_control_by_identifier(uint8_t *ptr, uint16_t length)
 {
-    (void)length;
-    lin_diag_positive_notify(ptr[0], NULL, 0);
+    (void)length; /*!< 抑制未使用参数length的编译警告，当前存根实现暂未使用报文长度 */
+    lin_diag_positive_notify(ptr[0], NULL, 0); /*!< 发送正响应（不携带数据），告知诊断仪IO控制请求已接收（当前未执行实际IO控制） */
 }

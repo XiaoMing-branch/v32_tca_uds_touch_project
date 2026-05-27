@@ -40,7 +40,7 @@
 #endif
 
 /* PRQA S 3207 1 #3207 - Static object is intentionally unused (e.g., used via debugger or inline assembly). */
-static const char *TAG = "LIN FRAME";
+static const char *TAG = "LIN FRAME"; /**< 模块日志标签，用于标识LIN帧模块的调试输出 */
 
 /* PRQA S 1514 2 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
@@ -53,8 +53,8 @@ static const char *TAG = "LIN FRAME";
  */
 DoorSt_T door_st = {0};   // Door handle status feedback signal, initialized to 0
 DoorCmd_T door_cmd = {0}; // The ECU controls the door handle signal, initialized to 0
-extern user_cfg_t g_user_info;
-extern volatile uint8_t lin_error;
+extern user_cfg_t g_user_info;              /**< 用户配置信息，包含当前车门位置（左前/左后/右前/右后）及UDS诊断相关配置参数 */
+extern volatile uint8_t lin_error;          /**< LIN总线通信错误标志，非零值表示LIN通信过程中发生错误 */
 
 /**
  * @brief 根据NAD值设置对应车门的LIN响应错误标志
@@ -67,22 +67,22 @@ extern volatile uint8_t lin_error;
 void AppSetLinErrByNad(uint8_t err_flag)
 {
     /* PRQA S 3469 15 #3258 - Function-like macro used for performance and compiler optimization requirements */
-    if ((uint8_t)LEFT_FRONT_DOOR == g_user_info.config_word)
+    if ((uint8_t)LEFT_FRONT_DOOR == g_user_info.config_word) /* 当前配置为左前门：设置左前门LIN响应错误标志 */
     {
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
         l_bool_wr_LI0_EHIS_FL_ResponseError(err_flag);
     }
-    else if ((uint8_t)LEFT_REAR_DOOR == g_user_info.config_word)
+    else if ((uint8_t)LEFT_REAR_DOOR == g_user_info.config_word) /* 当前配置为左后门：设置左后门LIN响应错误标志 */
     {
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
         l_bool_wr_LI0_EHIS_RL_ResponseError(err_flag);
     }
-    else if ((uint8_t)RIGHT_FRONT_DOOR == g_user_info.config_word)
+    else if ((uint8_t)RIGHT_FRONT_DOOR == g_user_info.config_word) /* 当前配置为右前门：设置右前门LIN响应错误标志 */
     {
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
         l_bool_wr_LI0_EHIS_FR_ResponseError(err_flag);
     }
-    else if ((uint8_t)RIGHT_REAR_DOOR == g_user_info.config_word)
+    else if ((uint8_t)RIGHT_REAR_DOOR == g_user_info.config_word) /* 当前配置为右后门：设置右后门LIN响应错误标志 */
     {
         /* PRQA S 3469 2 #3469 - Function-like macro usage is intentional (e.g., for type genericity, debug info, or side-effect control); equivalent function would not be suitable. */
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
@@ -106,17 +106,17 @@ void AppSetLinErrByNad(uint8_t err_flag)
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void App_LinSendDoorState(void)
 {
-    if (lin_error != 0u)
+    if (lin_error != 0u) /* LIN总线有错误：设置当前车门响应错误标志 */
     {
         AppSetLinErrByNad(1);
     }
-    else
+    else /* LIN总线无错误：清除当前车门响应错误标志 */
     {
         AppSetLinErrByNad(0);
     }
 
     /* PRQA S 3469 ++ #3258 - Function-like macro used for performance and compiler optimization requirements */
-    if (l_flg_tst_LI0_EHIS_FL_State_flag() != 0u)
+    if (l_flg_tst_LI0_EHIS_FL_State_flag() != 0u) /* 左前门状态更新标志已置位：发送左前门把手状态信号 */
     {
         l_flg_clr_LI0_EHIS_FL_State_flag();
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
@@ -146,7 +146,7 @@ void App_LinSendDoorState(void)
             uds_diagnostic_configword_remap_nad();
         }
     }
-    if (l_flg_tst_LI0_EHIS_RL_State_flag() != 0u)
+    if (l_flg_tst_LI0_EHIS_RL_State_flag() != 0u) /* 左后门状态更新标志已置位：发送左后门把手状态信号 */
     {
         l_flg_clr_LI0_EHIS_RL_State_flag();
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
@@ -174,7 +174,7 @@ void App_LinSendDoorState(void)
             uds_diagnostic_configword_remap_nad();
         }
     }
-    if (l_flg_tst_LI0_EHIS_FR_State_flag() != 0u)
+    if (l_flg_tst_LI0_EHIS_FR_State_flag() != 0u) /* 右前门状态更新标志已置位：发送右前门把手状态信号 */
     {
         l_flg_clr_LI0_EHIS_FR_State_flag();
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
@@ -202,7 +202,7 @@ void App_LinSendDoorState(void)
             uds_diagnostic_configword_remap_nad();
         }
     }
-    if (l_flg_tst_LI0_EHIS_RR_State_flag() != 0u)
+    if (l_flg_tst_LI0_EHIS_RR_State_flag() != 0u) /* 右后门状态更新标志已置位：发送右后门把手状态信号 */
     {
         l_flg_clr_LI0_EHIS_RR_State_flag();
         /* PRQA S 4559 1 #4559 - Using essentially unsigned type as first operand of conditional operator is intentional; result is well-defined. */
@@ -244,24 +244,26 @@ void App_LinSendDoorState(void)
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void App_LinReceiveDoorState(void)
 {
-    uint16_t data[5] = {0};
+    uint16_t data[5] = {0}; /* 临时数据缓冲区，用于按位拼接车速值 */
 
-    if (l_flg_tst_LI0_VIU_DWS_flag() != 0u)
+    if (l_flg_tst_LI0_VIU_DWS_flag() != 0u) /* VIU_DWS门状态标志已置位：接收主机下发的门把手控制信号 */
     {
         l_flg_clr_LI0_VIU_DWS_flag();
 
         if ((uint8_t)LEFT_FRONT_DOOR == g_user_info.config_word) // left front door
         {
+            /* 左前门LIN帧信号映射：UsageMode(Bit2-5), VehSpeedValid(Bit6), VehicleSpeed(Bit8-20) */
             door_cmd.UsageMode = l_u8_rd_LI0_bit2_5();
             door_cmd.VehicleSpeedValid = l_bool_rd_LI0_bit6();
 
-            data[0] = l_u8_rd_LI0_bit8_9();
-            data[1] = l_bool_rd_LI0_bit10();
-            data[2] = l_bool_rd_LI0_bit11();
-            data[3] = l_bool_rd_LI0_bit12();
+            data[0] = l_u8_rd_LI0_bit8_9();    /* Bit8-9: 车速值 bit0-1 */
+            data[1] = l_bool_rd_LI0_bit10();    /* Bit10: 车速值 bit2 */
+            data[2] = l_bool_rd_LI0_bit11();    /* Bit11: 车速值 bit3 */
+            data[3] = l_bool_rd_LI0_bit12();    /* Bit12: 车速值 bit4 */
             /* PRQA S 0499 1 #0499 - Shift count is within range after type promotion (actual type has larger width). */
-            data[4] = l_u8_rd_LI0_bit13_20();
+            data[4] = l_u8_rd_LI0_bit13_20();   /* Bit13-20: 车速值 bit5-12 */
 
+            /* 从分散的位域中重构13位车速值（Bit0-12） */
             door_cmd.VehicleSpeed = ((data[0] & 0x3u) |
                                      ((data[1] & 0x1u) << 2) |
                                      ((data[2] & 0x1u) << 3) |
@@ -270,19 +272,23 @@ void App_LinReceiveDoorState(void)
         }
         else if ((uint8_t)LEFT_REAR_DOOR == g_user_info.config_word) // left rear door
         {
-            data[0] = l_bool_rd_LI0_bit6();
-            data[1] = l_bool_rd_LI0_bit7();
-            data[2] = l_u8_rd_LI0_bit8_9();
+            /* 左后门LIN帧信号映射：UsageMode(Bit6-9), VehSpeedValid(Bit10), VehicleSpeed(Bit11-23) */
+            data[0] = l_bool_rd_LI0_bit6();     /* Bit6: UsageMode bit0 */
+            data[1] = l_bool_rd_LI0_bit7();     /* Bit7: UsageMode bit1 */
+            data[2] = l_u8_rd_LI0_bit8_9();     /* Bit8-9: UsageMode bit2-3 */
 
+            /* 从分散的位域中重构4位UsageMode（Bit6-9） */
             door_cmd.UsageMode = (uint8_t)((data[0] & 0x1u) |
                                            ((data[1] & 0x1u) << 1) |
                                            ((data[2] & 0x3u) << 2));
             door_cmd.VehicleSpeedValid = l_bool_rd_LI0_bit10();
-            data[0] = l_bool_rd_LI0_bit11();
-            data[1] = l_bool_rd_LI0_bit12();
+            data[0] = l_bool_rd_LI0_bit11();    /* Bit11: 车速值 bit0 */
+            data[1] = l_bool_rd_LI0_bit12();    /* Bit12: 车速值 bit1 */
             /* PRQA S 0499 1 #0499 - Shift count is within range after type promotion (actual type has larger width). */
-            data[2] = l_u8_rd_LI0_bit13_20();
-            data[3] = l_u8_rd_LI0_bit21_23();
+            data[2] = l_u8_rd_LI0_bit13_20();   /* Bit13-20: 车速值 bit2-9 */
+            data[3] = l_u8_rd_LI0_bit21_23();   /* Bit21-23: 车速值 bit10-12 */
+
+            /* 从分散的位域中重构13位车速值（Bit11-23） */
             door_cmd.VehicleSpeed = ((data[0] & 0x1u) |
                                      ((data[1] & 0x1u) << 1) |
                                      ((data[2] & 0x1u) << 2) |
@@ -290,17 +296,22 @@ void App_LinReceiveDoorState(void)
         }
         else if (((uint8_t)RIGHT_FRONT_DOOR == g_user_info.config_word) || ((uint8_t)RIGHT_REAR_DOOR == g_user_info.config_word)) // right front or rear door
         {
-            data[0] = l_u8_rd_LI0_bit8_9();
-            data[1] = l_bool_rd_LI0_bit10();
-            data[2] = l_bool_rd_LI0_bit11();
+            /* 右前/右后门LIN帧信号映射：UsageMode(Bit8-11), VehSpeedValid(Bit12), VehicleSpeed(Bit13-25) */
+            data[0] = l_u8_rd_LI0_bit8_9();     /* Bit8-9: UsageMode bit0-1 */
+            data[1] = l_bool_rd_LI0_bit10();    /* Bit10: UsageMode bit2 */
+            data[2] = l_bool_rd_LI0_bit11();    /* Bit11: UsageMode bit3 */
+
+            /* 从分散的位域中重构4位UsageMode（Bit8-11） */
             door_cmd.UsageMode = (uint8_t)((data[0] & 0x3u) |
                                            ((data[1] & 0x1u) << 2) |
                                            ((data[2] & 0x1u) << 3));
             door_cmd.VehicleSpeedValid = l_bool_rd_LI0_bit12();
             /* PRQA S 0499 1 #0499 - Shift count is within range after type promotion (actual type has larger width). */
-            data[0] = l_u8_rd_LI0_bit13_20();
-            data[1] = l_u8_rd_LI0_bit21_23();
-            data[2] = l_u8_rd_LI0_bit24_25();
+            data[0] = l_u8_rd_LI0_bit13_20();   /* Bit13-20: 车速值 bit0-7 */
+            data[1] = l_u8_rd_LI0_bit21_23();   /* Bit21-23: 车速值 bit8-10 */
+            data[2] = l_u8_rd_LI0_bit24_25();   /* Bit24-25: 车速值 bit11-12 */
+
+            /* 从分散的位域中重构13位车速值（Bit13-25） */
             door_cmd.VehicleSpeed = ((data[0] & 0xFFu) |
                                      ((data[1] & 0x7u) << 8) |
                                      ((data[2] & 0x2u) << 11));

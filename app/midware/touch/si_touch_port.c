@@ -69,9 +69,9 @@ void TouchInit(void)
 
     (void)SiAlgoInit(&touchAlgoObject);       //touch算法对象初始化
 
-    TouchConfig(&touchAlgoObject);
+    TouchConfig(&touchAlgoObject);   /* 配置Si触摸硬件参数：充电时间、采样率、检测阈值 */
 
-    EnableNvic(TOUCH_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, ENABLE);
+    EnableNvic(TOUCH_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, ENABLE);   /* 使能触摸中断NVIC，设置中断优先级 */
 
     TC_LOGI(TAG, "Touch Algo Version:%d.%d , Comp Time:%s", SiAlgoVersion() / 100, SiAlgoVersion() % 100, SiAlgoCompileTime());    //打印算法版本
 
@@ -183,10 +183,10 @@ static void TouchHaltMonitorCallback(void)
 static void TouchTask(uint32_t msg, void *param)    //触摸任务
 {
 #if TOUCH_FAST2SLOW_SWITCHTIMEOUT     //快慢扫功能打开
-    static uint8_t is_fast_mode = 1;  //是否处在快扫模式
-    static uint32_t lastSlowSampTime = 0; //上次慢扫采样时间
+    static uint8_t is_fast_mode = 1;  /**< 是否处于快扫模式，1为快扫，0为慢扫 */
+    static uint32_t lastSlowSampTime = 0; /**< 上次慢扫采样时间戳（毫秒） */
 #endif
-    static T_TcTimer *touchTimer = NULL;            //触摸定时器
+    static T_TcTimer *touchTimer = NULL;            /**< 触摸任务定时器句柄 */
 
     if (msg == MSG_TASK_INIT)
     {
@@ -250,7 +250,7 @@ static void TouchTask(uint32_t msg, void *param)    //触摸任务
         }
         else        //慢扫模式
         {
-            if (TouchGetTime() - lastSlowSampTime >= SiIFastDiv(1000, touchDispatch->fast2slow_scan.slow_freq))
+            if (TouchGetTime() - lastSlowSampTime >= SiIFastDiv(1000, touchDispatch->fast2slow_scan.slow_freq))  /* 判断是否到达慢扫采样间隔时间 */
             {
                 lastSlowSampTime = TouchGetTime();
                 touchHaltRtcTrigFlag = 1;
@@ -332,7 +332,7 @@ void TouchForceWakeup(void)
  */
 void TouchForceRunAlgoOnce(void)
 {
-    T_TcTask *bkupContex = currentTask;
+    T_TcTask *bkupContex = currentTask;  /**< 备份当前任务上下文句柄，用于算法执行后恢复 */
     currentTask = touchTaskHandle;      //切换到touchtask环境中执行
     touchDispatch->run(touchDispatch, MSG_TASK_TIMER, (void *)0xA5A5A5A5);
     currentTask = bkupContex;
@@ -348,12 +348,14 @@ void TouchForceRunAlgoOnce(void)
  */
 void TOUCH_IRQHandler()
 {
+    /* 采样等待超时溢出处理：超时说明触摸采样异常，清除中断标志并记录错误日志 */
     if (CAPTOUCH->ISR & CAPTOUCH_SAMP_OVF)
     {
         CAPTOUCH->ICR |= CAPTOUCH_SAMP_OVF;
         TC_LOGE(TAG, "captouch samp wait time overflow");
     }
 
+    /* 触摸触发完成处理：一次扫描转换完成，置位任务标志触发算法运行 */
     if (CAPTOUCH->ISR & CAPTOUCH_TRIG_DONE)
     {
         CAPTOUCH->ICR |= CAPTOUCH_TRIG_DONE;

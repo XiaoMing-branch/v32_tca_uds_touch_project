@@ -23,8 +23,8 @@
 #include "tc_printf.h"
 
 /* Pointer to the output stream */
-void (*log_func)(unsigned char);
-static char *outptr;
+void (*log_func)(unsigned char);  /**< 指向当前日志设备的字符输出回调函数 */
+static char *outptr;              /**< 指向内存缓冲区的当前写入位置，非空时为 sprintf 模式 */
 
 /**
  * @brief  输出单个字符到日志设备或内存缓冲区
@@ -35,7 +35,7 @@ static char *outptr;
  */
 void tc_putc(char c)
 {
-    if (CONVERT_CR_2_CRLF && c == '\n')
+    if (CONVERT_CR_2_CRLF && c == '\n')     /* CONVERT_CR_2_CRLF 使能时将 LF 扩展为 CR+LF */
     {
         tc_putc('\r');    /* CR -> CRLF */
     }
@@ -134,7 +134,7 @@ static void tc_vprintf(const char *fmt, va_list arp)
             continue;
         }
 
-        f = 0;
+        f = 0;                      /* f: bit0=零填充, bit1=左对齐, bit2=长整型, bit3=负号 */
         c = *fmt++;                 /* Get first char of the sequense */
 
         if (c == '0')               /* Flag: '0' padded */
@@ -169,7 +169,7 @@ static void tc_vprintf(const char *fmt, va_list arp)
 
         d = c;
 
-        if (d >= 'a')
+        if (d >= 'a')               /* 将格式字符转为大写以简化 switch 判断 */
         {
             d -= 0x20;
         }
@@ -221,10 +221,10 @@ static void tc_vprintf(const char *fmt, va_list arp)
                 continue;
         }
 
-        /* Get an argument and put it in numeral */
+        /* 根据 long 前缀(f&4)或类型(D有符号)获取变参，统一转为 unsigned long */
         v = (f & 4) ? va_arg(arp, long) : ((d == 'D') ? (long)va_arg(arp, int) : (long)va_arg(arp, unsigned int));
 
-        if (d == 'D' && (v & 0x80000000))
+        if (d == 'D' && (v & 0x80000000))    /* 有符号负数：取绝对值并标记负号标志 */
         {
             v = 0 - v;
             f |= 8;
@@ -237,35 +237,35 @@ static void tc_vprintf(const char *fmt, va_list arp)
             d = (char)(v % r);
             v /= r;
 
-            if (d > 9)
+            if (d > 9)              /* 10~15 转换为字母 a-f 或 A-F */
             {
-                d += (c == 'x') ? 0x27 : 0x07;
+                d += (c == 'x') ? 0x27 : 0x07;  /* 小写(x→0x27)或大写(X→0x07)偏移 */
             }
 
             s[i++] = d + '0';
         }
         while (v && i < sizeof(s));
 
-        if (f & 8)
+        if (f & 8)                  /* 负号标志置位时在数字后追加 '-' */
         {
             s[i++] = '-';
         }
 
-        j = i;
-        d = (f & 1) ? '0' : ' ';
+        j = i;                      /* 记录数字有效字符数 */
+        d = (f & 1) ? '0' : ' ';    /* 填充字符：零填充标志用 '0'，否则用空格 */
 
-        while (!(f & 2) && j++ < w)
+        while (!(f & 2) && j++ < w) /* 右对齐时在左侧填充指定字符 */
         {
             tc_putc(d);
         }
 
-        do
+        do                          /* 从高位到低位逆序输出数字字符 */
         {
             tc_putc(s[--i]);
         }
         while (i);
 
-        while (j++ < w)
+        while (j++ < w)             /* 左对齐时在右侧补空格 */
         {
             tc_putc(' ');
         }

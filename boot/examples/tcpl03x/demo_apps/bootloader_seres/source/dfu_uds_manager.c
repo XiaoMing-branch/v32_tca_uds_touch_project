@@ -44,16 +44,16 @@
 #include "logging.h"
 #endif
 
-#define CFG_SUPPORT_DEBUG 0
+#define CFG_SUPPORT_DEBUG 0                               /**< 调试支持配置开关，0=关闭，1=打开 */
 
 #if 1 == CFG_SUPPORT_DEBUG
-#define LOG_DFU(...)                     \
+#define LOG_DFU(...)                     /**< DFU 调试日志宏 */ \
     do                                   \
     {                                    \
         log_debug("[DFU] " __VA_ARGS__); \
     } while (0)
 #else
-#define LOG_DFU(...)
+#define LOG_DFU(...)                     /**< DFU 调试日志空宏（调试关闭时） */
 #endif
 
 /* PRQA S 1504 ++ #3220 -  Object used only in local translation unit, intentional design */
@@ -61,40 +61,40 @@
 /* PRQA S 1514 4 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 /* PRQA S 2071 4 #3269 - Language extension used for compiler and hardware optimization */
 /* PRQA S 1502 2 #3216 - Unused parameter is part of standard callback prototype */
-__attribute__((section(".ARM.__at_0x00003900"))) const uint8_t boot_version[8u] = {(uint8_t)'B', (uint8_t)'T', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'0', (uint8_t)'4', 0x20u};
-__attribute__((section(".ARM.__at_0x00003908"))) const uint8_t hardware_version[8u] = {(uint8_t)'H', (uint8_t)'W', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'2', (uint8_t)'.', (uint8_t)'0'};
-__attribute__((section(".ARM.__at_0x10000000"))) uint8_t flash_driver[66u] = {0u};
+__attribute__((section(".ARM.__at_0x00003900"))) const uint8_t boot_version[8u] = {(uint8_t)'B', (uint8_t)'T', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'0', (uint8_t)'4', 0x20u};  /**< Bootloader 版本号字符串（固定地址 0x3900） */
+__attribute__((section(".ARM.__at_0x00003908"))) const uint8_t hardware_version[8u] = {(uint8_t)'H', (uint8_t)'W', (uint8_t)':', (uint8_t)'B', (uint8_t)'.', (uint8_t)'2', (uint8_t)'.', (uint8_t)'0'}; /**< 硬件版本号字符串（固定地址 0x3908） */
+__attribute__((section(".ARM.__at_0x10000000"))) uint8_t flash_driver[66u] = {0u};          /**< Flash 驱动固件缓冲区（SRAM 固定地址 0x10000000） */
 
 /* PRQA S 1514 30 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
-uint8_t seed[16u] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a};
-uint8_t key[16u] = {0x88, 0xB3, 0x4F, 0x45, 0xE1, 0x0D, 0xBB, 0xC3, 0x5D, 0xBF, 0x7E, 0xCF, 0x86, 0x8E, 0x73, 0x60};
+uint8_t seed[16u] = {0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96, 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a}; /**< 安全访问种子值（16字节） */
+uint8_t key[16u] = {0x88, 0xB3, 0x4F, 0x45, 0xE1, 0x0D, 0xBB, 0xC3, 0x5D, 0xBF, 0x7E, 0xCF, 0x86, 0x8E, 0x73, 0x60};   /**< 安全访问密钥（16字节，用于 AES-CMAC 计算） */
 
-uint8_t seed_use[16u] = {0u};
-uint8_t flash_driver_cmac[16u] = {0u};
-uint8_t app_cmac[16u] = {0u};
-uint8_t g_config_word_state;
-user_cfg_t g_user_info = {0u};
-ota_cfg_t g_ota_info = {0u};
+uint8_t seed_use[16u] = {0u};               /**< 当前使用的种子值缓冲区 */
+uint8_t flash_driver_cmac[16u] = {0u};      /**< Flash 驱动 CMAC 校验值缓冲区 */
+uint8_t app_cmac[16u] = {0u};               /**< 应用程序镜像 CMAC 校验值缓冲区 */
+uint8_t g_config_word_state;                /**< 配置字分配状态机状态 */
+user_cfg_t g_user_info = {0u};              /**< 用户配置信息结构体（NAD、配置字等） */
+ota_cfg_t g_ota_info = {0u};                /**< OTA 系统参数结构体（锁定计数、升级标志等） */
 /* PRQA S 1502 1 #3216 - Unused parameter is part of standard callback prototype */
-uint8_t g_negResponseCode;
-uint8_t diagnosticTxBuffer[CUS_UDS_SEND_BUFFER_SIZE];
-dfu_manager_context_t dfu_ctx = {0u};
-uint8_t lin_configured_NAD = 0x68u;
-volatile uint16_t timer_1s_cnt = 0u;
-uint16_t lock_failed_cnt = 0u;
+uint8_t g_negResponseCode;                  /**< 全局负响应码（NRC）存储 */
+uint8_t diagnosticTxBuffer[CUS_UDS_SEND_BUFFER_SIZE]; /**< UDS 诊断发送缓冲区 */
+dfu_manager_context_t dfu_ctx = {0u};       /**< DFU 管理器上下文（包含状态机、队列、传输信息） */
+uint8_t lin_configured_NAD = 0x68u;         /**< LIN 总线当前配置的节点地址（NAD） */
+volatile uint16_t timer_1s_cnt = 0u;        /**< 1秒定时器计数（用于超时和周期任务） */
+uint16_t lock_failed_cnt = 0u;              /**< 安全访问锁定失败计数器 */
 
 ServiceUDS_TypeDef uds_request_info =
     {
-        .sessionMode = DEFALUT_SESSION,
+        .sessionMode = DEFALUT_SESSION,     /**< UDS 会话模式（默认/扩展/编程） */
 };
 
-uint8_t seed_cmac_succ = AS_FALSE;
-uint8_t flashdrv_cmac_succ = AS_FALSE;
-uint8_t app_cmac_succ = AS_FALSE;
-uint8_t seed_00_ret = AS_FALSE;
-uint8_t app_cmac_start = AS_FALSE;
-uint8_t unlock_failed_store_flag = AS_FALSE;
-uint8_t diagnostic_session_overtime_flag = AS_FALSE;
+uint8_t seed_cmac_succ = AS_FALSE;          /**< 种子 CMAC 验证成功标志 */
+uint8_t flashdrv_cmac_succ = AS_FALSE;      /**< Flash 驱动 CMAC 校验成功标志 */
+uint8_t app_cmac_succ = AS_FALSE;           /**< 应用程序 CMAC 校验成功标志 */
+uint8_t seed_00_ret = AS_FALSE;             /**< 全零种子返回标志（用于扩展安全等级） */
+uint8_t app_cmac_start = AS_FALSE;          /**< 应用程序 CMAC 计算开始标志 */
+uint8_t unlock_failed_store_flag = AS_FALSE;/**< 解锁失败次数需存入 Flash 的标志 */
+uint8_t diagnostic_session_overtime_flag = AS_FALSE; /**< 诊断会话超时标志 */
 /* PRQA S 3408 -- */
 /* PRQA S 1504 -- */
 
@@ -196,7 +196,7 @@ STATIC uint8_t dfu_image_program(uint32_t addr, uint8_t *data, uint16_t length)
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 STATIC void dfu_do_notify_cp(uint8_t sid, uint8_t sub_func, uint8_t *data, uint16_t length)
 {
-    uint8_t response[20u];
+    uint8_t response[20u];                       /**< 正响应报文缓冲区（含 SID + 子功能 + 数据） */
     uint8_t len = 2u + (uint8_t)length;
 
     response[0u] = sid + 0x40u;
@@ -272,7 +272,7 @@ STATIC void dfu_do_notify_response(uint8_t resp_type, uint8_t sid, uint8_t resp_
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void dfu_session_parameter_resp(uint8_t sessiontype)
 {
-    uint8_t session_parameter[4u];
+    uint8_t session_parameter[4u];               /**< 会话参数缓冲区：P2[2字节] + P2E[2字节] */
     session_parameter[0u] = (P2_SERVER_MAX >> 8u) & 0xFFu;
     session_parameter[1u] = (P2_SERVER_MAX & 0xFFu);
     session_parameter[2u] = ((uint16_t)P2E_SERVER_MAX >> 8u) & 0xFFu;
@@ -450,8 +450,10 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
         {
         case 0x01u:
         case 0x81u:
+            /* OTA 状态机：会话控制 - 默认会话（01）/ 抑制正响应默认会话（81） */
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
+                /* 编程会话中收到 0x01/0x81：检查 APP 标志有效性，有效则执行复位进入 APP */
                 /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
                 if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic) // Reset is only allowed when the APP flag bit is valid; otherwise, it stays in the BootLoader.
@@ -470,6 +472,7 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
                     }
                     else // 01 is a record flag, used for APP response 50 01
                     {
+                        /* 标记 APP 需要发送 0x50 0x01 响应，然后执行系统复位 */
                         /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                         pal_store_data_get(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                         if (g_ota_info.app_need_res_flag != 1U)
@@ -483,6 +486,7 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
+                    /* APP 标志无效：回退到默认会话，停留在 Bootloader */
                     dfu_ctx.op_code = (uint8_t)DFU_CMD_DEFAULT_SESSION;
                     uds_request_info.sessionMode = DEFALUT_SESSION;
                     seed_cmac_succ = AS_FALSE;
@@ -491,11 +495,13 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
+                /* 非编程会话中：重置为默认会话，清除安全访问状态 */
                 dfu_ctx.op_code = (uint8_t)DFU_CMD_DEFAULT_SESSION;
                 uds_request_info.sessionMode = DEFALUT_SESSION;
                 seed_cmac_succ = AS_FALSE;
                 seed_00_ret = AS_FALSE;
             }
+            /* 默认会话收到 0x01：发送会话参数响应（含 P2/P2E 超时） */
             if ((uds_request_info.sessionMode == DEFALUT_SESSION) && (param[1u] == 0x01u))
             {
                 if (lin_get_uds_nad() == 0x7Eu)
@@ -511,8 +517,10 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
             }
             break;
         case 0x03u:
+            /* OTA 状态机：会话控制 - 扩展会话（03） */
             if (uds_request_info.sessionMode != PROGRAM_SESSION)
             {
+                /* 从默认或扩展切换到扩展会话 */
                 uds_request_info.sessionMode = EXTEND_SESSION;
                 dfu_ctx.op_code = (uint8_t)DFU_CMD_EXTEND_SESSION;
                 if (lin_get_uds_nad() == 0x7Eu)
@@ -528,6 +536,7 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
             }
             else
             {
+                /* 编程会话中不支持扩展会话，返回 NRC 0x7E */
                 if (lin_get_uds_nad() == 0x7Eu)
                 {
                 }
@@ -543,6 +552,7 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
             seed_00_ret = AS_FALSE;
             break;
         case 0x83u:
+            /* OTA 状态机：会话控制 - 抑制正响应的扩展会话（83） */
             uds_request_info.sessionMode = EXTEND_SESSION;
             dfu_ctx.op_code = (uint8_t)DFU_CMD_EXTEND_SESSION;
             seed_cmac_succ = AS_FALSE;
@@ -550,8 +560,11 @@ STATIC void session_control_handle(uint8_t *param, uint16_t length)
             break;
         case 0x02u:
         case 0x82u:
+            /* OTA 状态机：会话控制 - 编程会话（02）/ 抑制正响应编程会话（82） */
+            /* 仅当已通过例程预编程检查（op_code >= DFU_CMD_ROUTINE_PROGRAM_CHECK）后才允许进入编程会话 */
             if (dfu_ctx.op_code >= (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK)
             {
+                /* OTA 状态迁移：扩展会话 → 编程会话，设置升级状态 */
                 dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
                 uds_request_info.sessionMode = PROGRAM_SESSION;
                 dfu_ctx.boot_state = (uint8_t)BOOT_STATE_UPGRADE;
@@ -632,22 +645,22 @@ STATIC uint8_t cpmpare_key(uint8_t *_seed, uint8_t *_key, uint8_t length)
 *********************************************************/
 STATIC void key_reset_by_nad(void)
 {
-    const uint8_t key_lf[16] = {
+    const uint8_t key_lf[16] = {                  /**< 左前门密钥（NAD=0x68） */
         0x88, 0xB3, 0x4F, 0x45,
         0xE1, 0x0D, 0xBB, 0xC3,
         0x5D, 0xBF, 0x7E, 0xCF,
         0x86, 0x8E, 0x73, 0x60};
-    const uint8_t key_rf[16] = {
+    const uint8_t key_rf[16] = {                  /**< 右前门密钥（NAD=0x69） */
         0x32, 0xA9, 0x83, 0x03,
         0xAD, 0x07, 0xAE, 0x9C,
         0x2B, 0x46, 0x1F, 0xDE,
         0x1D, 0xA5, 0x46, 0x76};
-    const uint8_t key_lr[16] = {
+    const uint8_t key_lr[16] = {                  /**< 左后门密钥（NAD=0x6A） */
         0x48, 0x54, 0x24, 0xF9,
         0xF5, 0x76, 0x3E, 0x2B,
         0x99, 0x87, 0xD0, 0x11,
         0x1A, 0x8B, 0xD2, 0x82};
-    const uint8_t key_rr[16] = {
+    const uint8_t key_rr[16] = {                  /**< 右后门密钥（NAD=0x6B） */
         0x2A, 0x7E, 0xF5, 0x25,
         0x7E, 0x01, 0xE6, 0x06,
         0xCD, 0x0C, 0x68, 0xFE,
@@ -725,20 +738,25 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
             {
             case 0x89u:
             case 0x09u:
+                /* 安全访问：种子请求（0x09 物理寻址 / 0x89 功能寻址） */
                 if (length == BOOT_Frame_length_2)
                 {
+                    /* 检查解锁失败计数，超过 3 次则锁定 10 秒（NRC 0x37） */
                     if (g_ota_info.lock_failed_index < 3u)
                     {
+                        /* 已通过密钥验证（seed_cmac_succ）：返回全零种子用于扩展安全等级验证 */
                         if (seed_cmac_succ == AS_TRUE)
                         {
                             if (seed_00_ret == AS_TRUE)
                             {
+                                /* 重复请求全零种子：返回序列错误 NRC 0x24 */
                                 seed_cmac_succ = AS_FALSE;
                                 seed_00_ret = AS_FALSE;
                                 dfu_do_notify_response(NEGATIVE, param[0u], REQUEST_SEQUEENCE_ERROR); // NRC24
                             }
                             else
                             {
+                                /* 返回全零种子（16字节0x00），标记已返回 */
                                 for (uint8_t i = 0u; i < 16u; i++)
                                 {
                                     seed_use[i] = 0u;
@@ -749,6 +767,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                         }
                         else
                         {
+                            /* 首次种子请求：复制种子到 seed_use，状态迁移到 SEED_REQUEST */
                             if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_PROGRAM_SESSION) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_SEED_REQUEST))
                             {
                                 for (uint8_t i = 0u; i < 16u; i++)
@@ -761,6 +780,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                             }
                             else
                             {
+                                /* 当前状态不允许种子请求：返回条件不正确 NRC 0x22 */
                                 seed_cmac_succ = AS_FALSE;
                                 seed_00_ret = AS_FALSE;
                                 dfu_do_notify_response(NEGATIVE, param[0u], CONDITION_NOT_CORRECT); // NRC22
@@ -769,6 +789,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                     }
                     else
                     {
+                        /* 超过最大解锁失败次数：返回需要时间延迟 NRC 0x37 */
                         seed_cmac_succ = AS_FALSE;
                         seed_00_ret = AS_FALSE;
                         dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
@@ -783,14 +804,18 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                 }
                 break;
             case 0x0au:
+                /* 安全访问：密钥验证（0x0A）- AES-CMAC 计算并比对 */
                 if (length == BOOT_Frame_length_18)
                 {
+                    /* 必须在 SEED_REQUEST 状态后才能进行密钥验证 */
                     if (dfu_ctx.op_code == (uint8_t)DFU_CMD_SECURITY_SEED_REQUEST)
                     {
                         key_reset_by_nad();
+                        /* AES-CMAC 计算：用 key 对 seed_use 做 CMAC，结果与收到的密钥比对 */
                         aes_cmac(key, seed_use, sizeof(seed_use), (uint8_t *)out);
                         if (cpmpare_key(out, &param[2u], 16u) == 1u)
                         {
+                            /* 密钥验证成功：状态迁移到 KEY_CHECK，清除锁定失败计数 */
                             dfu_ctx.op_code = (uint8_t)DFU_CMD_SECURITY_KEY_CHECK;
                             seed_cmac_succ = AS_TRUE;
                             // Unlock successful, clear the counter of 27 unlock failures
@@ -802,6 +827,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                         }
                         else
                         {
+                            /* 密钥验证失败：回退到 PROGRAM_SESSION，递增失败计数 */
                             dfu_ctx.op_code = (uint8_t)DFU_CMD_PROGRAM_SESSION;
                             if (g_ota_info.lock_failed_index < 3u)
                             {
@@ -810,6 +836,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                                 pal_store_data_get(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
                                 g_ota_info.lock_failed_index++;
                             }
+                            /* 根据失败次数返回不同 NRC：<=2 次返回无效密钥（35），=3 次返回锁定（36） */
                             if (g_ota_info.lock_failed_index <= 2u)
                             {
                                 seed_cmac_succ = AS_FALSE;
@@ -834,6 +861,7 @@ STATIC void security_access_handle(uint8_t *param, uint16_t length)
                     }
                     else
                     {
+                        /* 状态不正确（未先请求种子）：返回序列错误 NRC 0x24 */
                         seed_cmac_succ = AS_FALSE;
                         seed_00_ret = AS_FALSE;
                         dfu_do_notify_response(NEGATIVE, param[0u], REQUEST_SEQUEENCE_ERROR); // NRC24
@@ -951,9 +979,9 @@ STATIC void firmware_info_sync_handle(uint8_t *param, uint16_t length)
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void request_download_handle(uint8_t *param, uint16_t length)
 {
-    uint8_t req_down_resp[2u];
-    uint32_t req_addr = 0u;
-    uint32_t req_size = 0u;
+    uint8_t req_down_resp[2u];                   /**< 请求下载响应缓冲区（maxBlockSize 参数） */
+    uint32_t req_addr = 0u;                      /**< 请求的下载起始地址 */
+    uint32_t req_size = 0u;                      /**< 请求的下载数据长度 */
     if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
@@ -986,6 +1014,7 @@ STATIC void request_download_handle(uint8_t *param, uint16_t length)
                                 dfu_ctx.flashdrv_write_size = (uint8_t)req_size;
                                 dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_REQUEST;
 
+                                /* 双缓冲队列初始化：清空 head/tail，接收索引从 1 开始 */
                                 dfu_ctx.write_length = 0u;
                                 dfu_ctx.receive_length = 0u;
 
@@ -1012,6 +1041,7 @@ STATIC void request_download_handle(uint8_t *param, uint16_t length)
                             {
                                 dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_REQUEST;
 
+                                /* 双缓冲队列初始化：清空 head/tail，准备接收 APP 数据块 */
                                 dfu_ctx.write_length = 0u;
                                 dfu_ctx.receive_length = 0u;
 
@@ -1103,6 +1133,7 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
         {
             if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_REQUEST) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_TRANSFER))
             {
+                /* Flash 驱动数据传输：复制到 flash_driver 缓冲区，状态迁移到 TRANSFER */
                 dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_TRANSFER;
                 /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 memcpy(flash_driver, &param[2u], dfu_ctx.flashdrv_write_size);
@@ -1111,7 +1142,9 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
             }
             else if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_REQUEST) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_TRANSFER))
             {
+                /* 应用程序数据传输：状态迁移到 APP_TRANSFER */
                 dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_TRANSFER;
+                /* 块序号校验：blockSequenceCounter 必须连续递增，禁止从 0 开始 */
                 if ((param[1u] == 0u) || (param[1u] != (dfu_ctx.write_index + 1u)))
                 {
                     dfu_do_notify_response(NEGATIVE, param[0u], BLOCK_SEQUENCE_COUNT_ERR); // NRC73
@@ -1120,8 +1153,10 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
                 dfu_ctx.recevice_index = param[1u];
                 dfu_ctx.receive_length += ((uint32_t)length - 2u);
                 dfu_ctx.program_flag = 1u;
+                /* 双缓冲队列：直接将数据编程到 Flash 目标地址 */
                 if ((uint8_t)DFU_MSG_SUCCESS == dfu_image_program(dfu_ctx.write_addr, &param[2u], length - 2u))
                 {
+                    /* 双缓冲队列：写成功，移动 head 指针（环形缓冲），下一块地址递进 */
                     /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */
                     if ((++(dfu_ctx.queue_list.head)) >= QUEUE_LIN_LEN)
                     {
@@ -1136,12 +1171,14 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
+                    /* 双缓冲队列：写失败，清空队列并返回通用编程失败 NRC 0x72 */
                     dfu_ctx.queue_list.tail = 0u;
                     dfu_ctx.queue_list.head = 0u;
                     dfu_do_notify_response(NEGATIVE, param[0u], GENERAL_PROGRAM_FAILURE); // NRC72
                     LOG_DFU("write error\r\n");
                 }
 
+                /* 双缓冲队列流控：当接收长度达到 DFU_PROGRAM_LENGTH 或写完整个镜像时，移动 tail 指针通知发送方继续 */
                 if ((dfu_ctx.receive_length >= DFU_PROGRAM_LENGTH) ||
                     ((dfu_ctx.receive_length + dfu_ctx.write_length) == dfu_ctx.dfu_info.image_size))
                 {
@@ -1153,6 +1190,7 @@ STATIC void transfer_data_handle(uint8_t *param, uint16_t length)
                 }
                 else
                 {
+                    /* 流控未满足条件：返回传输暂停 NRC 0x71，等待 Tester 继续发送 */
                     dfu_do_notify_response(NEGATIVE, param[0u], TRANSFER_DATA_PAUSE); // NRC71
                 }
 
@@ -1249,8 +1287,8 @@ STATIC void request_transfer_exit_handle(uint8_t *param, uint16_t length)
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void routine_control_handle(uint8_t *param, uint16_t length)
 {
-    uint8_t pre_program_resp[3u] = {0u};
-    uint8_t data_tmp[32u] = {0u};
+    uint8_t pre_program_resp[3u] = {0u};         /**< 预编程/例程响应缓冲区（RID[2] + 结果码[1]） */
+    uint8_t data_tmp[32u] = {0u};                /**< SHA256 哈希计算临时缓冲区（32 字节） */
 
     if (lin_get_uds_nad() == 0x7Eu)
     {
@@ -1271,12 +1309,15 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
         switch (routine_id)
         {
         case 0x0203u:
+            /* OTA 流程 - 预编程检查例程：验证 ECU 是否准备好进入编程会话 */
             if (uds_request_info.sessionMode == EXTEND_SESSION)
             {
                 if (length == BOOT_Frame_length_4)
                 {
+                    /* 前置条件：必须在扩展会话状态或已执行过预编程检查 */
                     if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_EXTEND_SESSION) || (dfu_ctx.op_code == (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK))
                     {
+                        /* OTA 状态迁移：EXTEND_SESSION → ROUTINE_PROGRAM_CHECK（预编程检查通过） */
                         dfu_ctx.op_code = (uint8_t)DFU_CMD_ROUTINE_PROGRAM_CHECK;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
@@ -1299,10 +1340,12 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
             }
             break;
         case 0xDD02u: // Signature verification
+            /* OTA 流程 - 签名验证例程：校验 Flash 驱动或应用程序镜像的 CMAC 完整性 */
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_20)
                 {
+                    /* 步骤 1：Flash 驱动已传输完成（FLASH_DRIVER_EXIT），计算驱动 CMAC 进行校验 */
                     if (dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_EXIT)
                     {
                         sha256(flash_driver, dfu_ctx.flashdrv_write_size, data_tmp);
@@ -1310,6 +1353,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
 
                         if (cpmpare_key(flash_driver_cmac, &param[4u], 16u) == 1u)
                         {
+                            /* Flash 驱动 CMAC 验证通过：迁移到 FLASH_DRIVER_CMAC_CHECK 状态 */
                             dfu_ctx.op_code = (uint8_t)DFU_CMD_FLASH_DRIVER_CMAC_CHECK;
                             flashdrv_cmac_succ = AS_TRUE;
                             pre_program_resp[0u] = param[2u];
@@ -1319,6 +1363,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
                         }
                         else
                         {
+                            /* Flash 驱动 CMAC 验证失败：返回结果码 0x02 */
                             flashdrv_cmac_succ = AS_FALSE;
                             pre_program_resp[0u] = param[2u];
                             pre_program_resp[1u] = param[3u];
@@ -1326,6 +1371,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
                             dfu_do_notify_cp(param[0u], param[1u], (uint8_t *)pre_program_resp, sizeof(pre_program_resp));
                         }
                     }
+                    /* 步骤 2：应用程序镜像已传输完成（APP_EXIT），计算 APP CMAC 进行校验 */
                     else if (dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_EXIT)
                     {
                         dfu_do_notify_response(NEGATIVE, param[0u], RCRRP); // NRC78
@@ -1338,6 +1384,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
                         app_cmac_start = AS_FALSE;
                         if (cpmpare_key(app_cmac, &param[4u], 16u) == 1u)
                         {
+                            /* APP CMAC 验证通过：迁移到 APP_CMAC_CHECK 状态 */
                             dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_CMAC_CHECK;
                             app_cmac_succ = AS_TRUE;
                             pre_program_resp[0u] = param[2u];
@@ -1347,6 +1394,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
                         }
                         else
                         {
+                            /* APP CMAC 验证失败：返回结果码 0x02 */
                             app_cmac_succ = AS_FALSE;
                             pre_program_resp[0u] = param[2u];
                             pre_program_resp[1u] = param[3u];
@@ -1356,6 +1404,7 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
                     }
                     else
                     {
+                        /* 状态不匹配：返回结果码 0x02（验证失败） */
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
                         pre_program_resp[2u] = 0x2u;
@@ -1373,16 +1422,20 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
             }
             break;
         case 0xFF00u: // Erase FLASH
+            /* OTA 流程 - Flash 擦除例程：先返回 NRC 0x78 延长响应时间，然后执行擦除 */
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_12)
                 {
+                    /* 前置条件：Flash 驱动 CMAC 已通过验证 */
                     if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_FLASH_DRIVER_CMAC_CHECK) && (flashdrv_cmac_succ == AS_TRUE))
                     {
                         /* PRQA S 3200 3 #3264 - Return value ignored, verified safe for system operation */
                         lin_uds_negative_response(lin_configured_NAD, param[0u], RCRRP);
                         delay_ms(90u);
+                        /* 执行 Flash 擦除（DFU 信息区 + APP 镜像区） */
                         dfu_image_erase();
+                        /* 状态迁移到 APP_ERASE，准备接收应用程序下载 */
                         dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_ERASE;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
@@ -1404,12 +1457,15 @@ STATIC void routine_control_handle(uint8_t *param, uint16_t length)
             }
             break;
         case 0xFF01u: // Application Compatibility Check
+            /* OTA 流程 - 应用程序兼容性检查例程：最终确认 APP 有效，更新 DFU 信息标志 */
             if (uds_request_info.sessionMode == PROGRAM_SESSION)
             {
                 if (length == BOOT_Frame_length_4)
                 {
+                    /* 前置条件：APP CMAC 已通过验证 */
                     if ((dfu_ctx.op_code == (uint8_t)DFU_CMD_APP_CMAC_CHECK) && (app_cmac_succ == AS_TRUE))
                     {
+                        /* OTA 状态迁移：APP_CMAC_CHECK → APP_COMPATIBLE_CHECK（OTA 升级最终状态） */
                         dfu_ctx.op_code = (uint8_t)DFU_CMD_APP_COMPATIBLE_CHECK;
                         pre_program_resp[0u] = param[2u];
                         pre_program_resp[1u] = param[3u];
@@ -1696,7 +1752,7 @@ STATIC void assign_config_word_handle(uint8_t *param, uint16_t length)
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 STATIC void read_by_identify_handle(uint8_t *param, uint16_t length)
 {
-    uint8_t rsp_data[5u] = {0u};
+    uint8_t rsp_data[5u] = {0u};                 /**< 读取配置字响应缓冲区 */
     if (lin_get_uds_nad() == 0x7Eu)
     {
         return;
@@ -1982,10 +2038,10 @@ STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void read_data_by_identify_handle(uint8_t *param, uint16_t length)
 {
-    uint8_t result = NEGATIVE;
-    uint16_t msglen = 0u, datalen;
-    uint16_t locdid = 0xFFFFu;
-    mult_did_data_t mult_did;
+    uint8_t result = NEGATIVE;                   /**< DID 检查结果 */
+    uint16_t msglen = 0u, datalen;               /**< 报文总长度 / 单 DID 数据长度 */
+    uint16_t locdid = 0xFFFFu;                   /**< 当前操作的 DID 标识符 */
+    mult_did_data_t mult_did;                    /**< 多 DID 读取数据结构（最多 5 个 DID） */
 
     msglen = length;
 
@@ -2309,28 +2365,28 @@ void diagnostic_session_handle(uint8_t *param, uint16_t length)
 
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
-const dfu_process_context_t dfu_process_ctx[] = {
-    {SERVICE_SESSION_CONTROL, &session_control_handle},             // 0x10 Physical Addressing+Functional Addressing
-    {SERVICE_ECU_RESET, &reset_handle},                             // 0x11 Physical Addressing+Functional Addressing
-    {SERVICE_SECURITY_ACCESS, &security_access_handle},             // 0x27 Physical Addressing
-    {SERVICE_FIRMWARE_INFO_SYNC, &firmware_info_sync_handle},       // 0x2E Physical Addressing
-    {SERVICE_ROUTINE_CONTROL, &routine_control_handle},             // 0x31 Physical Addressing
-    {SERVICE_REQUEST_DOWNLOAD, &request_download_handle},           // 0x34 Physical Addressing
-    {SERVICE_TRANSFER_DATA, &transfer_data_handle},                 // 0x36 Physical Addressing
-    {SERVICE_REQUEST_TRANSFER_EXIT, &request_transfer_exit_handle}, // 0x37 Physical Addressing
-    {SERVICE_CLEAR_DTC_INFO, &clear_dtc_info_handle},               // 0x14 Physical Addressing+Functional Addressing
-    {SERVICE_ASSIGN_NAD_VIA_SNPD, &assign_config_word_handle},      // 0xB5
-    {SERVICE_READ_BY_IDENTIFY, &read_by_identify_handle},           // 0xB2
-    {SERVICE_READ_DATA_BY_IDENTIFY, &read_data_by_identify_handle}, // 0x22 Physical Addressing
-    {SERVICE_COMMUNCATION_CONTROL, &communcation_control_handle},   // 0x28 Functional Addressing
-    {SERVICE_DTC_CONTROL, &dtc_control_handle},                     // 0x85 Functional Addressing
-    {SERVICE_TESTER_PRESENT, &diagnostic_session_handle},           // 0x3E Functional Addressing
+const dfu_process_context_t dfu_process_ctx[] = {                 /**< UDS 服务分发表：SID 到处理函数的映射表 */
+    {SERVICE_SESSION_CONTROL, &session_control_handle},             /**< 0x10 会话控制（物理寻址+功能寻址） */
+    {SERVICE_ECU_RESET, &reset_handle},                             /**< 0x11 ECU 复位（物理寻址+功能寻址） */
+    {SERVICE_SECURITY_ACCESS, &security_access_handle},             /**< 0x27 安全访问（物理寻址） */
+    {SERVICE_FIRMWARE_INFO_SYNC, &firmware_info_sync_handle},       /**< 0x2E 固件信息同步（物理寻址） */
+    {SERVICE_ROUTINE_CONTROL, &routine_control_handle},             /**< 0x31 例程控制（物理寻址） */
+    {SERVICE_REQUEST_DOWNLOAD, &request_download_handle},           /**< 0x34 请求下载（物理寻址） */
+    {SERVICE_TRANSFER_DATA, &transfer_data_handle},                 /**< 0x36 数据传输（物理寻址） */
+    {SERVICE_REQUEST_TRANSFER_EXIT, &request_transfer_exit_handle}, /**< 0x37 请求传输退出（物理寻址） */
+    {SERVICE_CLEAR_DTC_INFO, &clear_dtc_info_handle},               /**< 0x14 清除 DTC 信息（物理寻址+功能寻址） */
+    {SERVICE_ASSIGN_NAD_VIA_SNPD, &assign_config_word_handle},      /**< 0xB5 通过 SNPD 分配 NAD */
+    {SERVICE_READ_BY_IDENTIFY, &read_by_identify_handle},           /**< 0xB2 通过标识符读取 */
+    {SERVICE_READ_DATA_BY_IDENTIFY, &read_data_by_identify_handle}, /**< 0x22 通过标识符读取数据（物理寻址） */
+    {SERVICE_COMMUNCATION_CONTROL, &communcation_control_handle},   /**< 0x28 通信控制（功能寻址） */
+    {SERVICE_DTC_CONTROL, &dtc_control_handle},                     /**< 0x85 DTC 控制（功能寻址） */
+    {SERVICE_TESTER_PRESENT, &diagnostic_session_handle},           /**< 0x3E 诊断会话保持（功能寻址） */
 #ifdef ENABLE_TEST_MODE
     {0x00, NULL},  /* test only: NULL func to cover the NULL check branch */
 #endif
 };
 
-#define DFU_PROCESS_STEP_MAX (sizeof(dfu_process_ctx) / sizeof(dfu_process_context_t))
+#define DFU_PROCESS_STEP_MAX (sizeof(dfu_process_ctx) / sizeof(dfu_process_context_t)) /**< UDS 服务表条目总数 */
 
 /********************************************************
 ** @brief   更新 LIN 随机种子值
@@ -2371,11 +2427,13 @@ void lin_update_random_value(void)
 /* PRQA S 3408 1 #3218 - External linkage function defined without prior declaration, intentional design */
 void lin_exception_handle(void)
 {
+    /* 错误恢复：将解锁失败计数写入 Flash 持久化存储 */
     if (unlock_failed_store_flag == AS_TRUE)
     {
         unlock_failed_store_flag = AS_FALSE;
         pal_store_data_set(SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_ota_info, sizeof(g_ota_info));
     }
+    /* 错误恢复：诊断会话超时处理 - 回退到默认会话，APP 有效则复位 */
     if (diagnostic_session_overtime_flag == AS_TRUE)
     {
         diagnostic_session_overtime_flag = AS_FALSE;
@@ -2385,8 +2443,10 @@ void lin_exception_handle(void)
         pal_store_read(FLASH_TYPE_NVM, FLASH_DFU_INFO_ADDR, (uint8_t *)&dfu_ctx.dfu_info, sizeof(last_dfu_info_t));
         if (DFU_INFO_MAGIC == dfu_ctx.dfu_info.magic)
         {
+            /* APP 标志有效：复位进入 APP 的默认会话 */
             NVIC_SystemReset();
         }
+        /* APP 标志无效：停留在 Bootloader 默认会话 */
     }
 }
 
@@ -2404,6 +2464,7 @@ void lin_diag_service_handle(void)
 {
     uint16_t length = 0u;
     uint8_t i;
+    /* 从双缓冲队列尾部取出当前待处理的 LIN 报文 */
     uint8_t *base = (uint8_t *)&dfu_ctx.queue_list.packet[dfu_ctx.queue_list.tail];
     uint8_t *ptr = &base[2u];
     /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
@@ -2411,6 +2472,7 @@ void lin_diag_service_handle(void)
     uint8_t sid = ptr[0u];
     if (length != 0u)
     {
+        /* 根据 SID 在服务分发表中查找对应的处理函数 */
         for (i = 0u; i < DFU_PROCESS_STEP_MAX; i++)
         {
             if (sid == dfu_process_ctx[i].sid)
@@ -2423,6 +2485,7 @@ void lin_diag_service_handle(void)
                 break;
             }
         }
+        /* 未匹配到任何服务：返回 NRC 0x11（服务不支持） */
         if (i == DFU_PROCESS_STEP_MAX)
         {
             if (lin_get_uds_nad() == 0x7Eu)
@@ -2436,6 +2499,7 @@ void lin_diag_service_handle(void)
                 dfu_do_notify_response(NEGATIVE, ptr[0u], SERVICE_NOT_SUPPORTED);
             }
         }
+        /* 收到有效诊断报文，复位超时计数器 */
         dfu_ctx.uds_timeout = 0u;
     }
 }
@@ -2452,6 +2516,7 @@ void lin_diag_service_handle(void)
 void dfu_timeout_handle(void)
 {
     dfu_ctx.uds_timeout++;
+    /* 诊断超时检测：超过 LIN_UDS_TIMEOUT（约 5 秒）未收到诊断报文，触发会话超时 */
     if (dfu_ctx.uds_timeout > LIN_UDS_TIMEOUT)
     {
         dfu_ctx.uds_timeout = 0u;
@@ -2521,6 +2586,7 @@ void main_loops(void)
     lin_exception_handle();
     lin_update_random_value();
 
+    /* OTA 状态机：空闲状态 - 延迟检测 DFU 信息以决定跳转到 APP 或进入升级模式 */
     if (dfu_ctx.boot_state == (uint8_t)BOOT_STATE_IDLE)
     {
         delay_ms(1u);
@@ -2531,6 +2597,7 @@ void main_loops(void)
         {
             LoopCnt = 0u;
 
+            /* 检查 DFU 信息魔数：有效则跳转到用户 APP，无效则进入 Bootloader 升级模式 */
             if ((uint8_t)DFU_MSG_SUCCESS == last_dfu_info_get())
             {
                 LOG_DFU("BOOT_STATE_USER_APP\r\n");
@@ -2543,6 +2610,7 @@ void main_loops(void)
             }
         }
     }
+    /* OTA 状态机：用户 APP 状态 - 跳转到应用程序执行 */
     else if (dfu_ctx.boot_state == (uint8_t)BOOT_STATE_USER_APP)
     {
         JumpToApp(); /* jump user app*/
@@ -2564,12 +2632,13 @@ void main_loops(void)
 *********************************************************/
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
-uint8_t clear_wdg_cnt = 0u;
+uint8_t clear_wdg_cnt = 0u;                 /**< 看门狗清除计数（在 APP CMAC 计算期间用于周期性喂狗） */
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void os_task_update(void)
 {
     dfu_timeout_handle();
+    /* 在 APP CMAC 计算期间，每 1.8 秒发送 NRC 0x78 保持通信，同时周期喂狗 */
     if (app_cmac_start == AS_TRUE)
     {
         /* PRQA S 3387 2 #3265 - Increment or decrement operation is safe with no unintended side effects */
@@ -2586,6 +2655,7 @@ void os_task_update(void)
             wdg_reload();
         }
     }
+    /* 错误恢复：解锁失败 3 次后，每 10 秒释放一次锁定计数（降回 2 次，允许再次尝试） */
     if (g_ota_info.lock_failed_index > 2u) // In the case of 3 times, release once every 10 seconds
     {
         /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */

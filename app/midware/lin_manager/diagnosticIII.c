@@ -32,17 +32,17 @@
 #if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN
 /* PRQA S 3451 2 #3451 - Global identifier '%1s' is intentionally declared in multiple files (e.g., for shared global variable or forward declaration). */
 /* PRQA S 3449 1 #3449 - Multiple declarations of external object/function are intentional (e.g., for compatibility or conditional compilation). */
-extern uint8_t g_bUDSReadLogInfo;
+extern uint8_t g_bUDSReadLogInfo;    /**< 诊断日志读取标志（仅LOG_INTERFACE_LIN接口），由SID 0xA0置位，日志读取接口轮询后清零 */
 #endif
 
 /*
  * UDS接收缓冲区大小 = 最大队列长度 × 6
  * 用于存储从LIN传输层接收到的诊断请求报文（单帧或多帧）
  */
-#define UDS_RECEIVE_BUFFER_SIZE     (MAX_QUEUE_SIZE * 6)
+#define UDS_RECEIVE_BUFFER_SIZE     (MAX_QUEUE_SIZE * 6)    /**< UDS接收缓冲区大小 = 最大队列长度 × 6，用于存储从LIN传输层接收的诊断请求报文（单帧或多帧） */
 
 /* PRQA S 3218 1 #3209 - File scope static variable used in one function, intentional design */
-static const char *TAG = "DIAGNOSTICIII";
+static const char *TAG = "DIAGNOSTICIII";                   /**< 日志标签，用于TC_LOGE等日志宏输出，标识诊断模块来源 */
 
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1514 1 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
@@ -84,8 +84,8 @@ static uint8_t current_rcvd_nad;
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_service_handle(void)
 {
-    uint16_t length;
-    uint8_t data[UDS_RECEIVE_BUFFER_SIZE];
+    uint16_t length;                              /**< 从传输层接收的诊断请求PDU数据长度（字节数） */
+    uint8_t data[UDS_RECEIVE_BUFFER_SIZE];        /**< 诊断请求PDU数据缓冲区，存储从传输层接收的完整报文帧 */
 
     for (uint8_t i = 0; i < (uint8_t)_DIAG_NUMBER_OF_SERVICES_; i++)
     {
@@ -238,7 +238,7 @@ void setUDSNAD(uint8_t NAD)
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diag_positive_notify(uint8_t sid, uint8_t *data, uint16_t length)
 {
-    l_u8 slave_resp_dat[UDS_RECEIVE_BUFFER_SIZE];
+    l_u8 slave_resp_dat[UDS_RECEIVE_BUFFER_SIZE]; /**< 从机正响应数据缓冲区，byte[0]=SID|0x40(正响应SID)，byte[1..N]=响应负载数据 */
 
     if (length > (sizeof(slave_resp_dat) - 1u))
     {
@@ -292,7 +292,7 @@ void lin_diag_positive_notify(uint8_t sid, uint8_t *data, uint16_t length)
  */
 void lin_diag_negative_notify(uint8_t sid, uint8_t resp_value)
 {
-    l_u8 slave_resp_dat[UDS_RECEIVE_BUFFER_SIZE];
+    l_u8 slave_resp_dat[UDS_RECEIVE_BUFFER_SIZE]; /**< 从机负响应数据缓冲区，byte[0]=0x7F(否定响应标识)，byte[1]=原始请求SID，byte[2]=NRC错误码 */
 
     slave_resp_dat[0] = RES_NEGATIVE;   /* 固定前缀 0x7F */
     slave_resp_dat[1] = sid;            /* 原始请求SID */

@@ -24,34 +24,42 @@
 #include "tc_halt.h"
 #include "tc_usermsg.h"
 
+/**< 日志标签 */
 static const char *TAG = "HALT";
 
+/**< EMC测试使能标志，1使能0禁用 */
 #define EMC_TEST_EN     0
 
+/**< 生成HALT消息参数：将类型(高16位)和值(低16位)拼装为32位参数 */
 #define GEN_HALTMSG_PARAM(type,v)   (((uint32_t)(type)<<16) | (v))
+/**< 解析HALT消息参数中的类型字段（高16位） */
 #define PARSE_HALTMSG_PARAM_TYPE(param)     ((uint16_t)((param)>>16))
+/**< 解析HALT消息参数中的值字段（低16位） */
 #define PARSE_HALTMSG_PARAM_VALUE(param)    ((uint16_t)((param)&0xFFFFU))
 
 volatile uint8_t touchHaltRtcTrigFlag = 0;           //触摸低功耗rtc触发计数器
 static uint8_t inHaltFlag = 0;  //低功耗标记
+/**< HALT监控器计时累积值，由TIMER_IRQHandler周期性累加 */
 static int haltMonitorTimerCount = 0;
 
 static struct
 {
-    uint8_t num;
-    HALT_FILTER_WAKEUP_CALLBACK callback[MAX_FILTER_WAKEUP_CALLBACK_NUM];
+    uint8_t num;                            /**< 已注册的过滤函数数量 */
+    HALT_FILTER_WAKEUP_CALLBACK callback[MAX_FILTER_WAKEUP_CALLBACK_NUM]; /**< 唤醒过滤回调函数指针数组 */
 } filterWakeupCallback = {0};               //低功耗唤醒后过滤函数
 
+/**< HALT任务控制块指针 */
 static T_TcTask *haltTask = NULL;
 static T_TcTimer *haltTimeoutTimer = NULL;            //低功耗超时定时器
 
 static struct
 {
-    uint8_t num;
+    uint8_t num;                            /**< 已注册的监控器回调数量 */
     uint8_t waveFlag;       //检测到RTC wave标志，需要调用回调接口
-    HALT_MONITOR_CALLBACK callback[MAX_HALT_MONITOR_CALLBACK_NUM];
+    HALT_MONITOR_CALLBACK callback[MAX_HALT_MONITOR_CALLBACK_NUM]; /**< 监控器回调函数指针数组 */
 } haltMonitorCallback = {0};               //halt监控器回调接口
 
+/**< 当前低功耗模式类型（SLEEP_MODE_E），默认SLEEPWALK_MODE */
 static uint16_t haltmode = SLEEPWALK_MODE;
 
 static void HaltTask(uint32_t msg, void *param);        //低功耗任务
@@ -235,6 +243,7 @@ static void HaltTask(uint32_t msg, void *param)
 
 #if TOUCH_USE_EXT_LDO
 #else
+        /* 关闭内部LDO12C并启用唤醒功能，进入低功耗前降低核心电压功耗 */
         ASYSCFG_CONFIG_UNLOCK();
         ASYSCFG->LDO12C_CTRL_F.LDO12C_EN = 0;
         ASYSCFG->LDO12C_CTRL_F.LDO12C_WKUP_EN = 1;
@@ -243,6 +252,7 @@ static void HaltTask(uint32_t msg, void *param)
 
         do
         {
+            /* 每次睡眠前配置LDO进入低功耗模式：清除LDO12C硬件使能，增大LDO15偏置电流以降低静态功耗 */
             ASYSCFG_CONFIG_UNLOCK();
 #if TOUCH_USE_EXT_LDO
 #else
@@ -264,7 +274,7 @@ static void HaltTask(uint32_t msg, void *param)
 #if LOG_LOCAL_LEVEL != TC_LOG_NONE
             PrintWakeup();  //开启打印口
 #endif
-
+            /* 唤醒后恢复LDO15偏置电流至正常运行值（0x0），退出低功耗模式 */
             ASYSCFG_CONFIG_UNLOCK();
             ASYSCFG->LDO15_CTRL_F.LDO15_DL_IBASE_SEL = 0x0;
             ASYSCFG_CONFIG_LOCK();
@@ -296,7 +306,7 @@ static void HaltTask(uint32_t msg, void *param)
         TcTaskBroadcastHandleMsg(MSG_TASK_WAKE_UP, param);  //广播唤醒消息
         SysTick_Switch(1);                  //打开systick
         TcTimerStart(haltTimeoutTimer);     //重启超时定时器
-        haltMonitorCallback.waveFlag = 0;
+        haltMonitorCallback.waveFlag = 0;   /* 清除监控器wave标志，准备下一轮监控 */
 
         TC_LOGD(TAG, "wake up");
         inHaltFlag = 0;

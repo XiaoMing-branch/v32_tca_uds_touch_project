@@ -1,7 +1,7 @@
 /* PRQA S 0292 7 #3255 - Special characters in comments, no impact on code functionality */
 /**
  *****************************************************************************
- * @brief   lin dianosticiii source file.
+ * @brief   LIN诊断配置服务 - SID $B0 分配节点地址（AssignNAD）处理源文件
  *
  * @file    diagnosticiii.c
  * @author  AE/FAE team
@@ -46,27 +46,29 @@ static uint8_t fast_nad_write(uint8_t nad);
  */
 static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
 {
-    uint8_t i;
-    uint8_t id_origin;
+    uint8_t i;                              /*!< 循环索引，用于遍历所有LIN帧配置 */
+    uint8_t id_origin;                        /*!< 原始帧ID（DNN=0时的基准值），用于重算非广播帧 */
 
-    /* If new DNN is greater than current DNN */
+    /* 反向遍历所有LIN帧配置，根据帧类型重新计算帧ID */
     for (i = lin_num_of_frms; i > 0U; i--)
     {
-        /* For non-broadcast frame identifiers  less than or equal to 0x37 */
+        /* 非广播帧（ID <= 0x37）：取模得到原始ID，加上DNN偏移后重算帧ID */
         if (lin_configuration_RAM[i] <= 0x37U)
         {
             /* get id with dnn equal 0 */
             id_origin = (uint8_t)(lin_configuration_RAM[i] % frame_id_change);
             lin_configuration_RAM[i] = (uint8_t)(id_origin + (uint8_t)(dnn << 2));
         }
-        /* For broad cast message ID */
+        /* 广播帧（ID 0x38~0x3B）：根据DNN是否>=8进行±1调整 */
         else if ((lin_configuration_RAM[i] <= 0x3BU) && (lin_configuration_RAM[i] >= 0x38U))
         {
+            /* DNN >= 8时：0x38和0x3A向上偏移1 */
             if ((dnn >= 8U) &&
                 ((lin_configuration_RAM[i] == 0x38U) || (lin_configuration_RAM[i] == 0x3AU)))
             {
                 lin_configuration_RAM[i] += 1U;
             }
+            /* DNN < 8时：0x39和0x3B向下偏移1 */
             else if ((dnn < 8U) &&
                      ((lin_configuration_RAM[i] == 0x39U) || (lin_configuration_RAM[i] == 0x3BU)))
             {
@@ -91,50 +93,54 @@ static l_bool ld_change_msg_id(uint8_t dnn, uint8_t frame_id_change)
  */
 static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 {
-    l_bool ret_val = 1U;
-    int8_t i = 0;
+    l_bool ret_val = 1U;                  /*!< 返回值，0=成功，1=失败/DNN无效 */
+    int8_t i = 0;                        /*!< 循环索引，用于扫描帧类型表 */
     /* Get number of configurable_frames not calculate id 0x3C and 0x3D */
-    uint8_t number_of_configurable_frames = lin_num_of_frms - 2;
+    uint8_t number_of_configurable_frames = lin_num_of_frms - 2;  /*!< 可配置帧数量（排除固定的0x3C和0x3D帧） */
 
+    /* 从倒数第二帧向前扫描，排查已配置帧以计算实际可配置帧数 */
     for (i = lin_num_of_frms - 3; i >= 0; i--)
     {
+        /* 遇到未配置帧（LIN_FRM_UNCD）时停止扫描 */
         if (lin_frame_tbl[i].frm_type == LIN_FRM_UNCD)
         {
             break;
         }
         else
         {
+            /* 该帧已配置，从可配置帧计数中扣除 */
             number_of_configurable_frames--;
         }
     }
 
+    /* NAD有效范围校验：DNN必须 <= 13（0x0D），对应NAD范围0x60~0x6D */
     if (dnn <= 0xDU)
     {
-        /* number of configurable frames greater than 16 */
+        /* 可配置帧数 > 16：仅NAD 0x60有效，无需重算消息ID */
         if (number_of_configurable_frames > 16U)
         {
             /* Only 0x60 is valid NAD */
             /* Do nothing */
         }
-        /* number of configurable frames is from 9 - 16 */
+        /* 可配置帧数 9~16：步长为16，仅DNN=0/4/8的NAD有效 */
         else if (number_of_configurable_frames > 8U)
         {
-            /* Only NAD 0x60, 0x64, 0x68 are valid, 0x6C and 0x6D not valid */
+            /* 校验DNN是否为0/4/8（对应NAD 0x60/0x64/0x68） */
             if ((dnn == 0U) || (dnn == 4U) || (dnn == 8U))
             {
                 ret_val = ld_change_msg_id(dnn, 16U);
             }
         }
-        /* number of configurable frames is from 5 - 8 */
+        /* 可配置帧数 5~8：步长为8，仅偶数DNN有效 */
         else if (number_of_configurable_frames > 4U)
         {
-            /* Check to verify if dnn is 0x60, 0x62, 0x64, 0x66, 0x68, 0x6A, 0x6C */
+            /* DNN必须为偶数（对应NAD 0x60/0x62/0x64/0x66/0x68/0x6A/0x6C） */
             if ((dnn % 2U) == 0U)
             {
                 ret_val = ld_change_msg_id(dnn, 8U);
             }
         }
-        /* number of configurable frames is from 1 - 4 */
+        /* 可配置帧数 1~4：步长为4，所有DNN均有效 */
         else
         {
             ret_val = ld_change_msg_id(dnn, 4U);
@@ -159,11 +165,12 @@ static l_bool ld_reconfig_msg_ID(uint8_t dnn)
 /* PRQA S 3673 1 #3259 - Pointer parameter design maintains API consistency, no impact on safety */
 void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
 {
-    uint16_t supplierIdLsb;
-    uint16_t supplierIdMsb;
-    uint16_t functionIdLsb;
-    uint16_t functionIdMsb;
+    uint16_t supplierIdLsb;              /*!< 供应商ID低字节，从请求报文Byte[1]获取 */
+    uint16_t supplierIdMsb;              /*!< 供应商ID高字节，从请求报文Byte[2]获取 */
+    uint16_t functionIdLsb;              /*!< 功能ID低字节，从请求报文Byte[3]获取 */
+    uint16_t functionIdMsb;              /*!< 功能ID高字节，从请求报文Byte[4]获取 */
 
+    /* NAD匹配检查：当前NAD等于初始NAD/广播地址/已配置NAD，且报文长度为6 */
     if (((NAD == lin_initial_NAD) || (NAD == (uint8_t)LD_BROADCAST) || (NAD == lin_configured_NAD)) && (6U == length))
     {
         /* Get Supplier ID and Function ID*/
@@ -172,10 +179,11 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
         functionIdLsb = ptr[3];
         functionIdMsb = ptr[4];
 
-        /*Check if Supplier ID and Function ID match, then send positive response */
+        /* 校验Supplier ID：必须等于本产品的Supplier ID或通配符LD_ANY_SUPPLIER */
         if ((((supplierIdMsb << 8) | supplierIdLsb) == product_id.supplier_id) ||
             (((supplierIdMsb << 8) | supplierIdLsb) == (uint16_t)LD_ANY_SUPPLIER))
         {
+            /* 校验Function ID：必须等于本产品的Function ID或通配符LD_ANY_FUNCTION */
             if ((((functionIdMsb << 8) | functionIdLsb) == product_id.function_id) ||
                 (((functionIdMsb << 8) | functionIdLsb) == (uint16_t)LD_ANY_FUNCTION))
             {
@@ -184,12 +192,14 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
                 lin_diag_positive_notify(ptr[0], NULL, 0);
 #else
 
+                /* J2602协议：新NAD必须在0x60~0x6D范围内，且消息ID重算成功后才发送正响应 */
                 if ((ptr[5] >= 0x60) && (ptr[5] <= 0x6D) && (0 == ld_reconfig_msg_ID(ptr[5] - 0x60)))
                 {
                     lin_diag_positive_notify(ptr[0], NULL, 0);
                 }
                 else
                 {
+                    /* NAD范围无效或消息ID重算失败，发送负响应（ROOR = 请求超出范围） */
                     lin_diag_negative_notify(ptr[0], ROOR);
                 }
 
@@ -218,17 +228,21 @@ void lin_diagservice_assign_nad(uint8_t NAD, uint8_t *ptr, uint16_t length)
 /* PRQA S 2889 1 #3257 - Multiple return statements for logical clarity and efficiency */
 static uint8_t fast_nad_write(uint8_t nad)
 {
-    uint32_t alignbuf[2];
-    uint8_t *rdbuf = (uint8_t *)alignbuf;
+    uint32_t alignbuf[2];                /*!< 对齐缓冲区（8字节），满足Flash读写对齐要求 */
+    uint8_t *rdbuf = (uint8_t *)alignbuf; /*!< 字节视图指针，用于逐字节检查空闲位置 */
 
+    /* 按8字节对齐扫描整个Flash扇区，寻找值为0xFF的空闲存储位置 */
     for (uint32_t i = 0; i < (uint32_t)FLASH_SECTOR_SIZE; i += sizeof(alignbuf))
     {
         /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         pal_store_read(STORE_TYPE_SEL, FAST_LIN_NAD_ADDR + i, rdbuf, sizeof(alignbuf));
+        /* 遍历当前对齐块中的每个字节，查找空闲位置 */
         for (uint32_t j = 0; j < sizeof(alignbuf); ++j)
         {
+            /* 找到空闲字节（值为0xFF）：该位置可写入NAD */
             if (rdbuf[j] == 0xFFu)
             {
+                /* 若前一个字节已存相同NAD值，跳过写入以避免重复存储 */
                 if ((j > 0u) && (rdbuf[j - 1u] == nad)) // No need to save duplicate nad
                 {
                     return 1;

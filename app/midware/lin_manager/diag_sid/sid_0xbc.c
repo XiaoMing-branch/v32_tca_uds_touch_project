@@ -32,29 +32,41 @@
 #endif
 
 /**
- * @brief  0xBC SID - 读取SoC寄存器值
- *         从请求报文中提取寄存器地址，通过pal_store_reg_rw()读取寄存器，
- *         返回值经大端序转换后通过lin_diag_positive_notify()返回
- * @param  ptr - UDS请求报文指针（ptr[2..5]为大端序寄存器地址）
- * @param  length - 报文长度（本函数未使用）
- * @note   地址需经endian_swap_func()转换为小端序后传入pal_store_reg_rw()
- *         读取结果同样需经大端转换后再返回
- * @retval None
+ * @brief  SID $BC 读取SoC寄存器值
+ *         从UDS请求报文中提取寄存器地址（大端序），经 endian_swap_func() 转换为小端序后
+ *         调用 pal_store_reg_rw() 读取SoC寄存器的值；读取结果同样经 endian_swap_func()
+ *         原地转换回大端序后通过 lin_diag_positive_notify() 返回给上位机
+ * @param  ptr    - UDS请求报文指针
+ *         - ptr[0]：SID $BC
+ *         - ptr[2..5]：4字节寄存器地址（大端序，高字节在前）
+ * @param  length - 报文长度（本函数未使用，通过(void)length抑制编译器警告）
+ * @note   endian_swap_func() 大端小端转换说明：
+ *         - SoC（Cortex-M 内核）采用小端序（Little-Endian），即低地址存放低字节
+ *         - UDS/LIN 总线传输遵循大端序（Big-Endian，即网络字节序），高字节在前
+ *         - endian_swap_func() 将内存中 uint32_t 的字节序反转：
+ *           - 输入（大端序）：[0x12, 0x34, 0x56, 0x78] → 值为 0x12345678
+ *           - 输出（小端序）：[0x78, 0x56, 0x34, 0x12] → SoC 内存中正确表示
+ *         - 读取结果的转换同理：SoC 返回小端序值，需转为大端序后再发回上位机
+ * @retval None（通过 lin_diag_positive_notify 返回4字节寄存器值）
  */
 /* PRQA S 3408 2 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void soc_reg_read(uint8_t *ptr, uint16_t length)
 {
-    (void)length;
-    uint32_t addr = 0;
+    (void)length;                                                                       /*!< 抑制未使用形参的编译器警告 */
+    uint32_t addr = 0;                                                                  /*!< SoC寄存器地址（小端序），从报文中提取的大端序地址转换而来 */
     (void)(&addr);
-    uint32_t tt = 0;
+    uint32_t tt = 0;                                                                    /*!< 存放读取到的寄存器值，初始为0 */
 
+    /* 将报文中的大端序地址（ptr[2..5]）转换为小端序后存入addr */
     addr = endian_swap_func((uint8_t *)&ptr[2], sizeof(uint32_t));
 
+    /* 调用寄存器读写接口读取SoC寄存器（false表示读操作），结果存入tt */
     pal_store_reg_rw(false, addr, &tt);
 
 /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
+    /* 将读取到的小端序寄存器值原地转换为大端序，以便通过UDS/LIN总线发送给上位机 */
     endian_swap_func((uint8_t *)&tt, sizeof(uint32_t));
+    /* 发送SID $BC正响应，返回4字节大端序的寄存器值 */
     lin_diag_positive_notify(ptr[0], (uint8_t *)&tt, sizeof(uint32_t));
 }

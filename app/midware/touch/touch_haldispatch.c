@@ -285,6 +285,12 @@ static __INLINE void set_sleep_iodisable_asneed(const TOUCH_HalScanerTable_Type 
     }
 }
 
+/**
+ * @brief 打开或关闭常规模式下所有touch通道的IO功能
+ * @param self 触摸分发器实例指针
+ * @param rself 仅触摸分发器实例指针
+ * @param enable 1=使能IO（取消接地），0=禁用IO（接地）
+ */
 static void set_all_ioenable(struct TOUCH_HalDispatch_Type *self, TOUCH_HalDispatch_OnlyTouch_Type *rself, uint8_t enable); //打开或关闭所有touch通道接地功能
 /**
  * @brief 常规模式下按需将通道IO配置为正常（使能）状态
@@ -577,9 +583,11 @@ static void touch_haldispatchonlytouch_run(struct TOUCH_HalDispatch_Type *self, 
     TOUCH_HalInterface_Type *touch_node;
     TOUCH_HalDispatch_OnlyTouch_Type *rself = (TOUCH_HalDispatch_OnlyTouch_Type *)self;
 
+    /* 事件流：HW定时器触发 → dispatch层通道扫描 → 数据处理链路 → 应用层算法 */
     if (msg == MSG_TASK_TIMER)              //定时消息
     {
         uint16_t freq = self->fast2slow_scan.fast_freq;         //获取扫描频率
+        /* 调度条件：首次运行(lastSampTime==0)/超时(距上次采样≥周期)/强制触发(0xA5A5A5A5) → 执行新一轮采集 */
         int timeout = (TouchGetTime() - rself->data.lastSampTime >= SiIFastDiv(1000U, freq)) ? 1 : 0;
         if (rself->data.lastSampTime == 0 || timeout != 0 || ((uint32_t)param) == 0xA5A5A5A5) /**< 状态转换条件：首次运行/超时/强制触发 → 开始新一轮扫描 */
         {
@@ -588,7 +596,9 @@ static void touch_haldispatchonlytouch_run(struct TOUCH_HalDispatch_Type *self, 
             rself->data.cur_scaner = 0;
             rself->data.cur_scaner_channel = 0;
 
+            /* 通道采集前等待：等待电源/参考电压稳定后再开始第一个通道的采集 */
             delay_clock(rself->para.scan_firstchannel_waitcycle);       //扫描第一个通道延迟一段时间
+            /* 通道扫描调度循环：dispatch层遍历所有扫描器→所有通道→依次采集 */
             while (rself->data.cur_scaner < self->scaner_table.scaner_len)   /**< 通道扫描调度循环：依次遍历所有扫描器的所有通道 */
             {
 #if TOUCH_LAZY_SCAN_ENABLE
@@ -688,7 +698,7 @@ static void touch_haldispatchonlytouch_run(struct TOUCH_HalDispatch_Type *self, 
                     self->reset(self);      //复位并重新触发
                 }
 
-                //将touch数据放入算法缓冲区
+                /* 事件流：单通道采集完成 → dispatch层将数据推入算法缓冲区 */
                 i = touch_haldispatchonlytouch_channelnum(self, rself->data.cur_scaner, rself->data.cur_scaner_channel);
                 SiAlgoSetRawData(&touchAlgoObject, i, touch_data);          //数据压入算法缓冲区
 
@@ -725,17 +735,18 @@ static void touch_haldispatchonlytouch_run(struct TOUCH_HalDispatch_Type *self, 
         }
     }
 
-    if (msg == MSG_TASK_ENTER_HALT)     /**< 状态转换条件：收到低功耗进入消息 → 切换到低功耗模式 */
-    {
-        Touch_HalDispatch_SetInSleep(self, 1);
-
-        set_all_ioenable(self, rself, 1);           //使能全扫接地的通道
-        set_sleep_all_ioenable(self, rself, 0);       //将所有需要接地的touch通道接地
-
-        if (calc_can_remove_residues(self, rself) != 0)       //计算是否需要抗残留
+        /* 事件流：系统请求进入低功耗 → dispatch切换到sleep模式，配置sleep IO并运行抗残留 */
+        if (msg == MSG_TASK_ENTER_HALT)     /**< 状态转换条件：收到低功耗进入消息 → 切换到低功耗模式 */
         {
-            sleep_remove_residues_run(self, rself);       //运行抗残留，丢弃几轮采样值
-        }
+            Touch_HalDispatch_SetInSleep(self, 1);
+
+            set_all_ioenable(self, rself, 1);           //使能全扫接地的通道
+            set_sleep_all_ioenable(self, rself, 0);       //将所有需要接地的touch通道接地
+
+            if (calc_can_remove_residues(self, rself) != 0)       //计算是否需要抗残留
+            {
+                sleep_remove_residues_run(self, rself);       //运行抗残留，丢弃几轮采样值
+            }
 
 #if !(TOUCH_REDUCED_MODE)                   //非精简模式
         //初始化double_samp_table
@@ -794,12 +805,15 @@ static void touch_haldispatchonlytouch_run_scanmany(struct TOUCH_HalDispatch_Typ
 {
     TOUCH_HalDispatch_OnlyTouch_Type *rself = (TOUCH_HalDispatch_OnlyTouch_Type *)self;
 
+    /* 事件流（分批模式）：HW定时器触发 → FSM状态机分步调度 → 分批采集 → 全部完成后→算法处理 */
     if (msg == MSG_TASK_TIMER)              //定时消息
     {
         uint16_t freq = self->fast2slow_scan.fast_freq;         //获取扫描频率
+        /* 调度条件：首次运行/超时/FSM未完成/强制触发 → 继续或开始新一轮分批扫描 */
         int timeout = (TouchGetTime() - rself->data.lastSampTime >= SiIFastDiv(1000U, freq)) ? 1 : 0;
         if (rself->data.lastSampTime == 0 || timeout != 0 || rself->data.scan_many.fsm != 0  || ((uint32_t)param) == 0xA5A5A5A5) /**< 状态转换条件：首次运行/超时/fsm未完成/强制触发 → 继续或开始新一轮扫描 */
         {
+            /* FSM状态机调度：分步完成所有通道采集，避免单次任务耗时过长 */
             switch (rself->data.scan_many.fsm)
             {
             case 0:     /**< 状态：开始新一轮扫描，采集第一批通道 */
@@ -832,6 +846,7 @@ static void touch_haldispatchonlytouch_run_scanmany(struct TOUCH_HalDispatch_Typ
                 rself->data.scan_many.last_scaner = rself->data.cur_scaner;
                 rself->data.scan_many.last_scaner_channel = rself->data.cur_scaner_channel;
                 break;
+            /* 事件流：FSM全部通道采集完毕 → dispatch层将所有批次数据送入算法缓冲区 → 应用层处理 */
             case 2:     /**< 状态：本轮所有通道采集完成，运行触摸算法 */
                 if (rself->data.skip_poweron_cnt < rself->para.skip_poweron_datas)
                 {
@@ -864,6 +879,7 @@ static void touch_haldispatchonlytouch_run_scanmany(struct TOUCH_HalDispatch_Typ
         }
     }
 
+    /* 事件流（分批模式）：系统请求进入低功耗 → FSM强制完成本轮扫描 → 切换到sleep模式 */
     if (msg == MSG_TASK_ENTER_HALT)     /**< 状态转换条件：收到低功耗进入消息 → 强制完成本轮扫描后切换到低功耗模式 */
     {
         if (rself->data.scan_many.fsm != 0)      //强制扫描完一轮
@@ -1076,9 +1092,9 @@ static int touch_haldispatchonlytouch_sleep_run(struct TOUCH_HalDispatch_Type *s
     T_SiData touch_data_bkup;
     struct
     {
-        uint8_t valid;          //1表示touch数据有效
-        T_SiData touch_data;
-    } touch_data_wkupbufs[SI_CH_MAXNUM];
+        uint8_t valid;          /**< 1表示touch数据有效 */
+        T_SiData touch_data;    /**< 缓存低功耗唤醒时采集的原始touch数据 */
+    } touch_data_wkupbufs[SI_CH_MAXNUM];    /**< 低功耗唤醒数据备份缓冲区，用于use_wkupdata_as_touchdata优化 */
     uint32_t i;
     TOUCH_HalInterface_Type *touch_node;
     TOUCH_HalDispatch_OnlyTouch_Type *rself = (TOUCH_HalDispatch_OnlyTouch_Type *)self;
@@ -1193,6 +1209,7 @@ static int touch_haldispatchonlytouch_sleep_run(struct TOUCH_HalDispatch_Type *s
             }
         }
 #endif
+        /* 事件流：低功耗通道扫描完成 → dispatch层将数据送入算法缓冲区 → 运行算法检测唤醒按键 */
         wkupFlag = SiAlgoProcress(&touchAlgoObject);        //处理低功耗object
 
         if (wkupFlag == SI_RT_WKUP || (rself->para.noise_force_wakeup && SiNoiseIsDetect4(&touchAlgoObject)))     /**< 状态转换条件：检测到有效按键或噪音 → 返回1唤醒系统 */
@@ -1478,7 +1495,7 @@ static T_SiData recalc_touchdata_insleep(T_SiData touch_data, int can_scan_mask,
  */
 static void sleep_remove_residues_run(struct TOUCH_HalDispatch_Type *self, TOUCH_HalDispatch_OnlyTouch_Type *rself)       //运行低功耗数据抗残留，丢弃几轮采样值
 {
-#define REMOVE_RESIDUES_LOSS_CNT        1           //抗残留丢弃几次数据
+#define REMOVE_RESIDUES_LOSS_CNT        1           /**< 抗残留丢弃次数，每次丢弃1轮采样数据 */
 
     uint8_t begin_cur_scaner = 0;                   //cur_scaner起始值
     uint8_t begin_cur_scaner_channel = 0;           //cur_scaner_channel起始值

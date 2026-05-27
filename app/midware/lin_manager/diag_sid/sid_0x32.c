@@ -3,6 +3,11 @@
  *****************************************************************************
  * @brief   SID $32 获取可追溯性消息处理模块（DataDownload）
  *
+ * 本模块实现了UDS协议SID $32（DataDownload / 获取可追溯性消息）服务的处理逻辑。
+ * 该服务用于诊断仪从ECU读取可追溯性信息，如生产批次、固件版本、序列号等
+ * 用于生产追溯和售后维修的数据。当前实现为空函数，未执行任何实际的
+ * 可追溯性消息读取或返回操作。后续可根据具体应用需求实现数据返回逻辑。
+ *
  * @file    sid_0x32.c
  * @author  AE/FAE team
  * @date    2024.01.01
@@ -43,7 +48,7 @@
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void lin_diag_get_traceability_msg(uint8_t *ptr, uint16_t length)
 {
-    (void)ptr;
-    (void)length;
+    (void)ptr; /*!< 抑制未使用参数ptr的编译警告，当前空实现暂未使用请求报文指针 */
+    (void)length; /*!< 抑制未使用参数length的编译警告，当前空实现暂未使用报文长度 */
 }
 

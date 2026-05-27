@@ -3,7 +3,7 @@
 #include "misc.h"
 #include "tc_log.h"
 
-static const char *TAG = "MISC";
+static const char *TAG = "MISC"; /**< 日志标签 */
 
 /**
  * @brief  获取VBAT电压值（单位mV）
@@ -58,8 +58,8 @@ int GetVbatMv(adc_vref_e vref, int sampCount)
     static const int vrefMvTable[] =
     {
         2500, 2000, 1500
-    };
-    int sumcode = 0;
+    }; /**< ADC参考电压值表（mV），索引对应vref枚举值 */
+    int sumcode = 0; /**< 采样码值和 */
     for (int i = 0; i < sampCount; ++i)
     {
         ADC->CTRL0_F.SW_START = 1;
@@ -101,13 +101,13 @@ int GetTempCode(uint8_t index, adc_vref_e vref, int sampCount)
     ADC->CTRL0_F.AUTO_ADC_EN = 0;
     ADC->CTRL0_F.SW_ADC_EN = ENABLE;
 
-    if (index == 0)
+    if (index == 0) /* 选择内部温度传感器INT0 */
     {
         ADC->CTRL1_F.INT0_SNS_EN = ENABLE;
         ADC->CTRL1_F.INT1_SNS_EN = DISABLE;
         ADC->CTRL1_F.IN_SEL = ADC_CHANNEL_TEMP;
     }
-    else
+    else /* 选择内部温度传感器INT1 */
     {
         ADC->CTRL1_F.INT0_SNS_EN = DISABLE;
         ADC->CTRL1_F.INT1_SNS_EN = ENABLE;
@@ -134,7 +134,7 @@ int GetTempCode(uint8_t index, adc_vref_e vref, int sampCount)
         ADC->FIFO_DATA;
     }
 
-    int sumcode = 0;
+    int sumcode = 0; /**< 采样码值和 */
     for (int i = 0; i < sampCount; ++i)
     {
         ADC->CTRL0_F.SW_START = TRUE;
@@ -235,37 +235,37 @@ void WdgInit(void)
  */
 void PrintRstCause(void)
 {
-    uint32_t rst_cause = 0;
+    uint32_t rst_cause = 0; /**< 复位原因标志位 */
 
     ASYSCFG_CONFIG_UNLOCK();
 
     rst_cause = ASYSCFG_RST_CAUSE_GET();
 
-    if (rst_cause & ASYSCFG_RST_CAUSE_CM0_RST)
+    if (rst_cause & ASYSCFG_RST_CAUSE_CM0_RST) /* CM0复位或lockup */
     {
         TC_LOGI(TAG, "reset:cm0 reset or lockup");
     }
-    if (rst_cause & ASYSCFG_RST_CAUSE_OTP)
+    if (rst_cause & ASYSCFG_RST_CAUSE_OTP) /* OTP复位 */
     {
         TC_LOGI(TAG, " reset:otp");
     }
-    if (rst_cause & ASYSCFG_RST_CAUSE_IWDG)
+    if (rst_cause & ASYSCFG_RST_CAUSE_IWDG) /* 独立看门狗IWDG复位 */
     {
         TC_LOGI(TAG, "reset:iwdg");
     }
-    if (rst_cause & ASYSCFG_RST_CAUSE_SW_POR_REQ)
+    if (rst_cause & ASYSCFG_RST_CAUSE_SW_POR_REQ) /* 软件POR复位 */
     {
         TC_LOGI(TAG, " reset:sw por req");
     }
-    if (rst_cause & ASYSCFG_RST_CAUSE_IO4_PAD_RST)
+    if (rst_cause & ASYSCFG_RST_CAUSE_IO4_PAD_RST) /* IO4引脚复位 */
     {
         TC_LOGI(TAG, "reset:io4 pad");
     }
-    if (rst_cause & ASYSCFG_RST_CAUSE_VS_ALT)
+    if (rst_cause & ASYSCFG_RST_CAUSE_VS_ALT) /* VS_ALT复位 */
     {
         TC_LOGI(TAG, " reset:vs alt");
     }
-    if (rst_cause == 0)
+    if (rst_cause == 0) /* 未知复位原因 */
     {
         TC_LOGI(TAG, "reset:unknon");
     }
@@ -299,14 +299,14 @@ void RtcTrigConfig(uint8_t freq, uint8_t sw)
 
     TIM_LITE->INIT_VAL = (32768 / freq);
 
-    if (sw)
+    if (sw) /* 开启RTC定时器触发 */
     {
         TIM_LITE->ICR = 0xFFFFFFFF;
         TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 0;    //TIMERLITE_INTERRUPT_ENABLE();
         EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, ENABLE);
         TIM_LITE->CTRL_F.EN = 1; //TIMERLITE_ENABLE();
     }
-    else
+    else /* 关闭RTC定时器触发 */
     {
         TIM_LITE->IMR_F.CNT_UDF_INT_MSK = 1;    //TIMERLITE_INTERRUPT_DISABLE();
         EnableNvic(TIMER_IRQn, TCAE10_DEFAULT_IRQ_LEVEL, DISABLE);

@@ -52,75 +52,75 @@ static const char *TAG = "custom";
 /* PRQA S 1514 4 #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 /* PRQA S 3408 3 #3218 - External linkage function defined without prior declaration, intentional design */
 /* PRQA S 2071 2 #3269 - Language extension used for compiler and hardware optimization */
-__attribute__((section(".ARM.__at_0x00004000"))) const char g_lin_sequence_num_version[24] = "SW:1.01.B_260525_3197_06";                                                                                                              /* 24 byte*/
-__attribute__((section(".ARM.__at_0x00004018"))) const char g_seres_app_software_version[21] = {'S', 'W', ':', 'E', 'H', 'I', 'S', 'F', 'L', '.', '1', '.', '3', 'C', '.', '0', '5', (char)0x20, (char)0x20, (char)0x20, (char)0x20}; /* 21 byte*/
+__attribute__((section(".ARM.__at_0x00004000"))) const char g_lin_sequence_num_version[24] = "SW:1.01.B_260525_3197_06"; /**< LIN序列号版本字符串（24字节），存放于Boot区固定地址0x4000 */                                                                                                             /* 24 byte*/
+__attribute__((section(".ARM.__at_0x00004018"))) const char g_seres_app_software_version[21] = {'S', 'W', ':', 'E', 'H', 'I', 'S', 'F', 'L', '.', '1', '.', '3', 'C', '.', '0', '5', (char)0x20, (char)0x20, (char)0x20, (char)0x20}; /**< 应用软件版本字符串（21字节），存放于Boot区固定地址0x4018，含车门位置标识(FL/RL/FR/RR) */ /* 21 byte*/
 #else
-const char g_lin_sequence_num_version[24] = "SW:1.01.B_260525_3197_06";                                                                                      /* 24 byte*/
-const char g_seres_app_software_version[21] = {'S', 'W', ':', 'E', 'H', 'I', 'S', 'F', 'L', '.', '1', '.', '3', 'C', '.', '0', '5', 0x20, 0x20, 0x20, 0x20}; /* 21 byte*/
+const char g_lin_sequence_num_version[24] = "SW:1.01.B_260525_3197_06"; /**< LIN序列号版本字符串（24字节）*/                                                                                      /* 24 byte*/
+const char g_seres_app_software_version[21] = {'S', 'W', ':', 'E', 'H', 'I', 'S', 'F', 'L', '.', '1', '.', '3', 'C', '.', '0', '5', 0x20, 0x20, 0x20, 0x20}; /**< 应用软件版本字符串（21字节），含车门位置标识(FL/RL/FR/RR) */ /* 21 byte*/
 #endif
 
 /* general defines for UDS Session*/
-#define UDS_TRUE 0x01u
-#define UDS_FALSE 0x00u
+#define UDS_TRUE 0x01u    /**< UDS布尔真值 */
+#define UDS_FALSE 0x00u   /**< UDS布尔假值 */
 
-#define P2_SERVER_MAX (500)
-#define P2E_SERVER_MAX (200)
+#define P2_SERVER_MAX (500)   /**< P2定时器最大值（500ms），会话控制正响应中返回给Tester */
+#define P2E_SERVER_MAX (200)  /**< P2扩展定时器最大值（200ms），用于编程/扩展会话 */
 
-#define FLASH_SECTOR_SIZE (512)
-#define FLASH_BASE_ADDR (0x00000000U)
+#define FLASH_SECTOR_SIZE (512)           /**< Flash扇区大小（512字节） */
+#define FLASH_BASE_ADDR (0x00000000U)     /**< Flash基地址（起始地址） */
 /* PRQA S 1534 ++ #3261 - Unused macro defined for future extension and configuration compatibility */
-#define FLASH_END_ADDR (0x00010000UL)
-#define CUS_CFG_WORD_BASE_ADDR (0x0000F800U)                    /* 0.5k */
-#define CUS_SYSTEM_PARAM_BASE_ADDR (0x0000FA00U)                /* 0.5k */
-#define FLASH_BOOT_SIZE (0x00003E00UL)                          /* 15.5k */
-#define FLASH_DFU_INFO_ADDR (FLASH_BASE_ADDR + FLASH_BOOT_SIZE) /* 15.5k */
-#define FLASH_DFU_INFO_SIZE (FLASH_SECTOR_SIZE)                 /* 0.5k */
+#define FLASH_END_ADDR (0x00010000UL)     /**< Flash结束地址（64KB） */
+#define CUS_CFG_WORD_BASE_ADDR (0x0000F800U)                    /**< 用户配字存储基地址（Flash末尾0.5K） */ /* 0.5k */
+#define CUS_SYSTEM_PARAM_BASE_ADDR (0x0000FA00U)                /**< 系统参数存储基地址（Flash末尾第二个0.5K） */ /* 0.5k */
+#define FLASH_BOOT_SIZE (0x00003E00UL)                          /**< Bootloader固件大小（15.5KB） */ /* 15.5k */
+#define FLASH_DFU_INFO_ADDR (FLASH_BASE_ADDR + FLASH_BOOT_SIZE) /**< DFU信息存储地址（Boot区之后） */ /* 15.5k */
+#define FLASH_DFU_INFO_SIZE (FLASH_SECTOR_SIZE)                 /**< DFU信息存储大小（0.5KB，即1个扇区） */ /* 0.5k */
 
-#define FLASH_APP_PARAM_SIZE (0x00000800U)                                            /* 2K*/
-#define FLASH_APP_IMAGE_SIZE (FLASH_END_ADDR - FLASH_APP_ADDR - FLASH_APP_PARAM_SIZE) /* 46k */
-#define FLASH_APP_END_ADDR (FLASH_END_ADDR - FLASH_APP_PARAM_SIZE)
-#define FLASH_BOOT_VERSION_ADDR (0x00003900u)
-#define FLASH_HW_VERSION_ADDR (0x00003908u)
+#define FLASH_APP_PARAM_SIZE (0x00000800U)                                            /**< 应用参数区大小（2KB） */ /* 2K*/
+#define FLASH_APP_IMAGE_SIZE (FLASH_END_ADDR - FLASH_APP_ADDR - FLASH_APP_PARAM_SIZE) /**< 应用固件映像大小（46KB） */ /* 46k */
+#define FLASH_APP_END_ADDR (FLASH_END_ADDR - FLASH_APP_PARAM_SIZE)                    /**< 应用区结束地址 */
+#define FLASH_BOOT_VERSION_ADDR (0x00003900u)                                         /**< Bootloader版本号存储地址 */
+#define FLASH_HW_VERSION_ADDR (0x00003908u)                                           /**< 硬件版本号存储地址 */
 
-#define CUS_UDS_RECEIVE_BUFFER_SIZE (20)
-#define CUS_UDS_SEND_BUFFER_SIZE (66)
-#define UDS_SESSION_POSIT_RESP_LEN 3u
-#define UDS_SESSION_NEG_RESP_LEN 3u
-#define UDS_SUPPRESS_POS_RESP_INDIC_BIT 0x80u
-#define UDS_SID_MASK_WO_RESP_IND_BIT 0x7Fu
-#define UDS_NEG_RESP_RSID 0x7Fu
-#define UDS_POS_RESP_CODE 0x40u
-#define UDS_DIAG_SESSION_POSIT_RESP_LEN 6u
-#define UDS_DIAG_SESSION_REQ_LEN 2u
-#define UDS_DIAG_ROUTE_POSIT_RESP_LEN 5u
-#define UDS_DIAG_ROUTE_REQ_LEN 4u
-#define UDS_READ_BY_DID_MIN_RESP_LEN 3u
-#define UDS_READ_BY_DID_REQ_LEN 3u
+#define CUS_UDS_RECEIVE_BUFFER_SIZE (20) /**< UDS诊断接收缓冲区大小（20字节） */
+#define CUS_UDS_SEND_BUFFER_SIZE (66)    /**< UDS诊断发送缓冲区大小（66字节） */
+#define UDS_SESSION_POSIT_RESP_LEN 3u    /**< 会话控制正响应基本长度（3字节） */
+#define UDS_SESSION_NEG_RESP_LEN 3u      /**< 负响应报文长度（3字节：SID+NRC+RSID） */
+#define UDS_SUPPRESS_POS_RESP_INDIC_BIT 0x80u /**< 抑制正响应指示位掩码（SubFunction的bit7） */
+#define UDS_SID_MASK_WO_RESP_IND_BIT 0x7Fu    /**< 去掉抑制位后的SID掩码 */
+#define UDS_NEG_RESP_RSID 0x7Fu               /**< 负响应服务标识符（固定0x7F） */
+#define UDS_POS_RESP_CODE 0x40u               /**< 正响应偏移码（请求SID+0x40=正响应SID） */
+#define UDS_DIAG_SESSION_POSIT_RESP_LEN 6u    /**< 会话控制正响应完整长度（6字节：含P2/P2*定时器） */
+#define UDS_DIAG_SESSION_REQ_LEN 2u           /**< 会话控制请求报文长度（2字节：SID+SubFunc） */
+#define UDS_DIAG_ROUTE_POSIT_RESP_LEN 5u      /**< 例程控制正响应长度（5字节） */
+#define UDS_DIAG_ROUTE_REQ_LEN 4u             /**< 例程控制请求报文长度（4字节：SID+SubFunc+RID_H+RID_L） */
+#define UDS_READ_BY_DID_MIN_RESP_LEN 3u       /**< 读DID正响应最小长度（3字节：RespSID+DID_H+DID_L） */
+#define UDS_READ_BY_DID_REQ_LEN 3u            /**< 读DID请求报文长度（3字节：SID+DID_H+DID_L） */
 
-#define CUS_UDS_PRODUCT_IDENT 0xF3u
+#define CUS_UDS_PRODUCT_IDENT 0xF3u /**< 产品标识符，用于LIN从节点供应商/功能ID匹配查询 */
 
 /* negative response code for UDS services */
-#define UDS_SERVICE_NOT_SUPPORTED_11 0x11u /* This response code is in general supported by each diagnostic service */
-#define UDS_SUBFUNC_NOT_SUPP_12 0x12u
-#define UDS_INCOR_LEN_INVALID_FORMAT_13 0x13u
-#define UDS_RESPONSE_TOO_LONG_14 0x14u
-#define UDS_BUSY_REPEAT_REQUEST_21 0x21u
-#define UDS_COND_NOT_CORRECT_22 0x22u
-#define UDS_REQU_SEQU_ERROR_24 0x24u
-#define UDS_REQUEST_OUT_OF_RANGE_31 0x31u
-#define UDS_DID_SEC_ERR_33 0x33u
-#define UDS_GENERAL_PROGRAMMING_FAIL_72 0x72u
-#define UDS_REQ_CORR_REC_RESP_PEND_78 0x78u
-#define UDS_SERVICE_NOT_SUPPORTED_INACTIVE_SESSION_7F 0x7Fu
-#define UDS_COND_NOT_SUPPORT_7E 0x7Eu
+#define UDS_SERVICE_NOT_SUPPORTED_11 0x11u /**< NRC 0x11: 请求的服务不支持 */ /* This response code is in general supported by each diagnostic service */
+#define UDS_SUBFUNC_NOT_SUPP_12 0x12u      /**< NRC 0x12: 子功能不支持 */
+#define UDS_INCOR_LEN_INVALID_FORMAT_13 0x13u /**< NRC 0x13: 报文长度错误或格式无效 */
+#define UDS_RESPONSE_TOO_LONG_14 0x14u     /**< NRC 0x14: 响应报文过长 */
+#define UDS_BUSY_REPEAT_REQUEST_21 0x21u   /**< NRC 0x21: 忙，请重发请求 */
+#define UDS_COND_NOT_CORRECT_22 0x22u      /**< NRC 0x22: 条件不满足（如车速过高） */
+#define UDS_REQU_SEQU_ERROR_24 0x24u       /**< NRC 0x24: 请求顺序错误 */
+#define UDS_REQUEST_OUT_OF_RANGE_31 0x31u  /**< NRC 0x31: 请求超出范围（DID/RID不支持） */
+#define UDS_DID_SEC_ERR_33 0x33u           /**< NRC 0x33: DID安全访问被拒绝（需安全解锁） */
+#define UDS_GENERAL_PROGRAMMING_FAIL_72 0x72u /**< NRC 0x72: 通用编程失败 */
+#define UDS_REQ_CORR_REC_RESP_PEND_78 0x78u /**< NRC 0x78: 请求正确接收，响应待定 */
+#define UDS_SERVICE_NOT_SUPPORTED_INACTIVE_SESSION_7F 0x7Fu /**< NRC 0x7F: 当前会话模式下不支持该服务 */
+#define UDS_COND_NOT_SUPPORT_7E 0x7Eu       /**< NRC 0x7E: 当前会话下条件不支持（如从默认会话直接切编程会话） */
 
-#define CONFIGURE_WORD_STATE_INIT 0
-#define CONFIGURE_WORD_STATE_START 1
-#define CONFIGURE_WORD_STATE_ASIGN 2
-#define CONFIGURE_WORD_STATE_SAVE 3
-#define CONFIGURE_WORD_STATE_END 4
+#define CONFIGURE_WORD_STATE_INIT 0   /**< 配字状态机：初始状态 */
+#define CONFIGURE_WORD_STATE_START 1  /**< 配字状态机：开始状态（接收到0xB5 0x01） */
+#define CONFIGURE_WORD_STATE_ASIGN 2  /**< 配字状态机：分配状态（已分配车门位置） */
+#define CONFIGURE_WORD_STATE_SAVE 3   /**< 配字状态机：保存状态（已写入Flash） */
+#define CONFIGURE_WORD_STATE_END 4    /**< 配字状态机：结束状态（配字流程完成） */
 /* PRQA S 1534 -- */
-#define MULT_DID_MAX 5
+#define MULT_DID_MAX 5                /**< 多DID模式下支持的最大DID数量（最多5个） */
 
 /* PRQA S 1514 ++ #3212 - The object is only referenced by a single function within the translation unit, reserved by intentional design */
 /* PRQA S 3408 ++ #3218 - External linkage function defined without prior declaration, intentional design */
@@ -542,7 +542,10 @@ STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
         *len = 0;
         break;
 
-    /*get raw base diff noise key value*/
+    /* DID 0x0001: 产线测试用触摸通道原始数据（27字节）
+       数据布局：Key1[0] raw/base/diff(6B) + Key1[1] raw/base/diff(6B) +
+                 Key2[0] raw/base/diff(6B) + Key2[1] raw/base/diff(6B) +
+                 noise_raw(2B) + key_val(1B) = 27B */
     case 0x0001:
         *len = 27;
         diagnosticTxBuffer[1] = (uint8_t)((uint16_t)touch_data.key1_raw[0] >> 8);
@@ -573,9 +576,11 @@ STATIC void user_read_data_by_id(uint8_t mul_flag, uint8_t mul_len, uint16_t did
         diagnosticTxBuffer[23] = (uint8_t)((uint16_t)touch_data.key2_diff[1] >> 8);
         diagnosticTxBuffer[24] = (uint8_t)touch_data.key2_diff[1];
 
+        /* 噪声原始值（大端序2字节） */
         diagnosticTxBuffer[25] = (uint8_t)((uint16_t)touch_data.noise_raw >> 8);
         diagnosticTxBuffer[26] = (uint8_t)touch_data.noise_raw;
 
+        /* 触摸按键状态标志（低2位有效） */
         diagnosticTxBuffer[27] = (uint8_t)(touch_data.key_val & 0x3u);
         break;
 
@@ -626,7 +631,8 @@ void uds_diagnostic_session_control(void)
             {
                 program_condition_check = 0;
 
-                /* 设置预编程请求标志并复位进入Bootloader */
+                /* NAD=0x7E/0x7F为LIN从节点诊断广播地址，此时ECU作为功能寻址从节点，
+                   设置预编程标志为3（从节点模式），否则为标准诊断请求，设置为1 */
                 if ((lin_current_rcvd_nad() == 0x7Eu) || (lin_current_rcvd_nad() == 0x7Fu))
                     g_ota_info.app_req_ext_program_flag = 3;
                 else
@@ -641,7 +647,7 @@ void uds_diagnostic_session_control(void)
                 /* 不满足预编程条件 */
                 if ((lin_current_rcvd_nad() == 0x7Eu) || (lin_current_rcvd_nad() == 0x7Fu))
                 {
-                    /* NAD=0x7E/0x7F时静默处理（LIN从节点广播诊断） */
+                    /* NAD=0x7E/0x7F时静默处理：不发送NRC，避免LIN从节点广播诊断冲突 */
                 }
                 else
                 {
@@ -1326,12 +1332,15 @@ void uds_diagnostic_readdata_by_id(void)
             send_negative_response_message(UDS_REQUEST_OUT_OF_RANGE_31); // NRC31: DID不在支持列表中
         }
     }
+    /* 多DID模式：报文格式为 SID + DID1_H + DID1_L + DID2_H + DID2_L + ...
+       报文长度范围：5~11字节（1~5个DID），[msglen-1]必须为偶数 */
     else if ((msglen > UDS_READ_BY_DID_REQ_LEN) && (msglen <= (((uint16_t)MULT_DID_MAX * 2u) + 1u)) && (((msglen - 1u) % 2u) == 0u)) // 多DID模式，最多5个DID（偶数个字节）
     {
         /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
         memset(&mult_did, 0, sizeof(mult_did_data_t));
-        mult_did.did_num = (uint8_t)((msglen - 1u) / 2u);
+        mult_did.did_num = (uint8_t)((msglen - 1u) / 2u); /* 从报文长度计算DID数量 */
 
+        /* 第一轮：校验每个DID的有效性，标记有效DID位 */
         for (uint8_t i = 0; i < mult_did.did_num; i++)
         {
             mult_did.did_array[i] = ((uint16_t)diagnosticRxBuffer[(2u * i) + 1u] << 8) + diagnosticRxBuffer[(2u * i) + 2u];
@@ -1345,6 +1354,7 @@ void uds_diagnostic_readdata_by_id(void)
         /* 至少有一个有效DID才返回正响应 */
         if (mult_did.did_valid_flag != 0u)
         {
+            /* 第二轮：逐DID读取数据并组装到发送缓冲区，每个DID格式：DID_H(1B) + DID_L(1B) + data(NB) */
             for (uint8_t i = 0; i < mult_did.did_num; i++)
             {
                 if ((mult_did.did_valid_flag & ((uint16_t)1u << i)) != 0u)
@@ -1352,10 +1362,10 @@ void uds_diagnostic_readdata_by_id(void)
                     diagnosticTxBuffer[mult_did.data_len + 1u] = (uint8_t)(mult_did.did_array[i] >> 8u);
                     diagnosticTxBuffer[mult_did.data_len + 2u] = (uint8_t)mult_did.did_array[i];
                     user_read_data_by_id(1, (uint8_t)(mult_did.data_len + 3u), mult_did.did_array[i], &datalen);
-                    mult_did.data_len += (datalen + 2u);
+                    mult_did.data_len += (datalen + 2u); /* +2字节DID标识 */
                 }
             }
-            msglen = (mult_did.data_len + 1u);
+            msglen = (mult_did.data_len + 1u); /* +1字节正响应SID */
             send_positive_response_message(msglen);
         }
         else
@@ -1581,26 +1591,33 @@ void lin_handle_uds(void)
     uint8_t idx = diagnosticRxBuffer[0u];
 
     negResponseCode = 0u;
+        /* 预编程条件检查标志保持逻辑：一旦program_condition_check=1，允许以下服务不重置该标志
+       允许保持的服务：10 02/82(切编程会话)、3E 00/80(TesterPresent)、85 82(DTC关+抑制)、28 83 03(静默+抑制)
+       其他服务则清除该标志 */
     if (program_condition_check == 1u)
     {
         if (lin_current_rcvd_nad() == lin_configured_NAD)
         {
+            /* 0x10 会话控制（02/82=编程会话）：保持标志以允许后续进入Boot */
             if ((diagnosticRxBuffer[0] == 0x10u) && ((diagnosticRxBuffer[1] == 0x02u) || (diagnosticRxBuffer[1] == 0x82u)))
             {
                 program_condition_check = 1;
             }
+            /* 0x3E TesterPresent（00/80）：保持会话激活同时保留标志 */
             else if ((diagnosticRxBuffer[0] == 0x3Eu) && ((diagnosticRxBuffer[1] == 0x00u) || (diagnosticRxBuffer[1] == 0x80u)))
             {
                 program_condition_check = 1;
             }
             else
             {
+                /* 0x85 DTC控制（82=关+抑制正响应）或0x28 通信控制（83 03=静默+抑制）：保持标志 */
                 if (((diagnosticRxBuffer[0] == 0x85u) && (diagnosticRxBuffer[1] == 0x82u)) || ((diagnosticRxBuffer[0] == 0x28u) && (diagnosticRxBuffer[1] == 0x83u) && (diagnosticRxBuffer[2] == 0x03u)))
                 {
                     program_condition_check = 1;
                 }
                 else
                 {
+                    /* 其他任何服务请求都将清除预编程条件标志 */
                     program_condition_check = 0;
                 }
             }
@@ -1737,16 +1754,20 @@ void lin_diagservice_read_by_identifier(uint8_t *ptr, uint16_t length)
     switch (ptr[1])
     {
     case CUS_UDS_PRODUCT_IDENT:
+        /* 产品标识查询(0xF3)：请求格式 [0xF3][0x3F][0xFF][0x02][config_word]
+           校验头部固定值 0x3F/0xFF/0x02，以及config_word是否在有效车门位置范围内 */
         if ((ptr[2] == 0x3Fu) && (ptr[3] == 0xFFu) && (ptr[4] == 0x02u))
         {
             if ((ptr[5] == (uint8_t)LEFT_FRONT_DOOR) || (ptr[5] == (uint8_t)LEFT_REAR_DOOR) || (ptr[5] == (uint8_t)RIGHT_FRONT_DOOR) || (ptr[5] == (uint8_t)RIGHT_REAR_DOOR))
             {
                 /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                 pal_store_data_get(CUS_SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
+                /* 从Flash读取当前配字与请求的config_word比对，一致则返回产品标识正响应 */
                 if (g_user_info.config_word == ptr[5])
                 {
                     /* PRQA S 3200 1 #3264 - Return value ignored, verified safe for system operation */
                     pal_store_data_get(CUS_SYSTEM_PARAM_BASE_ADDR, (uint8_t *)&g_user_info, sizeof(g_user_info));
+                    /* 构造正响应：[0x00][0x00][0x00][0x02][config_word] */
                     ptr[1] = 0x00;
                     ptr[2] = 0x00;
                     ptr[3] = 0x00;
@@ -1756,21 +1777,25 @@ void lin_diagservice_read_by_identifier(uint8_t *ptr, uint16_t length)
                 }
                 else
                 {
+                    /* config_word不匹配：NRC 0x72 通用编程失败 */
                     lin_diag_negative_notify(ptr[0], 0x72);
                 }
             }
             else
             {
+                /* config_word值无效（非LF/LR/RF/RR）：NRC 0x31 请求超出范围 */
                 lin_diag_negative_notify(ptr[0], 0x31);
             }
         }
         else
         {
+            /* 协议格式不匹配：NRC 0x31 */
             lin_diag_negative_notify(ptr[0], 0x31);
         }
 
         break;
     default:
+        /* 用户自定义ID范围（LIN_READ_USR_DEF_MIN~MAX）：通过ld_read_by_id_callout回调分发处理 */
         if ((id >= LIN_READ_USR_DEF_MIN) && (id <= LIN_READ_USR_DEF_MAX))
         {
             uint8_t data_callout[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -1841,15 +1866,17 @@ void lin_diag_service_hook(void)
 #ifdef LINUDS_WRITEBYID
         if (pendWritebyID) /*request to set session is received?*/
         {
+            /* 清除挂起标志，准备执行WriteDataById的实际Flash写入 */
             if (pendWritebyID)
             {
                 pendWritebyID = UDS_FALSE;
             }
-            /*call the user function to process the service after all checks are correct*/
+            /* 所有前置校验通过后，调用user_WriteDataById执行实际写入操作 */
             result = user_WriteDataById(writedid, writelen, &writedatarecord[0]);
             /* successfully write data? */
             if (result)
             {
+                /* 写入成功：构造正响应 [RespSID][DID_H][DID_L] */
                 diagnosticTxBuffer[1u] = (uds_uc8)(writedid >> 8u);
                 diagnosticTxBuffer[2u] = (uds_uc8)writedid;
                 send_positive_response_message(UDS_SESSION_POSIT_RESP_LEN);
@@ -1901,6 +1928,7 @@ STATIC void guserinfo_save(void)
     uint32_t wbuf[2] = {0xFFFFFFFFu, 0xFFFFFFFFu};
     uint8_t *pb = (uint8_t *)wbuf;
 
+    /* 计算用户配字数据的CRC16校验值，追加到数据末尾一起写入Flash，用于上电校验完整性 */
     uint32_t crc = crc16_calculate_func(0xFFFF, (uint8_t *)&g_user_info, sizeof(g_user_info));
     /* PRQA S 3200 5 #3264 - Return value ignored, verified safe for system operation */
     memcpy(pb, (uint8_t *)&g_user_info, sizeof(g_user_info));
@@ -1940,9 +1968,11 @@ STATIC void gsysinfo_save(void)
  */
 STATIC void enable_swd(void)
 {
+    /* 将GPIO_PIN_0/SWCLK和GPIO_PIN_1/SWDIO复用为调试功能 */
     ll_gpio_afio_config(GPIO_PIN_0, AFIO_MUX_0); // SWCLK
     ll_gpio_afio_config(GPIO_PIN_1, AFIO_MUX_0); // SWDIO
 
+    /* SWD引脚与触摸通道复用，使能SWD前必须关闭触摸采样以释放引脚控制权 */
     TouchEnableSamp(0); // Turn off the touch function
 }
 
@@ -1985,12 +2015,15 @@ void lin_customized_operation(void)
 /* PRQA S 1503 1 #3214 - Unused function defined for future extension and module completeness */
 void LinDiagnosticSessionCheck(void)
 {
+    /* 非默认会话下，若5秒内无任何诊断活动（无TesterPresent或其他服务请求），
+       自动切回默认会话，恢复LIN通信配置（取消静默），并清除预编程条件标志 */
     if (session_mode > (uint8_t)SESSION_MODE_DEFAULT)
     {
         if ((TcTimeGet() - diagnostic_session_cnt) >= 5000) /* 5s*/
         {
             diagnostic_session_cnt = TcTimeGet();
             session_mode = SESSION_MODE_DEFAULT;
+            /* 恢复LIN通信配置：重新使能应用报文接收（取消静默模式） */
             lin_configuration_RAM[1] = 0x11;
             lin_configuration_RAM[2] = 0x13;
             lin_configuration_RAM[3] = 0x14;
@@ -2000,13 +2033,18 @@ void LinDiagnosticSessionCheck(void)
             lin_configuration_ROM[2] = 0x13;
             lin_configuration_ROM[3] = 0x14;
             lin_configuration_ROM[4] = 0x12;
-            program_condition_check = 0;
+            program_condition_check = 0; /* 清除预编程条件标志 */
         }
     }
     else
     {
+        /* 默认会话下持续更新时间戳，避免误超时 */
         diagnostic_session_cnt = TcTimeGet();
     }
+    /* 安全访问失败锁定计数器递减逻辑：
+       当 lock_failed_index > 2（即已锁定）时启动延时递减。
+       每5秒（5000次主循环）递减1次，直到 lock_failed_index 降至2（解锁一次尝试机会）。
+       递减结果通过 unlock_failed_store_flag 标记在主循环中写入Flash持久化 */
     if (g_ota_info.lock_failed_index > 2u)
     {
         /* PRQA S 3440 1 #3221 - Use of increment or decrement result is safe and required by logic */

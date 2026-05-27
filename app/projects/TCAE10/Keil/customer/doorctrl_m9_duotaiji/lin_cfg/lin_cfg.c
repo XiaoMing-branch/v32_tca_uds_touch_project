@@ -219,19 +219,19 @@ l_u8 lin_diag_signal_tbl[16] = {0};
  */
 const lin_frame_struct lin_frame_tbl[LIN_NUM_OF_FRMS] ={
 
-    { LIN_FRM_UNCD, 8, LIN_RES_PUB, 0, 0, 2  , (l_u8*)&LI0_response_error_signal  }
+    { LIN_FRM_UNCD, 8, LIN_RES_PUB, 0, 0, 2  , (l_u8*)&LI0_response_error_signal  } /**< 帧0: LI0_EHIS_FL_State - 无条件帧，Publisher节点，8字节，帧缓冲偏移0，标志偏移0，2个错误信号 */
 
-   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 8, 2, 2 , (l_u8*)&LI0_response_error_signal }
+   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 8, 2, 2 , (l_u8*)&LI0_response_error_signal } /**< 帧1: LI0_EHIS_FR_State - 无条件帧，Publisher节点，8字节，帧缓冲偏移8，标志偏移2，2个错误信号 */
   
-   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 16, 4, 2 , (l_u8*)&LI0_response_error_signal }
+   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 16, 4, 2 , (l_u8*)&LI0_response_error_signal } /**< 帧2: LI0_EHIS_RL_State - 无条件帧，Publisher节点，8字节，帧缓冲偏移16，标志偏移4，2个错误信号 */
   
-   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 24, 6, 2 , (l_u8*)&LI0_response_error_signal }
+   ,{ LIN_FRM_UNCD, 8, LIN_RES_PUB, 24, 6, 2 , (l_u8*)&LI0_response_error_signal } /**< 帧3: LI0_EHIS_RR_State - 无条件帧，Publisher节点，8字节，帧缓冲偏移24，标志偏移6，2个错误信号 */
   
-   ,{ LIN_FRM_UNCD, 8, LIN_RES_SUB, 32, 8, 2 , (l_u8*)0 }
+   ,{ LIN_FRM_UNCD, 8, LIN_RES_SUB, 32, 8, 2 , (l_u8*)0 } /**< 帧4: LI0_VIU_DWS - 无条件帧，Subscriber节点，8字节，帧缓冲偏移32，标志偏移8，无错误信号 */
   
-   ,{ LIN_FRM_DIAG, 8, LIN_RES_SUB, 0, 0, 0 , (l_u8*)0 }
+   ,{ LIN_FRM_DIAG, 8, LIN_RES_SUB, 0, 0, 0 , (l_u8*)0 } /**< 帧5: 诊断请求帧 - 诊断帧，Subscriber节点，8字节，无错误信号 */
   
-   ,{ LIN_FRM_DIAG, 8, LIN_RES_PUB, 0, 0, 0 , (l_u8*)0 }
+   ,{ LIN_FRM_DIAG, 8, LIN_RES_PUB, 0, 0, 0 , (l_u8*)0 } /**< 帧6: 诊断响应帧 - 诊断帧，Publisher节点，8字节，无错误信号 */
   
 };
 
@@ -253,7 +253,14 @@ volatile l_u8 lin_frame_updating_flag_tbl[LIN_NUM_OF_FRMS] = {0, 0, 0, 0, 0, 0, 
  *        索引0-7对应不同波特率（20kbps-100kbps步进）的超时重传次数
  */
 const l_u16 lin_max_frame_res_timeout_val[8]={
-    6, 7, 9, 10, 12, 13, 15, 16
+    6,   /**< 索引0 (20 kbps) 对应的最大帧响应超时重传次数 */
+    7,   /**< 索引1 (31.25 kbps) 对应的最大帧响应超时重传次数 */
+    9,   /**< 索引2 (40 kbps) 对应的最大帧响应超时重传次数 */
+    10,  /**< 索引3 (50 kbps) 对应的最大帧响应超时重传次数 */
+    12,  /**< 索引4 (62.5 kbps) 对应的最大帧响应超时重传次数 */
+    13,  /**< 索引5 (80 kbps) 对应的最大帧响应超时重传次数 */
+    15,  /**< 索引6 (83.33 kbps) 对应的最大帧响应超时重传次数 */
+    16   /**< 索引7 (100 kbps) 对应的最大帧响应超时重传次数 */
 };
 
 /**
@@ -268,13 +275,33 @@ const l_u16 lin_max_frame_res_timeout_val[8]={
  *        索引6-7: 保留/供应商特定 (0x3C, 0x3D)
  *        索引8: 配置状态标志 (0xFF)
  */
-l_u8 lin_configuration_RAM[LIN_SIZE_OF_CFG] = {0x00, 0x11, 0x13, 0x14, 0x12, 0x01, 0x3C, 0x3D, 0xFF};
+l_u8 lin_configuration_RAM[LIN_SIZE_OF_CFG] = {
+    0x00, /**< 保留字节，预留 */
+    0x11, /**< 节点NAD（节点地址） */
+    0x13, /**< 配置ID，标识节点配置版本 */
+    0x14, /**< 诊断PDU响应时间参数 */
+    0x12, /**< 帧响应时间参数 */
+    0x01, /**< 协议版本 (0x01 = LIN 2.1) */
+    0x3C, /**< 供应商特定参数 */
+    0x3D, /**< 供应商特定参数 */
+    0xFF  /**< 配置状态标志 (0xFF = 已配置) */
+};
 
 /**
  * @brief LIN节点配置参数（ROM区/默认值），用于出厂默认配置
  * @note  各字节含义同lin_configuration_RAM，最后一个字为0xFFFF表示ROM结束标记
  */
-l_u16 lin_configuration_ROM[LIN_SIZE_OF_CFG] = {0x00, 0x11, 0x13, 0x14, 0x12, 0x01, 0x3C, 0x3D, 0xFFFF};
+l_u16 lin_configuration_ROM[LIN_SIZE_OF_CFG] = {
+    0x00,   /**< 保留字节（默认值） */
+    0x11,   /**< 节点NAD默认值（节点地址） */
+    0x13,   /**< 配置ID默认值 */
+    0x14,   /**< 诊断PDU响应时间默认值 */
+    0x12,   /**< 帧响应时间默认值 */
+    0x01,   /**< 协议版本默认值 (0x01 = LIN 2.1) */
+    0x3C,   /**< 供应商特定参数默认值 */
+    0x3D,   /**< 供应商特定参数默认值 */
+    0xFFFF  /**< ROM结束标记，标识配置表结束 */
+};
 
 /**
  * @brief LIN节点属性配置
@@ -476,16 +503,44 @@ lin_message_status tl_tx_msg_status;
  *        0xA0 - 会话切换
  *        0xB0-0xB7, 0xBA-0xBC - 供应商特定服务
  */
-const l_u8 lin_diag_services_supported[_DIAG_NUMBER_OF_SERVICES_] = {0x10, 0x11, 0x14, 0x19, 0x22, 0x27, 0x28, 0x2E, 0x2F, 0x31, 0x3E, 0x34, 0x36, 0x37, 0x85, 0xA0,
-                                                                     0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
-                                                                     0xBA, 0xBB, 0xBC};
+const l_u8 lin_diag_services_supported[_DIAG_NUMBER_OF_SERVICES_] = {
+    0x10, /**< 诊断会话控制 (DiagnosticSessionControl) */
+    0x11, /**< ECU复位 (ECUReset) */
+    0x14, /**< 清除诊断信息 (ClearDiagnosticInformation) */
+    0x19, /**< 读取诊断信息 (ReadDTCInformation) */
+    0x22, /**< 按标识符读取数据 (ReadDataByIdentifier) */
+    0x27, /**< 安全访问 (SecurityAccess) */
+    0x28, /**< 通信控制 (CommunicationControl) */
+    0x2E, /**< 按标识符写入数据 (WriteDataByIdentifier) */
+    0x2F, /**< 按地址读写数据 (InputOutputControlByIdentifier) */
+    0x31, /**< 例程控制 (RoutineControl) */
+    0x3E, /**< 保活 (TesterPresent) */
+    0x34, /**< 请求下载 (RequestDownload) */
+    0x36, /**< 传输数据 (TransferData) */
+    0x37, /**< 请求传输退出 (RequestTransferExit) */
+    0x85, /**< 控制DTC设置 (ControlDTCSetting) */
+    0xA0, /**< 会话切换 */
+    0xB0, /**< 供应商特定服务 0xB0 */
+    0xB1, /**< 供应商特定服务 0xB1 */
+    0xB2, /**< 供应商特定服务 0xB2 */
+    0xB3, /**< 供应商特定服务 0xB3 */
+    0xB4, /**< 供应商特定服务 0xB4 */
+    0xB5, /**< 供应商特定服务 0xB5 */
+    0xB6, /**< 供应商特定服务 0xB6 */
+    0xB7, /**< 供应商特定服务 0xB7 */
+    0xBA, /**< 供应商特定服务 0xBA */
+    0xBB, /**< 供应商特定服务 0xBB */
+    0xBC  /**< 供应商特定服务 0xBC */
+};
 /**
  * @brief UDS诊断服务启用标志表，标识各SID是否被允许执行
  * @note  与lin_diag_services_supported一一对应，0=禁用，1=启用
  */
-l_u8 lin_diag_services_flag[_DIAG_NUMBER_OF_SERVICES_] = {0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                                          0, 0, 0, 0, 0, 0, 0, 0,
-                                                          0, 0, 0};
+l_u8 lin_diag_services_flag[_DIAG_NUMBER_OF_SERVICES_] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, /**< 索引0-8: 标准UDS服务 (0x10~0x3E) 标志，默认禁用 */
+    0, 0, 0, 0, 0, 0, 0, 0,    /**< 索引9-16: 供应商特定服务 (0xB0~0xB7) 标志，默认禁用 */
+    0, 0, 0                     /**< 索引17-19: 供应商特定服务 (0xBA~0xBC) 标志，默认禁用 */
+};
 
 /**
  * @brief 从节点响应计数器，记录从节点发送的响应帧数量
@@ -509,21 +564,22 @@ l_u8 tl_slaveresp_cnt = 0;
 l_u8 ld_read_by_id_callout(l_u8 id, l_u8 *data)
 {
     l_u8 retval = LD_NEGATIVE_RESPONSE;
-    /* Following code is an example - Real implementation is application-dependent */
-    /* This example implement with ID = 32 - LIN_READ_USR_DEF_MIN */
+    /* 以下代码为示例，实际实现应依赖于具体应用 */
+    /* 本示例实现了标识符 ID = 32 (LIN_READ_USR_DEF_MIN) 的处理 */
+    /* 检查请求的标识符是否为用户定义区域的最小值 (ID=32) */
     if (id == LIN_READ_USR_DEF_MIN)
     {
-      /* id received is user defined 32 */
-      data[0] = (l_u8) (id + 1);    /* Data user define */
-      data[1] = (l_u8) (id + 2);    /* Data user define */
-      data[2] = (l_u8) (id + 3);    /* Data user define */
-      data[3] = (l_u8) (id + 4);    /* Data user define */
-      data[4] = (l_u8) (id + 5);    /* Data user define */
-      retval = LD_POSITIVE_RESPONSE;
+      /* 已接收用户自定义标识符32，构造肯定响应数据 */
+      data[0] = (l_u8) (id + 1);    /* 用户自定义数据字节0 */
+      data[1] = (l_u8) (id + 2);    /* 用户自定义数据字节1 */
+      data[2] = (l_u8) (id + 3);    /* 用户自定义数据字节2 */
+      data[3] = (l_u8) (id + 4);    /* 用户自定义数据字节3 */
+      data[4] = (l_u8) (id + 5);    /* 用户自定义数据字节4 */
+      retval = LD_POSITIVE_RESPONSE; /* 返回肯定响应 */
     }
     else
     {
-      /* other identifiers, respond with negative response by default*/
+      /* 其他标识符，默认返回否定响应（不处理） */
     }
     return retval;
 }

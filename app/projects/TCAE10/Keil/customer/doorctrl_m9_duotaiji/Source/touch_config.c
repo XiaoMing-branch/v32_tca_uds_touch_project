@@ -637,6 +637,7 @@ void TouchConfig(T_SiAlgoObject *algo)
         .samp_cycle = 0x7,              /**< 采样周期 */
         .init_cycle = 0x0               /**< init周期 */
     };
+    /** @brief 触摸电荷传输节点配置，定义充放电参数 */
     static TOUCH_HalCharge_Type touchNode;
     /** @brief 触摸通道配置表 */
     static const TOUCH_HalChConfig_Type touchChannels[] =
@@ -959,6 +960,7 @@ void TouchConfig(T_SiAlgoObject *algo)
         }
     };
 
+    /** @brief 触摸调度描述符，仅触摸模式 */
     static TOUCH_HalDispatch_OnlyTouch_Type dispatch;
     /** @brief 扫描调度器参数配置 */
     static const TOUCH_HalDispatch_OnlyTouchPara_Type dispatchPara =
@@ -972,12 +974,14 @@ void TouchConfig(T_SiAlgoObject *algo)
         .scan_type = TOUCH_SCAN_MANY,     /**< 扫描类型 */
         .scan_many_num = 2,               /**< 每次扫描通道数（TOUCH_SCAN_MANY模式） */
     };
+    /** @brief 触摸硬件接口指针，由 Touch_HalChargeCreate 创建 */
     TOUCH_HalInterface_Type *touchInterface;
+    /** @brief 扫描调度器配置表 */
     TOUCH_HalScanerTable_Type dispatchScaner;
 
     memset(&dispatchScaner, 0x0, sizeof(dispatchScaner));
     dispatchScaner.scaner_len = 1;                           /**< 扫描器个数 */
-    touchInterface = Touch_HalChargeCreate(&touchNode, &touchcfg, &adccfg);
+    touchInterface = Touch_HalChargeCreate(&touchNode, &touchcfg, &adccfg);   /**< 创建触摸硬件接口，绑定电荷传输节点与ADC配置 */
     dispatchScaner.scaners[0].touch_node = touchInterface;                    /**< 触摸硬件接口 */
     dispatchScaner.scaners[0].channel_len = sizeof(touchChannels) / sizeof(touchChannels[0]); /**< 通道数量 */
     dispatchScaner.scaners[0].channel_table = touchChannels;                 /**< 通道配置表 */
@@ -992,7 +996,7 @@ void TouchConfig(T_SiAlgoObject *algo)
     dispatchScaner.scaners[0].double_samp_table = doubleSampTable;          /**< 双边采样表 */
     dispatchScaner.scaners[0].sleep_channelmask = 0x2 | 0x8 | 0x10;        /**< 休眠通道掩码 */
 
-    touchDispatch = Touch_HalDispatchOnlyTouchCreate(&dispatch, &dispatchScaner, &dispatchPara);
+    touchDispatch = Touch_HalDispatchOnlyTouchCreate(&dispatch, &dispatchScaner, &dispatchPara); /**< 创建仅触摸调度器，注入扫描器配置与调度参数 */
 
     //**********************************************************************************************
     //噪音检测器配置
@@ -1040,6 +1044,7 @@ void TouchConfig(T_SiAlgoObject *algo)
     {
         TC_LOGE(TAG, "IOTouch Arbiter init fail:%s", SiErrRtDesp(rt));
     }
+    /** @brief 注册按键组1判决器钩子，每个采样周期回调一次 */
     SiArbiterRegisterHook(&iotouchArbiter1, IOtouchKeyArbiterHook1);
     //IOTouch触摸对象初始化
     if ((rt = SiObjectNodeInit(&iotouchObjectKey1, SI_TYPE_KEY, SI_GROW_DIRECT_UP, keyNum, iotouchKeyMap1, iotouchKeyRawDataBuf1, &iotouchFilterDoorctrl1, &iotouchBaseline1, &iotouchArbiter1, NULL)) != SI_RT_OK)
@@ -1061,6 +1066,7 @@ void TouchConfig(T_SiAlgoObject *algo)
     //构建参数组合模块
     SiParaAdjusterAddChild((T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp1, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjLeafNormal1);
     SiParaAdjusterAddChild((T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp1, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjLeafLp1);
+    /** @brief 为按键组1绑定基线参数调节器，支持常规/低功耗双模式切换 */
     SiObjectSetParaAdjuster(&iotouchObjectKey1, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp1);
 #endif
 #endif
@@ -1083,6 +1089,7 @@ void TouchConfig(T_SiAlgoObject *algo)
     {
         TC_LOGE(TAG, "IOTouch Arbiter init fail:%s", SiErrRtDesp(rt));
     }
+    /** @brief 注册按键组2判决器钩子，每个采样周期回调一次 */
     SiArbiterRegisterHook(&iotouchArbiter2, IOtouchKeyArbiterHook2);
     //IOTouch触摸对象初始化
     if ((rt = SiObjectNodeInit(&iotouchObjectKey2, SI_TYPE_KEY, SI_GROW_DIRECT_UP, keyNum, iotouchKeyMap2, iotouchKeyRawDataBuf2, &iotouchFilterDoorctrl2, &iotouchBaseline2, &iotouchArbiter2, NULL)) != SI_RT_OK)
@@ -1104,6 +1111,7 @@ void TouchConfig(T_SiAlgoObject *algo)
     //构建参数组合模块
     SiParaAdjusterAddChild((T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp2, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjLeafNormal2);
     SiParaAdjusterAddChild((T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp2, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjLeafLp2);
+    /** @brief 为按键组2绑定基线参数调节器，支持常规/低功耗双模式切换 */
     SiObjectSetParaAdjuster(&iotouchObjectKey2, (T_SiParaAdjusterBase *)&iotouchBaselineParaAdjComp2);
 #endif
 #endif

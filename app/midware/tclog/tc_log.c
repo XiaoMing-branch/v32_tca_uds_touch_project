@@ -7,26 +7,26 @@
 
 //*******************************************************************************************
 
-#if LOG_FAST_MODE
+#if LOG_FAST_MODE                                           /* 快速模式：写缓冲区使用3字节 */
     #define LOG_WRITE_BUFFER_LEN    3                   /*!< 写缓冲区长度 */
-#else
+#else                                                       /* 普通模式：写缓冲区使用6字节 */
     #define LOG_WRITE_BUFFER_LEN    6                   /*!< 写缓冲区长度 */
 #endif
 
-#if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN
-    uint8_t g_bUDSReadLogInfo = 0;
+#if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN                /* LIN总线接口专属变量 */
+    uint8_t g_bUDSReadLogInfo = 0;          /**< UDS读取日志信息标志位 */
 #endif
 
 #define LOG_HEADER_LEN          2                       /*!< LOG命令包头长度 */
 
-#if LOG_TO_RAMBUFFER
+#if LOG_TO_RAMBUFFER                                        /* 启用RAM缓冲区存储日志 */
     static char TcLogRamBuffer[LOG_RAMBUFFER_SIZE];     /*!< 日志缓冲区大小 */
     static int TcLogRamBufferPos = 0;                   /*!< 日志缓冲区指针位置 */
 #endif
 
-static T_TcLogPrintPin printpin;          //打印引脚
+static T_TcLogPrintPin printpin;          /**< 当前选择的打印输出引脚 */  //打印引脚
 
-#if LOG_SYMBOL_SWITCH
+#if LOG_SYMBOL_SWITCH                                       /* 符号表打印功能开关 */
     /**
     * @brief       发送日志数据包，不分包发送
     * @param[in]   cmd 日志命令
@@ -55,17 +55,17 @@ static uint16_t CRC16_IBM_TAB(uint16_t base, uint8_t *pBuff, uint16_t nLen);
   */
 int  fputc(int ch, FILE *f)
 {
-#if LOG_LOCAL_LEVEL == TC_LOG_NONE
-#else
-#if LOG_INTERFACE_TYPE == LOG_INTERFACE_UART
+#if LOG_LOCAL_LEVEL == TC_LOG_NONE   /* 日志级别为NONE时禁止所有输出 */
+#else                                 /* 非NONE级别，按配置输出 */
+#if LOG_INTERFACE_TYPE == LOG_INTERFACE_UART    /* 通过SCI(UART)串口输出 */
     while (PRINT_UART->STATUS_F.TX_BUSY == 1);
     PRINT_UART->TX_DATA_F.TX_DATA = (uint8_t) ch;
-#elif LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN_UART
+#elif LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN_UART    /* 通过LIN总线UART输出 */
 //    while (LIN_SCI1->STATUS_F.TX_STATE);
     while (LIN_SCI1->STATUS_F.TX_FIFO_FULL);
     LIN_SCI1->TX_DATA_F.TX_DATA = (uint8_t)ch;
     while (LIN_SCI1->STATUS_F.TX_STATE);
-#else
+#else                               /* 无对应接口，空操作 */
 #endif
 #endif
     return (ch);
@@ -86,17 +86,17 @@ int __io_putchar(int ch)
 #if defined (__ICCARM__)//iar version
 int putchar(int ch)
 {
-#if LOG_LOCAL_LEVEL == TC_LOG_NONE
-#else
-#if LOG_INTERFACE_TYPE == LOG_INTERFACE_UART
+#if LOG_LOCAL_LEVEL == TC_LOG_NONE   /* 日志级别为NONE时禁止所有输出 */
+#else                                 /* 非NONE级别，按配置输出 */
+#if LOG_INTERFACE_TYPE == LOG_INTERFACE_UART    /* 通过SCI(UART)串口输出 */
     while (PRINT_UART->STATUS_F.TX_BUSY == 1);
     PRINT_UART->TX_DATA_F.TX_DATA = (uint8_t) ch;
-#elif LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN_UART
+#elif LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN_UART    /* 通过LIN总线UART输出 */
 //    while (LIN_SCI1->STATUS_F.TX_STATE);
     while (LIN_SCI1->STATUS_F.TX_FIFO_FULL);
     LIN_SCI1->TX_DATA_F.TX_DATA = (uint8_t)ch;
     while (LIN_SCI1->STATUS_F.TX_STATE);
-#else
+#else                               /* 无对应接口，空操作 */
 #endif
 #endif
     return (ch);
@@ -104,6 +104,11 @@ int putchar(int ch)
 #endif
 
 #if LOG_INTERFACE_TYPE == LOG_INTERFACE_LIN_UART
+/**
+ * @brief       获取LIN SCI模块时钟频率
+ * @param[in]   无
+ * @retval      LIN SCI模块时钟频率（Hz）
+ */
 static uint32_t lin_uart_clock_get(void)
 {
     uint32_t reg_val = 0;
@@ -116,30 +121,42 @@ static uint32_t lin_uart_clock_get(void)
 
     return ((SystemGetHClkFreq()) / (reg_val + 1));
 }
+/**
+ * @brief       设置LIN UART波特率分频系数
+ * @param[in]   dlh  分频高4位
+ * @param[in]   dll  分频低8位
+ * @param[in]   frac 分频小数部分（4位）
+ * @retval      无
+ */
 static void lin_uart_divided(unsigned int dlh, unsigned int dll, unsigned int frac)
 {
     uint32_t reg_val = 0;
     uint8_t status = 0;
     (void)(&status);
 
-    dlh &= 0x0f;
-    dll &= 0xff;
-    frac &= 0x0f;
-    reg_val |= (frac << 12 | dlh << 8 | dll);
-    LIN_SCI1->BAUD_CFG = reg_val;
+    dlh &= 0x0f;        /* 分频高4位掩码 */
+    dll &= 0xff;        /* 分频低8位掩码 */
+    frac &= 0x0f;       /* 分频小数4位掩码 */
+    reg_val |= (frac << 12 | dlh << 8 | dll);  /* 组合分频系数：bit12-15小数，bit8-11高4位，bit0-7低8位 */
+    LIN_SCI1->BAUD_CFG = reg_val;               /* 写入波特率配置寄存器 */
 }
+/**
+ * @brief       设置LIN UART波特率
+ * @param[in]   baudrate 目标波特率值
+ * @retval      无
+ */
 void lin_uart_setbaudrate(uint32_t baudrate)
 {
     uint32_t  clk;
 
     uint32_t div;
     uint8_t frac = 0;
-    clk = lin_uart_clock_get();
+    clk = lin_uart_clock_get();      /* 获取LIN SCI时钟频率 */
     /* Fck/(16*Baud_Rate) */
-    div = clk >> 4;
-    frac = div % baudrate;
-    frac = (frac << 4) / baudrate;
-    div  = div / baudrate;
+    div = clk >> 4;                   /* 除以16得到 Fck/16 */
+    frac = div % baudrate;            /* 计算整数分频的余数 */
+    frac = (frac << 4) / baudrate;    /* 余数转换为4位小数分频值 */
+    div  = div / baudrate;            /* 整数分频值 */
     lin_uart_divided(((div >> 8) & 0xff), ((div >> 0) & 0xff), frac);
 }
 #endif
@@ -157,42 +174,47 @@ void PrintInit(uint32_t baud)
 
     //ll_lin_sci_uart_deinit();
     CRG_CONFIG_UNLOCK();
-    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 1;
+    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 1;  /* 复位LIN SCI1模块 */
     __NOP();
     __NOP();
-    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 0;
+    CRG->LIN_SCI1_CLKRST_CTRL_F.RST_LIN_SCI1 = 0;  /* 释放复位 */
     __NOP();
     __NOP();
     CRG_CONFIG_LOCK();
 
     CRG_CONFIG_UNLOCK();
     //clk
-    CRG->LIN_SCI1_CLKRST_CTRL_F.FCLK_DIV_LIN_SCI1 = 0;
-    CRG->LIN_SCI1_CLKRST_CTRL_F.FCLK_EN_LIN_SCI1 = 0x1;
-    CRG->LIN_SCI1_CLKRST_CTRL_F.PCLK_EN_LIN_SCI1 = 0x1;
+    CRG->LIN_SCI1_CLKRST_CTRL_F.FCLK_DIV_LIN_SCI1 = 0;   /* 功能时钟分频配置 */
+    CRG->LIN_SCI1_CLKRST_CTRL_F.FCLK_EN_LIN_SCI1 = 0x1;   /* 使能功能时钟 */
+    CRG->LIN_SCI1_CLKRST_CTRL_F.PCLK_EN_LIN_SCI1 = 0x1;   /* 使能外设时钟 */
     CRG_CONFIG_LOCK();
 
-    lin_uart_setbaudrate(baud);
-    LIN_SCI1->CTRL_UART_F.MODE = 0x1;
+    lin_uart_setbaudrate(baud);    /* 配置波特率 */
+    LIN_SCI1->CTRL_UART_F.MODE = 0x1;                    /* 设置为UART模式 */
     LIN_SCI1->CTRL_UART_F.MP_TX_ADDR_DATA_SEL = 0;
     LIN_SCI1->CTRL_UART_F.MP_MODE_EN = 1; //multiprocessor mode
-    LIN_SCI1->CTRL_F.LPBK_MODE = 0;
-    LIN_SCI1->BRK_SYNC_CFG_F.BRK_NUM = 0x0d;
+    LIN_SCI1->CTRL_F.LPBK_MODE = 0;                     /* 关闭回环模式 */
+    LIN_SCI1->BRK_SYNC_CFG_F.BRK_NUM = 0x0d;            /* 配置中断长度 */
     LIN_SCI1->BRK_SYNC_CFG_F.DLT_NUM = 0;
-    LIN_SCI1->TX_CFG_F.CHK_PT_SEL = 0;
-    LIN_SCI1->CTRL_F.RX_FIFO_CLR = 1;
-    LIN_SCI1->CTRL_F.TX_FIFO_CLR = 1;
-    LIN_SCI1->CTRL_F.RX_ABORT = 0;
-    LIN_SCI1->RX_CFG_F.MP_SLAVE_ADDR = 0x2A;
+    LIN_SCI1->TX_CFG_F.CHK_PT_SEL = 0;                  /* 校验类型选择 */
+    LIN_SCI1->CTRL_F.RX_FIFO_CLR = 1;                   /* 清空接收FIFO */
+    LIN_SCI1->CTRL_F.TX_FIFO_CLR = 1;                   /* 清空发送FIFO */
+    LIN_SCI1->CTRL_F.RX_ABORT = 0;                      /* 取消接收中止 */
+    LIN_SCI1->RX_CFG_F.MP_SLAVE_ADDR = 0x2A;            /* 多处理器从机地址 */
 
-    LIN_SCI1->CTRL_F.GLB_EN = 1;
-    LIN_SCI1->CTRL_F.TX_EN = 1;
-    LIN_SCI1->CTRL_F.RX_EN = 0;
-    LIN_SCI1->CTRL_F.AUTO_BAUD_EN = 0;
+    LIN_SCI1->CTRL_F.GLB_EN = 1;    /* 全局使能 */
+    LIN_SCI1->CTRL_F.TX_EN = 1;     /* 使能发送 */
+    LIN_SCI1->CTRL_F.RX_EN = 0;     /* 禁用接收 */
+    LIN_SCI1->CTRL_F.AUTO_BAUD_EN = 0;  /* 禁用自动波特率检测 */
 #else
 #endif
 }
 
+/**
+ * @brief       设置打印输出引脚
+ * @param[in]   pin 引脚选择（PRINT_GPIO2/3/5/6）
+ * @retval      无
+ */
 void PrintSetPin(T_TcLogPrintPin pin)
 {
     printpin = pin;
@@ -214,6 +236,11 @@ void PrintSetPin(T_TcLogPrintPin pin)
     }
 }
 
+/**
+ * @brief       打印接口进入休眠模式，将GPIO配置为普通输入以降低功耗
+ * @param[in]   无
+ * @retval      无
+ */
 void PrintEnterSleep(void)
 {
     switch (printpin)
@@ -232,12 +259,17 @@ void PrintEnterSleep(void)
     }
 }
 
+/**
+ * @brief       唤醒打印接口，重新配置打印引脚功能
+ * @param[in]   无
+ * @retval      无
+ */
 void PrintWakeup(void)
 {
     PrintSetPin(printpin);
 }
 
-#if LOG_USE_STD_WRITE
+#if LOG_USE_STD_WRITE                                      /* 使用标准库fwrite输出 */
 /**
   * @brief      自定义fwrite实现
   * @param[in]  ptr 数据地址
@@ -247,8 +279,8 @@ void PrintWakeup(void)
   * @return     发送数据块数
   */
 #define TcFWrite(ptr,blksize,blknum,fp)     fwrite((ptr),(blksize),(blknum),(fp))
-#else
-#if LOG_TO_RAMBUFFER
+#else                                               /* 非标准库模式：自定义输出 */
+#if LOG_TO_RAMBUFFER                                 /* 输出到RAM缓冲区 */
 /**
   * @brief      自定义fwrite实现
   * @param[in]  ptr 数据地址
@@ -265,11 +297,11 @@ static size_t TcFWrite(const void *ptr, size_t blksize, size_t blknum, FILE *fp)
     {
         for (size_t j = 0; j < blksize; ++j)
         {
-            if (TcLogRamBufferPos < LOG_RAMBUFFER_SIZE)
+            if (TcLogRamBufferPos < LOG_RAMBUFFER_SIZE)  /* RAM缓冲区未满，写入数据 */
             {
                 TcLogRamBuffer[TcLogRamBufferPos++] = *cp;
             }
-            else
+            else  /* RAM缓冲区已满，返回已写入块数 */
             {
                 return i;
             }
@@ -279,7 +311,7 @@ static size_t TcFWrite(const void *ptr, size_t blksize, size_t blknum, FILE *fp)
 
     return blknum;
 }
-#else
+#else                                               /* 非RAM缓冲区模式：直接串口输出 */
 /**
   * @brief      自定义fwrite实现
   * @param[in]  ptr 数据地址
@@ -341,7 +373,7 @@ int TC_LOG_SYMBOL(const void *p, int len)
 #if LOG_SYMBOL_SWITCH
     int i;
 
-    for (i = 0; i < LOG_SEND_REPEAT; i++)
+    for (i = 0; i < LOG_SEND_REPEAT; i++)  /* 重复发送多次以提高通信可靠性 */
     {
         TcSendCmdPackNoSplit(TC_LOG_CMD_SYMBOL, (uint32_t)p, len);
     }
@@ -369,9 +401,9 @@ int TC_LOG_SYMBOL_NAMED(uint8_t cmd, const char *name, const void *p, int len)
     int i;
 
 #if LOG_FAST_MODE
-    uint8_t pklen;
+    uint8_t pklen;   /* 快速模式：数据包长度使用uint8_t */
 #else
-    uint32_t pklen;
+    uint32_t pklen;  /* 普通模式：数据包长度使用uint32_t */
 #endif
 
     nameLen = strlen(name);
@@ -381,18 +413,18 @@ int TC_LOG_SYMBOL_NAMED(uint8_t cmd, const char *name, const void *p, int len)
     }
     notedesp[0] = nameLen;
 
-    for (i = 0; i < LOG_SEND_REPEAT; i++)
+    for (i = 0; i < LOG_SEND_REPEAT; i++)  /* 重复发送多次以提高通信可靠性 */
     {
-        wbuf[0] = 0xA5;
-        wbuf[1] = cmd;
-        pklen = len + nameLen + 1;
+        wbuf[0] = 0xA5;      /* 数据包起始字节 */
+        wbuf[1] = cmd;       /* 日志命令 */
+        pklen = len + nameLen + 1;  /* 数据包总长度 = 数据 + 名称 + 名称长度字节 */
         memcpy(&wbuf[2], &pklen, sizeof(pklen));
 
-        crc16 = 0xffff;
-        crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));
-        crc16 = CRC16_IBM_TAB(crc16, notedesp, sizeof(notedesp));
-        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)name, nameLen);
-        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)p, len);
+        crc16 = 0xffff;      /* CRC初始值 */
+        crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));       /* 校验包头 */
+        crc16 = CRC16_IBM_TAB(crc16, notedesp, sizeof(notedesp));  /* 校验名称长度描述 */
+        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)name, nameLen);    /* 校验名称 */
+        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)p, len);           /* 校验数据 */
 
         //发送命令包
         TcFWrite(wbuf, sizeof(wbuf), 1, stdout);
@@ -413,27 +445,27 @@ int TC_LOG_SYMBOL_NAMED(uint8_t cmd, const char *name, const void *p, int len)
 */
 int TC_LOG_SYSTEM_STATUS(T_TcLogSystemStatus status)
 {
-#if LOG_SYSTEM_STATUS
+#if LOG_SYSTEM_STATUS                                   /* 系统状态日志功能开关 */
     uint8_t wbuf[LOG_WRITE_BUFFER_LEN];
     uint8_t v = status;
     uint16_t crc16;
 
 #if LOG_FAST_MODE
-    uint8_t pklen;
+    uint8_t pklen;   /* 快速模式：数据包长度使用uint8_t */
 #else
-    uint32_t pklen;
+    uint32_t pklen;  /* 普通模式：数据包长度使用uint32_t */
 #endif
 
-    wbuf[0] = 0xA5;
-    wbuf[1] = TC_LOG_CMD_SYSTEM_STATUS;
-    pklen = 1;
+    wbuf[0] = 0xA5;      /* 数据包起始字节 */
+    wbuf[1] = TC_LOG_CMD_SYSTEM_STATUS;  /* 系统状态日志命令 */
+    pklen = 1;           /* 数据包总长度 = 1字节状态值 */
     memcpy(&wbuf[2], &pklen, sizeof(pklen));
 
-    crc16 = 0xffff;
-    crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));
-    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)&v, sizeof(v));
+    crc16 = 0xffff;      /* CRC初始值 */
+    crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));       /* 校验包头 */
+    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)&v, sizeof(v));  /* 校验状态值 */
 
-    for (int i = 0; i < LOG_SEND_REPEAT; i++)
+    for (int i = 0; i < LOG_SEND_REPEAT; i++)  /* 重复发送多次以提高通信可靠性 */
     {
         //发送命令包
         TcFWrite(wbuf, sizeof(wbuf), 1, stdout);
@@ -455,32 +487,32 @@ int TC_LOG_SYSTEM_STATUS(T_TcLogSystemStatus status)
 */
 int TC_LOG_RAWDATA(uint8_t cmd, T_TcLogRawdataType type, uint8_t status, const void *p, int len)
 {
-#if LOG_RAWDATA
+#if LOG_RAWDATA                                          /* 原始数据日志功能开关 */
     uint8_t wbuf[LOG_WRITE_BUFFER_LEN];
     uint8_t rawheader[LOG_HEADER_LEN];
     uint16_t crc16;
     int i;
 
 #if LOG_FAST_MODE
-    uint8_t pklen;
+    uint8_t pklen;   /* 快速模式：数据包长度使用uint8_t */
 #else
-    uint32_t pklen;
+    uint32_t pklen;  /* 普通模式：数据包长度使用uint32_t */
 #endif
 
-    rawheader[0] = type;
-    rawheader[1] = status;
+    rawheader[0] = type;      /* 原始数据类型 */
+    rawheader[1] = status;    /* 原始数据状态 */
 
-    for (i = 0; i < LOG_SEND_REPEAT; i++)
+    for (i = 0; i < LOG_SEND_REPEAT; i++)  /* 重复发送多次以提高通信可靠性 */
     {
-        wbuf[0] = 0xA5;
-        wbuf[1] = cmd;
-        pklen = len + 2;
+        wbuf[0] = 0xA5;      /* 数据包起始字节 */
+        wbuf[1] = cmd;       /* 日志命令 */
+        pklen = len + 2;     /* 数据包总长度 = 数据 + 2字节原始数据头 */
         memcpy(&wbuf[2], &pklen, sizeof(pklen));
 
-        crc16 = 0xffff;
-        crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));
-        crc16 = CRC16_IBM_TAB(crc16, rawheader, sizeof(rawheader));
-        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)p, len);
+        crc16 = 0xffff;      /* CRC初始值 */
+        crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));             /* 校验包头 */
+        crc16 = CRC16_IBM_TAB(crc16, rawheader, sizeof(rawheader));   /* 校验原始数据头 */
+        crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)p, len);              /* 校验数据 */
 
         //发送命令包
         TcFWrite(wbuf, sizeof(wbuf), 1, stdout);
@@ -506,20 +538,20 @@ static void TcSendCmdPackNoSplit(uint8_t cmd, uint32_t address, uint32_t bytesNu
     uint16_t crc16;
 
 #if LOG_FAST_MODE
-    uint8_t pklen;
+    uint8_t pklen;   /* 快速模式：数据包长度使用uint8_t */
 #else
-    uint32_t pklen;
+    uint32_t pklen;  /* 普通模式：数据包长度使用uint32_t */
 #endif
 
-    wbuf[0] = 0xA5;
-    wbuf[1] = cmd;
-    pklen = bytesNum + 4;
+    wbuf[0] = 0xA5;      /* 数据包起始字节 */
+    wbuf[1] = cmd;       /* 日志命令 */
+    pklen = bytesNum + 4;  /* 数据包总长度 = 数据 + 4字节地址 */
     memcpy(&wbuf[2], &pklen, sizeof(pklen));
 
-    crc16 = 0xffff;
-    crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));
-    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)&address, sizeof(address));
-    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)address, bytesNum);
+    crc16 = 0xffff;      /* CRC初始值 */
+    crc16 = CRC16_IBM_TAB(crc16, wbuf, sizeof(wbuf));             /* 校验包头 */
+    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)&address, sizeof(address));  /* 校验地址 */
+    crc16 = CRC16_IBM_TAB(crc16, (uint8_t *)address, bytesNum);          /* 校验数据 */
 
     //发送命令包
     TcFWrite(wbuf, sizeof(wbuf), 1, stdout);
@@ -609,8 +641,8 @@ static uint16_t CRC16_IBM_TAB(uint16_t base, uint8_t *pBuff, uint16_t nLen)
 
     for (i = 0; i < nLen; i++)
     {
-        wTableNo = ((wResult & 0xff) ^ (pBuff[i] & 0xff));
-        wResult = ((wResult >> 8) & 0xff) ^ CRC16_IBM_Tab[wTableNo];
+        wTableNo = ((wResult & 0xff) ^ (pBuff[i] & 0xff));  /* 取结果低字节与输入字节异或，获得查表索引 */
+        wResult = ((wResult >> 8) & 0xff) ^ CRC16_IBM_Tab[wTableNo];  /* 右移高字节后与查表值异或，更新CRC结果 */
     }
 
     return (wResult);
